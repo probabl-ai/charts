@@ -2,6 +2,7 @@ apiVersion: v2
 name: skore-hub-backend
 description: skore-hub backend API.
 type: application
+home: https://probabl.ai
 version: 0.1.0
 appVersion: "0.32.0"
 maintainers:
