@@ -1,0 +1,24 @@
+skore-hub frontend has been deployed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Image:     {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+
+1. Check the pods:
+     kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+
+{{- if .Values.ingress.enabled }}
+
+2. The UI is exposed through Ingress at:
+  {{- range .Values.ingress.hosts }}
+     http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+  {{- end }}
+{{- else }}
+
+2. Ingress is disabled. Port-forward to reach the UI locally:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "skore-hub-frontend.fullname" . }} 8080:{{ .Values.service.port }}
+{{- end }}
+
+The frontend is a static SPA served by nginx. Its configuration (backend API
+URL, etc.) is read at runtime from the environment variables set under `env`.
+Update `env` and roll the deployment to change it.

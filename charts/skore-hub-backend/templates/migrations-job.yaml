@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "skore-hub.fullname" . }}-db-migrations
+  labels:
+    {{- include "skore-hub.labels" . | nindent 4 }}
+  annotations:
+    # Run before the app is (re)deployed, on `helm install`/`helm upgrade`.
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+    {{- with .Values.dbMigrations.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ .Values.dbMigrations.backoffLimit }}
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+      labels:
+        {{- include "skore-hub.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: db-migrations
+    spec:
+      restartPolicy: OnFailure
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: db-migrations
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.dbMigrations.resources | nindent 12 }}
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - >-
+              {{ .Values.dbMigrations.command }}
+          {{- if .Values.skh.envSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.skh.envSecret }}
+          {{- end }}
+          env:
+            {{- include "skore-hub.env" . | nindent 12 }}
+            {{- with .Values.skh.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "custom.regex"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/charts/.+/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*appVersion:\\s*\"?(?<currentValue>[\\d.]+)\"?"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "rg.fr-par.scw.cloud/probabl-skh/skh",
+        "rg.fr-par.scw.cloud/probabl-skh/skh-ui"
+      ],
+      "groupName": "skore-hub release",
+      "automerge": false,
+      "pinDigests": false
+    }
+  ],
+  "bumpVersions": [
+    {
+      "description": "Bump the chart version (patch) whenever appVersion is updated",
+      "filePatterns": [
+        "{{{packageFileDir}}}/Chart.yaml"
+      ],
+      "matchStrings": [
+        "version:\\s(?<version>[^\\s]+)"
+      ],
+      "bumpType": "patch"
+    }
+  ]
+}

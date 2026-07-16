@@ -1,0 +1,44 @@
+# =============================================================================
+# Example values for an on-premise deployment of skore-hub-frontend.
+# Copy, adapt, and deploy:
+#   helm upgrade --install skore-hub-ui ./skore-hub-frontend -n skore-hub -f values.example.yaml
+# =============================================================================
+
+fullnameOverride: "skore-hub-frontend"
+replicaCount: 2
+
+image:
+  repository: rg.fr-par.scw.cloud/probabl-skh/skh-ui
+  # Pinned to an immutable release version. Use "latest" (with pullPolicy: Always)
+  # to track the newest release instead.
+  tag: "0.32.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: scw-registry
+
+# Runtime configuration injected into config.js at container start (SKH_UI_* vars).
+env:
+  SKH_UI_API_BASE_URL: "https://api.skore-hub.example.com"
+  SKH_UI_IDP_PROFILE_SETTINGS_URL: "https://idp.example.com/account"
+  SKH_UI_SENTRY_DSN: ""  # empty = Sentry disabled (no errors leave your infra)
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: skore-hub.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: skore-hub-tls
+      hosts:
+        - skore-hub.example.com
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

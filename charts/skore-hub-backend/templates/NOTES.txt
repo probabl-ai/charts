@@ -1,0 +1,31 @@
+skore-hub backend has been deployed.
+
+Release:   {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Image:     {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+
+1. Database migrations run as a Helm pre-install/pre-upgrade hook Job:
+     kubectl -n {{ .Release.Namespace }} logs job/{{ include "skore-hub.fullname" . }}-db-migrations
+
+2. Check the application pods and logs (logs are written to stdout):
+     kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+     kubectl -n {{ .Release.Namespace }} logs -l app.kubernetes.io/instance={{ .Release.Name }} -f
+
+3. Health endpoints (served on port {{ .Values.service.port }}):
+     liveness:  {{ .Values.livenessProbe.httpGet.path }}
+     readiness: {{ .Values.readinessProbe.httpGet.path }}
+
+{{- if .Values.ingress.enabled }}
+
+4. The API is exposed through Ingress at:
+  {{- range .Values.ingress.hosts }}
+     http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+  {{- end }}
+{{- else }}
+
+4. Ingress is disabled. Port-forward to reach the API locally:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "skore-hub.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+{{- end }}
+
+5. Run the built-in smoke test:
+     helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

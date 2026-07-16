@@ -1,0 +1,9 @@
+apiVersion: v2
+name: skore-hub-frontend
+description: skore-hub frontend (static SPA served by nginx).
+type: application
+version: 0.1.0
+appVersion: "0.32.0"
+maintainers:
+  - name: Probabl
+    url: https://probabl.ai

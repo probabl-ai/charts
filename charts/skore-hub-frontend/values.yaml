@@ -1,0 +1,90 @@
+# =============================================================================
+# Default values for skore-hub-frontend.
+#
+# The frontend is a static SPA served by nginx. Its configuration (backend API
+# URL, Sentry DSN, ...) is read at runtime from environment variables; see
+# `env` below.
+# =============================================================================
+
+replicaCount: 1
+
+image:
+  # Frontend image pushed to the Scaleway registry (same image for all deployments).
+  repository: rg.fr-par.scw.cloud/probabl-skh/skh-ui
+  # Pinned to an immutable release tag, so no need to re-pull on every rollout.
+  pullPolicy: IfNotPresent
+  # Defaults to the chart appVersion (the shipped release) when empty.
+  # Override with another version, or a tag@sha256 digest, if needed.
+  tag: ""
+
+# Runtime configuration, injected as container environment variables. The image
+# reads these SKH_UI_* variables at startup to generate the config.js it serves
+# to the browser. The map is a generic passthrough: any name/value you set is
+# forwarded as-is; see the commented examples below.
+env: {}
+#  SKH_UI_API_BASE_URL: "https://api.skore-hub.example.com"      # backend API base URL (also feeds JupyterLite's SKORE_HUB_URI)
+#  SKH_UI_IDP_PROFILE_SETTINGS_URL: "https://idp.example.com/account"  # IdP account settings link in the toolbar
+#  SKH_UI_SENTRY_DSN: ""                                          # leave empty to disable error reporting
+
+# Additional raw env entries (valueFrom, etc.), appended after `env`.
+extraEnv: []
+#  - name: SOME_VAR
+#    valueFrom:
+#      secretKeyRef:
+#        name: skore-hub-frontend
+#        key: some-var
+
+# Optional: load all keys of a Secret as environment variables (envFrom).
+envSecret: ""
+
+# Pull secret(s) for the private registry (see docs: create a dockerconfigjson secret).
+imagePullSecrets: []
+#  - name: scw-registry
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  # nginx in the image listens on port 80.
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: skore-hub.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: skore-hub-tls
+  #    hosts:
+  #      - skore-hub.example.com
+
+resources: {}
+#  requests:
+#    cpu: 50m
+#    memory: 64Mi
+#  limits:
+#    memory: 128Mi
+
+# The image serves the SPA on "/"; probe the root path.
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

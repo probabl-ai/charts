@@ -1,0 +1,112 @@
+# =============================================================================
+# Example values for an on-premise deployment of skore-hub-backend.
+# Copy, adapt the placeholders (<...>), and deploy:
+#   helm upgrade --install skore-hub ./skore-hub-backend -n skore-hub -f values.example.yaml
+#
+# Secrets (passwords, keys) are NOT set here: put them in the Kubernetes Secret
+# referenced below and wire them via skh.extraEnv.
+# =============================================================================
+
+fullnameOverride: "skore-hub-backend"
+replicaCount: 2
+
+image:
+  repository: rg.fr-par.scw.cloud/probabl-skh/skh
+  # Pinned to an immutable release version. Override with another version or a
+  # tag@sha256 digest if needed; use "latest" (with pullPolicy: Always) to track
+  # the newest release instead.
+  tag: "0.32.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: scw-registry
+
+skh:
+  # Kubernetes Secret holding the sensitive values referenced in extraEnv.
+  envSecret: "skore-hub-backend-secrets"
+
+  # Non-sensitive settings.
+  env:
+    SKH__ENV: "production"
+    SKH__LOG_LEVEL: "INFO"
+    SKH__LOG_FORMATTER: "json"
+    SKH__UI_URL: "https://skore-hub.example.com"
+
+    # Database (PostgreSQL)
+    SKH__DB__HOST: "postgres.internal"
+    SKH__DB__PORT: "5432"
+    SKH__DB__NAME: "skore_hub"
+    SKH__DB__SSL_ENABLED: "true"
+
+    # Identity provider (OIDC issuer)
+    SKH__IDP__IS_ENABLED: "true"
+    SKH__IDP__BASE_URL: "https://sso.example.com/realms/skore"
+    SKH__IDP__SCOPE: "openid profile email offline_access"
+
+    # Object storage (S3-compatible)
+    SKH__OBJECT_STORAGE__TYPE: "s3"
+    SKH__OBJECT_STORAGE__ENDPOINT: "https://s3.internal"
+    SKH__OBJECT_STORAGE__BUCKET_NAME: "skore-hub"
+
+    # Redis
+    SKH__REDIS__IS_ENABLED: "true"
+    SKH__REDIS__HOST: "redis.internal"
+    SKH__REDIS__PORT: "6379"
+    SKH__REDIS__SSL: "true"
+
+    # SMTP
+    SKH__SMTP__HOST: "smtp.internal"
+    SKH__SMTP__PORT: "587"
+    SKH__SMTP__USE_TLS: "true"
+    SKH__SMTP__SENDER: "no-reply@example.com"
+
+    # CORS (restrict to the frontend origin)
+    SKH__CORS__ALLOW_ORIGINS: '["https://skore-hub.example.com"]'
+    SKH__CORS__ALLOW_CREDENTIALS: "true"
+
+    # Cross-site cookies: the SPA (skore-hub.example.com) and the API
+    # (api.skore-hub.example.com) are different origins, so session cookies
+    # must be SameSite=None and Secure (HTTPS).
+    SKH__COOKIE__SAMESITE: "none"
+    SKH__COOKIE__SECURE: "true"
+
+  # Sensitive values, mapped from the Secret named in skh.envSecret.
+  extraEnv:
+    - name: SKH__DB__USER
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: db-user } }
+    - name: SKH__DB__PASSWORD
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: db-password } }
+    - name: SKH__IDP__CLIENT_ID
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: idp-client-id } }
+    - name: SKH__IDP__CLIENT_SECRET
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: idp-client-secret } }
+    - name: SKH__OBJECT_STORAGE__ACCESS_KEY
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: s3-access-key } }
+    - name: SKH__OBJECT_STORAGE__SECRET_KEY
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: s3-secret-key } }
+    - name: SKH__REDIS__PASSWORD
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: redis-password } }
+    - name: SKH__SMTP__USER
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-user } }
+    - name: SKH__SMTP__PASSWORD
+      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-password } }
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: api.skore-hub.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: skore-hub-api-tls
+      hosts:
+        - api.skore-hub.example.com
+
+resources:
+  requests:
+    cpu: "1"
+    memory: 4Gi
+  limits:
+    memory: 4Gi
