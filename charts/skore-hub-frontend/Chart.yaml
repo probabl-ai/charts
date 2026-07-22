@@ -3,7 +3,8 @@ name: skore-hub-frontend
 description: skore-hub frontend (static SPA served by nginx).
 type: application
 home: https://probabl.ai
-version: 0.1.0
+version: 0.1.1
+# renovate: datasource=docker depName=rg.fr-par.scw.cloud/probabl-skh/skh-ui
 appVersion: "0.32.0"
 maintainers:
   - name: Probabl
