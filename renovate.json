@@ -33,9 +33,10 @@
   ],
   "bumpVersions": [
     {
-      "description": "Bump the chart version (patch) whenever appVersion is updated",
+      "description": "Bump both skore-hub chart versions (patch) when their appVersion is updated. Explicit paths (not {{packageFileDir}}) so grouped updates bump every chart, not only the first.",
       "filePatterns": [
-        "{{{packageFileDir}}}/Chart.yaml"
+        "charts/skore-hub-backend/Chart.yaml",
+        "charts/skore-hub-frontend/Chart.yaml"
       ],
       "matchStrings": [
         "version:\\s(?<version>[^\\s]+)"
