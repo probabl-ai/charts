@@ -1,0 +1,145 @@
+# Configuration reference (`SKH__*`)
+
+All backend settings are environment variables prefixed with `SKH__`, using `__` as the nesting delimiter (e.g. `SKH__DB__HOST` sets `db.host`).
+
+- Put **non-sensitive** values in `skh.env` (chart values).
+- Inject **secrets** (🔒) via `skh.extraEnv` → `secretKeyRef` (see [Secrets](01-installation.md#secrets)).
+- List-valued settings (like CORS origins) are provided as a **JSON string**.
+- A `(none)` default means there is no built-in value; set it yourself if the setting applies.
+
+## Contents
+
+- [General](#general)
+- [Database (db)](#database-db)
+- [Identity provider (idp): OIDC](#identity-provider-idp-oidc)
+- [Object storage (object_storage): S3](#object-storage-object_storage-s3)
+- [Redis (redis)](#redis-redis)
+- [SMTP (smtp)](#smtp-smtp)
+- [Cookies (cookie)](#cookies-cookie)
+- [CORS (cors)](#cors-cors)
+- [Observability (optional)](#observability-optional)
+- [Error tracking (optional)](#error-tracking-optional)
+- [Server (uvicorn)](#server-uvicorn)
+
+## General
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__ENV` | `dev` | Environment name; set `production`. |
+| `SKH__DEBUG` | `false` | Debug mode; keep `false` in production. |
+| `SKH__LOG_LEVEL` | `INFO` | `DEBUG`/`INFO`/`WARNING`/`ERROR`. |
+| `SKH__LOG_FORMATTER` | `default` | `json` (structured) or `default` (plain). |
+| `SKH__UI_URL` | `(none)` | Public URL of the frontend. |
+
+## Database (`db`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__DB__HOST` | `localhost` | PostgreSQL host. |
+| `SKH__DB__PORT` | `5432` | Port. |
+| `SKH__DB__NAME` | `hub` | Database name. |
+| `SKH__DB__USER` 🔒 | `(none)` | Username. |
+| `SKH__DB__PASSWORD` 🔒 | `(none)` | Password. |
+| `SKH__DB__SSL_ENABLED` | `false` | Enable TLS. |
+| `SKH__DB__SSL_ROOT_CERT` | `(none)` | Path to CA cert (mount it). |
+| `SKH__DB__POOL_SIZE` | `20` | Connection pool size. |
+| `SKH__DB__MAX_OVERFLOW` | `10` | Extra connections beyond the pool. |
+
+## Identity provider (`idp`): OIDC
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__IDP__IS_ENABLED` | `true` | Enable authentication. |
+| `SKH__IDP__BASE_URL` | `(none)` | OIDC issuer URL (discovery base). |
+| `SKH__IDP__SCOPE` | `openid offline_access` | Set `openid profile email offline_access`. |
+| `SKH__IDP__CLIENT_ID` 🔒 | `(none)` | OIDC client id. |
+| `SKH__IDP__CLIENT_SECRET` 🔒 | `(none)` | OIDC client secret. |
+
+See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
+
+## Object storage (`object_storage`): S3
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__OBJECT_STORAGE__TYPE` | `minio` | Use `s3` for standard S3-compatible storage. |
+| `SKH__OBJECT_STORAGE__ENDPOINT` | `http://localhost:9000` | S3 API endpoint. |
+| `SKH__OBJECT_STORAGE__BUCKET_NAME` | `hub` | Bucket (must exist). |
+| `SKH__OBJECT_STORAGE__REGION_NAME` | `(none)` | Region, if required. |
+| `SKH__OBJECT_STORAGE__ACCESS_KEY` 🔒 | `(none)` | Access key. |
+| `SKH__OBJECT_STORAGE__SECRET_KEY` 🔒 | `(none)` | Secret key. |
+| `SKH__OBJECT_STORAGE__PRESIGNED_URL_EXPIRES_IN` | `3600` | Presigned URL TTL (s). |
+
+## Redis (`redis`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__REDIS__IS_ENABLED` | `false` | Enable Redis (set `true` in production). |
+| `SKH__REDIS__HOST` | `localhost` | Host. |
+| `SKH__REDIS__PORT` | `6379` | Port. |
+| `SKH__REDIS__DB` | `0` | DB index. |
+| `SKH__REDIS__USERNAME` 🔒 | `(none)` | ACL username (optional). |
+| `SKH__REDIS__PASSWORD` 🔒 | `(none)` | Password (optional). |
+| `SKH__REDIS__SSL` | `false` | Enable TLS. |
+| `SKH__REDIS__SSL_CERT_REQS` | `required` | `required`/`optional`/`none`. |
+| `SKH__REDIS__SSL_CA_CERTS` | `(none)` | CA cert path. |
+| `SKH__REDIS__MAX_CONNECTIONS` | `1000` | Pool cap. |
+| `SKH__REDIS__API_KEY_VERIFICATION_CACHE_TTL_SECONDS` | `120` | API-key cache TTL; `0` disables. |
+
+## SMTP (`smtp`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__SMTP__HOST` | `localhost` | Host. |
+| `SKH__SMTP__PORT` | `1025` | Port. |
+| `SKH__SMTP__USE_TLS` | `false` | STARTTLS/TLS. |
+| `SKH__SMTP__USER` 🔒 | `(none)` | Username (optional). |
+| `SKH__SMTP__PASSWORD` 🔒 | `(none)` | Password (optional). |
+| `SKH__SMTP__SENDER` | `(none)` | From address; set your own (e.g. `no-reply@example.com`). |
+
+## Cookies (`cookie`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__COOKIE__HTTPONLY` | `true` | HttpOnly session cookies. |
+| `SKH__COOKIE__SECURE` | `true` | Require HTTPS. |
+| `SKH__COOKIE__SAMESITE` | `lax` | `lax`/`strict`/`none`. Use `none` when the frontend and API are on different hosts (requires `secure=true`). |
+
+## CORS (`cors`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__CORS__ALLOW_ORIGINS` | `["*"]` | JSON list of allowed origins. Set to your frontend origin. |
+| `SKH__CORS__ALLOW_CREDENTIALS` | `true` | Allow cookies cross-origin. |
+| `SKH__CORS__ALLOW_METHODS` | `["*"]` | JSON list. |
+| `SKH__CORS__ALLOW_HEADERS` | `["*"]` | JSON list. |
+
+## Observability (optional)
+
+All disabled by default. See [Observability and logging](02-operations.md#observability-and-logging).
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__TEMPO__IS_ENABLED` | `false` | Enable OTLP traces. |
+| `SKH__TEMPO__SERVER_ADDRESS` | `http://localhost:4317` | OTLP collector. |
+| `SKH__OTEL_METRICS__IS_ENABLED` | `false` | Enable OTLP metrics push. |
+| `SKH__OTEL_METRICS__SERVER_ADDRESS` | `(none)` | OTLP metrics endpoint. |
+| `SKH__OTEL_METRICS__EXPORT_INTERVAL_MILLIS` | `5000` | Export interval. |
+| `SKH__PYROSCOPE__IS_ENABLED` | `false` | Enable profiling. |
+| `SKH__PYROSCOPE__SERVER_ADDRESS` | `http://localhost:4040` | Pyroscope server. |
+
+## Error tracking (optional)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__SENTRY__DSN` 🔒 | `(none)` | Sentry DSN; leave empty to disable. |
+
+## Server (`uvicorn`)
+
+Defaults are suitable as-is; the container listens on port `8000`.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__UVICORN__HOST` | `0.0.0.0` | Bind address. |
+| `SKH__UVICORN__PORT` | `8000` | Port (keep aligned with `service.port`). |
+
+> This reference lists the settings relevant to an on-premise deployment. Other keys exist with sensible defaults; you normally do not need to change them.
