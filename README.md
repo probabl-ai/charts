@@ -39,6 +39,15 @@ configuration options.
 | [skore-hub-backend](charts/skore-hub-backend) | skore-hub backend API. |
 | [skore-hub-frontend](charts/skore-hub-frontend) | skore-hub frontend (static SPA served by nginx). |
 
+## Documentation
+
+The full deployment and operations guide lives under [`docs/`](docs/README.md):
+
+- [Overview, architecture and prerequisites](docs/README.md)
+- [Installation](docs/01-installation.md): images, external services, OIDC, secrets, backend, frontend, ingress.
+- [Operations](docs/02-operations.md): verification, observability/logging, troubleshooting.
+- [Configuration reference](docs/reference-configuration.md): every `SKH__*` setting.
+
 ## Versioning
 
 Each chart is versioned independently through its `Chart.yaml` `version`. The
