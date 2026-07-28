@@ -2,6 +2,20 @@ apiVersion: v1
 entries:
   skore-hub-backend:
   - apiVersion: v2
+    appVersion: 0.34.0
+    created: "2026-07-28T12:33:44.39459108Z"
+    description: skore-hub backend API.
+    digest: 50d1e8cb5a408c9f19cad7c3bde8f38c96bf1b23c1bbb45b0b6defbd1e194fb1
+    home: https://probabl.ai
+    maintainers:
+    - name: Probabl
+      url: https://probabl.ai
+    name: skore-hub-backend
+    type: application
+    urls:
+    - skore-hub-backend-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: 0.33.0
     created: "2026-07-27T10:05:11.211792193Z"
     description: skore-hub backend API.
@@ -45,6 +59,20 @@ entries:
     version: 0.1.0
   skore-hub-frontend:
   - apiVersion: v2
+    appVersion: 0.34.0
+    created: "2026-07-28T12:33:44.587960974Z"
+    description: skore-hub frontend (static SPA served by nginx).
+    digest: b0c21c1eca98552dfcfa2f62daf92cc47f924e2553fed2b4d0e89d760b8e61ae
+    home: https://probabl.ai
+    maintainers:
+    - name: Probabl
+      url: https://probabl.ai
+    name: skore-hub-frontend
+    type: application
+    urls:
+    - skore-hub-frontend-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
     appVersion: 0.33.0
     created: "2026-07-27T10:05:11.47011071Z"
     description: skore-hub frontend (static SPA served by nginx).
@@ -86,4 +114,4 @@ entries:
     urls:
     - skore-hub-frontend-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-27T10:05:11.470127652Z"
+generated: "2026-07-28T12:33:44.587984068Z"
