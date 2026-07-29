@@ -15,6 +15,8 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Object storage (object_storage): S3](#object-storage-object_storage-s3)
 - [Redis (redis)](#redis-redis)
 - [SMTP (smtp)](#smtp-smtp)
+- [Encryption (encryption)](#encryption-encryption)
+- [Skore agent (agent)](#skore-agent-agent)
 - [Cookies (cookie)](#cookies-cookie)
 - [CORS (cors)](#cors-cors)
 - [Observability (optional)](#observability-optional)
@@ -95,6 +97,41 @@ See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 | `SKH__SMTP__USER` 🔒 | `(none)` | Username (optional). |
 | `SKH__SMTP__PASSWORD` 🔒 | `(none)` | Password (optional). |
 | `SKH__SMTP__SENDER` | `(none)` | From address; set your own (e.g. `no-reply@example.com`). |
+
+## Encryption (`encryption`)
+
+Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: most importantly the per-workspace Skore agent provider credentials (Anthropic API keys, AWS/Bedrock keys, STS external ids) registered through the Hub UI. Generate with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__ENCRYPTION__KEY` 🔒 | `(none)` | Fernet key. **Required** to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see [Skore agent operations](02-operations.md#skore-agent-operations)). |
+
+## Skore agent (`agent`)
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__AGENT__BACKEND` | `mock` | Global execution mode. `anthropic` enables the Skore-managed LLM path; `mock` is a key-less trace for unscoped requests only. Workspace API-key callers always use their workspace provider regardless of this value. |
+| `SKH__AGENT__PROVIDER` | `anthropic` | LLM backend when `backend` is not `mock`: `anthropic` or `bedrock`. Workspaces may override via the Hub UI. |
+| `SKH__AGENT__ANTHROPIC_API_KEY` 🔒 | `(none)` | Anthropic API key for the global server-side path. Empty falls back to `mock` when no workspace override applies. |
+| `SKH__AGENT__MANAGED_EMAILS` | `[]` | JSON allowlist of users entitled to the Skore-managed provider. Entries are exact addresses or `*@domain` wildcards. Empty denies everyone. |
+| `SKH__AGENT__MODEL_BIG` | `claude-opus-4-8` | Default Anthropic model for the big routing tier (reasoning-heavy). |
+| `SKH__AGENT__MODEL_NORMAL` | `claude-sonnet-4-6` | Default Anthropic model for the normal tier (setup/tooling). |
+| `SKH__AGENT__MODEL_SMALL` | `claude-haiku-4-5` | Default Anthropic model for the small tier (trivial skills). |
+| `SKH__AGENT__BEDROCK_MODEL_BIG` | `(none)` | Bedrock model id for the big tier. **Required** before Bedrock routing works. |
+| `SKH__AGENT__BEDROCK_MODEL_NORMAL` | `(none)` | Bedrock model id for the normal tier. |
+| `SKH__AGENT__BEDROCK_MODEL_SMALL` | `(none)` | Bedrock model id for the small tier. |
+| `SKH__AGENT__CACHE_TTL` | `5m` | Anthropic prompt-cache breakpoint TTL: `5m` or `1h`. |
+| `SKH__AGENT__ANTHROPIC_MODELS` | `["claude-opus-4-8","claude-sonnet-4-6"]` | JSON allowlist of model ids a workspace may pin as its single model instead of tier-based "auto" routing. |
+| `SKH__AGENT__BEDROCK_MODELS` | `[]` | Same for Bedrock. |
+| `SKH__AGENT__AWS_REGION` | `(none)` | AWS region for Bedrock. Required when `provider` is `bedrock`. |
+| `SKH__AGENT__BEDROCK_ROLE_ARN` | `(none)` | Optional IAM role to assume for cross-account Bedrock. Empty uses the ambient credential chain. |
+| `SKH__AGENT__BEDROCK_EXTERNAL_ID` 🔒 | `(none)` | Optional STS `ExternalId` for `bedrock_role_arn`. |
+| `SKH__AGENT__AWS_ACCESS_KEY_ID` 🔒 | `(none)` | Optional static AWS credentials. Empty uses the ambient chain (or assume-role output). |
+| `SKH__AGENT__AWS_SECRET_ACCESS_KEY` 🔒 | `(none)` | Optional static AWS credentials. |
+| `SKH__AGENT__ENTRY_SKILL` | `iterate-ml-experiment` | Skill id loaded at the start of a new conversation. |
+| `SKH__AGENT__SESSION_TTL_SECONDS` | `3600` | Redis TTL (s) for server-side harness session state. Requires Redis when running more than one replica. |
+| `SKH__AGENT__PUBLIC_MODEL_ID` | `skore-agent` | Single model id advertised to harnesses; the hub maps it to tier routing internally. |
+| `SKH__AGENT__GUARDS_ENABLED` | `true` | Enable deterministic prompt-injection/extraction guards (input scan + output redaction). |
 
 ## Cookies (`cookie`)
 

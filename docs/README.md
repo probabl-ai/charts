@@ -4,12 +4,16 @@ This guide describes how to deploy and operate the **skore-hub** platform (backe
 
 It is written for an infrastructure/platform team that already operates Kubernetes. It focuses on **what skore-hub needs** and **how to wire it to your existing services**; it does not teach Kubernetes itself.
 
-The guide is split into four documents:
+The guide is split into five documents:
 
 - **This overview**: what you deploy, architecture, prerequisites, and the deployment order.
 - **[Installation](01-installation.md)**: images, external services, OIDC, secrets, backend, frontend, ingress.
 - **[Operations](02-operations.md)**: verification, observability/logging, troubleshooting.
+- **[Agent setup](03-agent-setup.md)**: enabling and onboarding the Skore agent (LLM orchestration).
 - **[Configuration reference](reference-configuration.md)**: every `SKH__*` setting.
+
+> [!NOTE]
+> **Skore agent: air-gapped notice.** The Skore agent (hub-side LLM orchestration) only supports **Anthropic** (SaaS) and **AWS Bedrock** as LLM backends. A deployment with no outbound access to either is **not supported** in this version. See [Agent setup](03-agent-setup.md).
 
 ## Contents
 
@@ -146,6 +150,7 @@ Have these ready. You will need them for configuration and the OIDC client regis
 9. [Observability and logging](02-operations.md#observability-and-logging).
 10. [Verification and smoke tests](02-operations.md#verification-and-smoke-tests).
 11. [Troubleshooting](02-operations.md#troubleshooting).
+12. [Agent setup](03-agent-setup.md) (optional): enable the Skore agent and onboard harnesses.
 
 Reference:
 

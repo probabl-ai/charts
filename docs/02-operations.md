@@ -7,6 +7,7 @@ This document covers what to do once the charts are installed: verifying the dep
 - [Verification and smoke tests](#verification-and-smoke-tests)
 - [Observability and logging](#observability-and-logging)
 - [Troubleshooting](#troubleshooting)
+- [Skore agent operations](#skore-agent-operations)
 
 ## Verification and smoke tests
 
@@ -210,3 +211,46 @@ kubectl -n skore-hub exec deploy/skore-hub-backend -- printenv | grep '^SKH__' |
 ```
 
 (Secret values will be visible here, so run with appropriate care.)
+
+## Skore agent operations
+
+Operational notes specific to the Skore agent ([setup](03-agent-setup.md), [config reference](reference-configuration.md#skore-agent-agent)).
+
+### Verify the agent is reachable
+
+```bash
+# From inside a backend pod (bypasses ingress):
+kubectl -n skore-hub exec deploy/skore-hub-backend -- \
+  curl -s http://127.0.0.1:8000/v1/models | jq .
+```
+
+The response must list `skore-agent` (the `SKH__AGENT__PUBLIC_MODEL_ID`). If the list is empty or the endpoint 404s, the agent router is not mounted. Check the image version and that migrations ran.
+
+### Agent metrics (token usage)
+
+The agent exports token-usage metrics through the same OTLP push path as the rest of the hub. Enable it with:
+
+| Setting | Env var |
+| --- | --- |
+| Enable OTLP metrics | `SKH__OTEL_METRICS__IS_ENABLED=true` |
+| OTLP endpoint | `SKH__OTEL_METRICS__SERVER_ADDRESS` |
+
+A ready-made Grafana dashboard for agent token usage ships with the hub source at `docker/grafana-dashboards/agent-token-usage.json`. Import it into your Grafana if you surface hub metrics there.
+
+### Troubleshooting
+
+**`HTTP 400 no_active_provider`.** The workspace has no *active* LLM provider. Every workspace needs one provider registered **and activated** in the Hub UI, including for Skore-managed inference, where the provider is of type `skore` ([Agent setup](03-agent-setup.md)). There is no silent fallback to the global configuration.
+
+**`HTTP 400 no_workspace`.** The request could not be scoped to a workspace: the caller used neither a workspace-scoped API key nor a valid `X-Skore-Workspace` header (the workspace slug, and the user must be a member of it). Unscoped requests only succeed when the deployment runs with `SKH__AGENT__BACKEND=mock`.
+
+**`HTTP 503` after rotating `SKH__ENCRYPTION__KEY`.** Per-workspace provider credentials are encrypted at rest with the Fernet key. Rotating the key without re-encrypting the stored secrets makes them unreadable and the agent returns 503. To rotate: decrypt existing provider credentials with the old key, re-encrypt with the new key, then roll the pods. There is no automatic re-encryption in this version.
+
+**Agent calls hang / SSE drops.** Long-lived streaming responses on `/v1/chat/completions` and `/v1/messages` need ingress timeouts longer than the longest LLM turn and response buffering disabled ([Streaming](01-installation.md#streaming-skore-agent)). If calls cut off after ~60s, check `proxy-read-timeout`/`proxy-send-timeout` on your ingress.
+
+**Sessions lost across replicas.** With `replicaCount > 1`, agent session state must live in Redis. Confirm `SKH__REDIS__IS_ENABLED=true` and that all replicas reach the same Redis instance. Without Redis, a conversation routed to a different pod has no history and starts over.
+
+**Bedrock `AccessDenied` / `ExpiredToken`.** Either the static AWS credentials are wrong/expired, or the IAM role (IRSA / assume-role) lacks `bedrock:InvokeModel` on the target model. A policy scoped to the inference profile alone is a common cause: a cross-region profile also needs the underlying foundation model allowed in every region it can reach ([AWS-side prerequisites](03-agent-setup.md#aws-side-prerequisites)). For cross-account access via `SKH__AGENT__BEDROCK_ROLE_ARN`, the assumed role's trust policy must allow the caller with the configured `SKH__AGENT__BEDROCK_EXTERNAL_ID`.
+
+**Bedrock `ResourceNotFoundException: Model use case details have not been submitted`.** An account-level gate on Anthropic models, not an IAM problem. Submit the *Anthropic use case details* form in the Bedrock console and allow up to 15 minutes for it to propagate ([AWS-side prerequisites](03-agent-setup.md#aws-side-prerequisites)).
+
+**Bedrock `ValidationException` on prompt caching.** The workspace pinned a non-Anthropic Bedrock model. Only Anthropic models on Bedrock are supported in this version ([Deployment models](03-agent-setup.md#minimal-global-config-by-model)).

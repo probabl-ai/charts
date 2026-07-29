@@ -60,6 +60,18 @@ skh:
     SKH__SMTP__USE_TLS: "true"
     SKH__SMTP__SENDER: "no-reply@example.com"
 
+    # Skore agent (hub-side LLM orchestration). Off by default (backend=mock).
+    # Set backend=anthropic to enable the Skore-managed LLM path. Requires
+    # outbound egress to api.anthropic.com (or AWS Bedrock). Air-gapped without
+    # an external LLM is NOT supported yet. See docs/03-agent-setup.md.
+    SKH__AGENT__BACKEND: "anthropic"
+    SKH__AGENT__PROVIDER: "anthropic"
+    SKH__AGENT__MANAGED_EMAILS: '["*@yourcompany.com"]'
+    SKH__AGENT__MODEL_BIG: "claude-opus-4-8"
+    SKH__AGENT__MODEL_NORMAL: "claude-sonnet-4-6"
+    SKH__AGENT__MODEL_SMALL: "claude-haiku-4-5"
+    SKH__AGENT__PUBLIC_MODEL_ID: "skore-agent"
+
     # CORS (restrict to the frontend origin)
     SKH__CORS__ALLOW_ORIGINS: '["https://skore-hub.example.com"]'
     SKH__CORS__ALLOW_CREDENTIALS: "true"
@@ -73,23 +85,63 @@ skh:
   # Sensitive values, mapped from the Secret named in skh.envSecret.
   extraEnv:
     - name: SKH__DB__USER
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: db-user } }
+      valueFrom:
+        { secretKeyRef: { name: skore-hub-backend-secrets, key: db-user } }
     - name: SKH__DB__PASSWORD
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: db-password } }
+      valueFrom:
+        { secretKeyRef: { name: skore-hub-backend-secrets, key: db-password } }
     - name: SKH__IDP__CLIENT_ID
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: idp-client-id } }
+      valueFrom:
+        {
+          secretKeyRef: { name: skore-hub-backend-secrets, key: idp-client-id },
+        }
     - name: SKH__IDP__CLIENT_SECRET
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: idp-client-secret } }
+      valueFrom:
+        {
+          secretKeyRef:
+            { name: skore-hub-backend-secrets, key: idp-client-secret },
+        }
     - name: SKH__OBJECT_STORAGE__ACCESS_KEY
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: s3-access-key } }
+      valueFrom:
+        {
+          secretKeyRef: { name: skore-hub-backend-secrets, key: s3-access-key },
+        }
     - name: SKH__OBJECT_STORAGE__SECRET_KEY
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: s3-secret-key } }
+      valueFrom:
+        {
+          secretKeyRef: { name: skore-hub-backend-secrets, key: s3-secret-key },
+        }
     - name: SKH__REDIS__PASSWORD
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: redis-password } }
+      valueFrom:
+        {
+          secretKeyRef:
+            { name: skore-hub-backend-secrets, key: redis-password },
+        }
     - name: SKH__SMTP__USER
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-user } }
+      valueFrom:
+        { secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-user } }
     - name: SKH__SMTP__PASSWORD
-      valueFrom: { secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-password } }
+      valueFrom:
+        {
+          secretKeyRef: { name: skore-hub-backend-secrets, key: smtp-password },
+        }
+
+    # Skore agent: encryption key (required for per-workspace providers) and
+    # the Skore-managed Anthropic key (only for the Skore-managed model). For
+    # Bedrock static creds / cross-account assume-role, add the matching keys
+    # (aws-access-key-id, aws-secret-access-key, bedrock-external-id) here.
+    - name: SKH__ENCRYPTION__KEY
+      valueFrom:
+        {
+          secretKeyRef:
+            { name: skore-hub-backend-secrets, key: encryption-key },
+        }
+    - name: SKH__AGENT__ANTHROPIC_API_KEY
+      valueFrom:
+        {
+          secretKeyRef:
+            { name: skore-hub-backend-secrets, key: anthropic-api-key },
+        }
 
 ingress:
   enabled: true
