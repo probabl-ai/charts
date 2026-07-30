@@ -1,0 +1,1093 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Deploy and operate the skore-hub platform on Kubernetes.">
+      
+      
+      
+        <link rel="canonical" href="https://probabl-ai.github.io/charts/docs/02-operations/">
+      
+      
+        <link rel="prev" href="../01-installation/">
+      
+      
+        <link rel="next" href="../reference-configuration/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Operations - skore-hub Deployment Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#operations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="skore-hub Deployment Guide" class="md-header__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            skore-hub Deployment Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Operations
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="skore-hub Deployment Guide" class="md-nav__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    skore-hub Deployment Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-and-smoke-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification and smoke tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification and smoke tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-pods-and-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Pods and Job
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-built-in-helm-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Built-in Helm test
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-health-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Health endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dependency-connectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Dependency connectivity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-through-the-ingress-public" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Through the ingress (public)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-end-to-end-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. End-to-end login
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability-and-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observability and logging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Observability and logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logging-stdout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging (stdout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-tracing-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics &amp; tracing (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health endpoints
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-cannot-be-pulled-imagepullbackoff-errimagepull" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image cannot be pulled (ImagePullBackOff / ErrImagePull)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-job-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Job fails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-not-ready-readiness-failing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pod not Ready / readiness failing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oidc-login-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      OIDC login problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cors-cookies" class="md-nav__link">
+    <span class="md-ellipsis">
+      CORS / cookies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploads-fail-413-request-entity-too-large" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uploads fail / 413 Request Entity Too Large
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-value-not-taking-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config value not taking effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inspect-the-effective-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inspect the effective configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference-configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-and-smoke-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification and smoke tests
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification and smoke tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-pods-and-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Pods and Job
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-built-in-helm-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Built-in Helm test
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-health-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Health endpoints
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dependency-connectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Dependency connectivity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-through-the-ingress-public" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Through the ingress (public)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-end-to-end-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. End-to-end login
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observability-and-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observability and logging
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Observability and logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logging-stdout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging (stdout)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-tracing-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics &amp; tracing (optional)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#health-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      Health endpoints
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#image-cannot-be-pulled-imagepullbackoff-errimagepull" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image cannot be pulled (ImagePullBackOff / ErrImagePull)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migration-job-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration Job fails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pod-not-ready-readiness-failing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pod not Ready / readiness failing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oidc-login-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      OIDC login problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cors-cookies" class="md-nav__link">
+    <span class="md-ellipsis">
+      CORS / cookies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploads-fail-413-request-entity-too-large" class="md-nav__link">
+    <span class="md-ellipsis">
+      Uploads fail / 413 Request Entity Too Large
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-value-not-taking-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Config value not taking effect
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inspect-the-effective-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inspect the effective configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h1>
+<p>This document covers what to do once the charts are installed: verifying the deployment, collecting logs and telemetry, and troubleshooting common issues.</p>
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#verification-and-smoke-tests">Verification and smoke tests</a></li>
+<li><a href="#observability-and-logging">Observability and logging</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+<h2 id="verification-and-smoke-tests">Verification and smoke tests<a class="headerlink" href="#verification-and-smoke-tests" title="Permanent link">&para;</a></h2>
+<p>Run these checks after installing the backend (<a href="../01-installation/#install-the-backend">Install the backend</a>) and, where relevant, the frontend (<a href="../01-installation/#frontend">Frontend</a>).</p>
+<h3 id="1-pods-and-job">1. Pods and Job<a class="headerlink" href="#1-pods-and-job" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/instance<span class="o">=</span>skore-hub
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deploy/skore-hub-backend
+
+<span class="c1"># Migration Job must have completed successfully</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>get<span class="w"> </span><span class="nb">jobs</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>job/skore-hub-backend-db-migrations
+</code></pre></div>
+<p>All backend pods should be <code>Running</code> and <code>Ready</code>.</p>
+<h3 id="2-built-in-helm-test">2. Built-in Helm test<a class="headerlink" href="#2-built-in-helm-test" title="Permanent link">&para;</a></h3>
+<p>The chart ships a connectivity test that curls the liveness endpoint:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span><span class="nb">test</span><span class="w"> </span>skore-hub<span class="w"> </span>-n<span class="w"> </span>skore-hub
+</code></pre></div>
+<h3 id="3-health-endpoints">3. Health endpoints<a class="headerlink" href="#3-health-endpoints" title="Permanent link">&para;</a></h3>
+<p>Port-forward and probe the API directly (bypasses ingress):</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>port-forward<span class="w"> </span>svc/skore-hub-backend<span class="w"> </span><span class="m">8000</span>:8000<span class="w"> </span><span class="p">&amp;</span>
+
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/liveness<span class="w">  </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>OK-liveness
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/readiness<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>OK-readiness
+curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/health<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+<p><code>/readiness</code> returns the status of each dependency. If it fails, inspect which component is <code>false</code> (DB, Redis, S3, ...) and check the corresponding settings in <a href="../01-installation/#external-services">External services</a>.</p>
+<h3 id="4-dependency-connectivity">4. Dependency connectivity<a class="headerlink" href="#4-dependency-connectivity" title="Permanent link">&para;</a></h3>
+<p>From a shell inside a backend pod:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/skore-hub-backend<span class="w"> </span>--<span class="w"> </span>sh
+
+<span class="c1"># OIDC discovery reachable?</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SKH__IDP__BASE_URL</span><span class="s2">/.well-known/openid-configuration&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head
+
+<span class="c1"># S3 endpoint reachable? (expect an HTTP response, not a connection error)</span>
+curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s1">&#39;%{http_code}\n&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SKH__OBJECT_STORAGE__ENDPOINT</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="5-through-the-ingress-public">5. Through the ingress (public)<a class="headerlink" href="#5-through-the-ingress-public" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsS<span class="w"> </span>https://&lt;API_HOST&gt;/liveness<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span>OK
+</code></pre></div>
+<p>Confirm TLS is valid and the host matches what you registered for OIDC.</p>
+<h3 id="6-end-to-end-login">6. End-to-end login<a class="headerlink" href="#6-end-to-end-login" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Open the frontend URL in a browser.</li>
+<li>Trigger login → you should be redirected to your IdP.</li>
+<li>Authenticate → you should be redirected back to <code>https://&lt;API_HOST&gt;/identity/oauth/callback</code> and land logged-in in the app.</li>
+<li>Confirm your profile (name/email) is populated; this validates the OIDC <code>userinfo</code> claims and scopes (<a href="../01-installation/#oidc-identity-provider">OIDC</a>).</li>
+<li>Log out → session cookies are cleared.</li>
+</ol>
+<h2 id="observability-and-logging">Observability and logging<a class="headerlink" href="#observability-and-logging" title="Permanent link">&para;</a></h2>
+<h3 id="logging-stdout">Logging (stdout)<a class="headerlink" href="#logging-stdout" title="Permanent link">&para;</a></h3>
+<p>skore-hub writes <strong>all logs to <code>stdout</code></strong> (and <code>stderr</code>). It does not write log files and does not ship logs anywhere by itself. To collect logs, read the container output with your standard tooling.</p>
+<p>Configure the format and verbosity:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Log level</td>
+<td><code>SKH__LOG_LEVEL</code></td>
+<td><code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code></td>
+</tr>
+<tr>
+<td>Log format</td>
+<td><code>SKH__LOG_FORMATTER</code></td>
+<td><code>json</code> (structured, recommended) or <code>default</code> (plain text)</td>
+</tr>
+</tbody>
+</table>
+<p>Read logs directly:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Follow logs of all backend pods</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/instance<span class="o">=</span>skore-hub<span class="w"> </span>-f
+
+<span class="c1"># A specific pod</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-f
+
+<span class="c1"># Migration Job logs</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>job/skore-hub-backend-db-migrations
+</code></pre></div>
+<p>To retain and search logs, point your existing log pipeline (Fluent Bit / Fluentd / Vector / Promtail → Loki / Elasticsearch / your SIEM) at the pods' stdout. Set <code>SKH__LOG_FORMATTER=json</code> so the collector can parse structured fields.</p>
+<h3 id="metrics-tracing-optional">Metrics &amp; tracing (optional)<a class="headerlink" href="#metrics-tracing-optional" title="Permanent link">&para;</a></h3>
+<p>Telemetry is <strong>disabled by default</strong> and is entirely optional. skore-hub can push OpenTelemetry data to collectors you operate:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Enable</th>
+<th>Endpoint setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Traces (Tempo/OTLP)</td>
+<td><code>SKH__TEMPO__IS_ENABLED=true</code></td>
+<td><code>SKH__TEMPO__SERVER_ADDRESS</code> (e.g. <code>http://otel-collector:4317</code>)</td>
+</tr>
+<tr>
+<td>Metrics (OTLP push)</td>
+<td><code>SKH__OTEL_METRICS__IS_ENABLED=true</code></td>
+<td><code>SKH__OTEL_METRICS__SERVER_ADDRESS</code></td>
+</tr>
+<tr>
+<td>Profiling (Pyroscope)</td>
+<td><code>SKH__PYROSCOPE__IS_ENABLED=true</code></td>
+<td><code>SKH__PYROSCOPE__SERVER_ADDRESS</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Metrics are push-only.</strong> skore-hub exports metrics via <strong>OTLP push</strong> (<code>SKH__OTEL_METRICS__*</code>) to a collector you run; it does <strong>not</strong> expose a Prometheus <code>/metrics</code> scrape endpoint. There is therefore no <code>ServiceMonitor</code> in this chart. To collect metrics, enable the OTLP export above and point it at your OpenTelemetry collector / OTLP-compatible backend (e.g. an OTel Collector, or Prometheus with the OTLP receiver enabled).</p>
+</blockquote>
+<h3 id="health-endpoints">Health endpoints<a class="headerlink" href="#health-endpoints" title="Permanent link">&para;</a></h3>
+<p>The backend exposes three endpoints on the service port (<code>8000</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/liveness</code></td>
+<td>Process is up (used by the liveness probe).</td>
+</tr>
+<tr>
+<td><code>/readiness</code></td>
+<td>Dependencies reachable (DB, etc.), used by the readiness probe.</td>
+</tr>
+<tr>
+<td><code>/health</code></td>
+<td>Aggregate health with version info.</td>
+</tr>
+</tbody>
+</table>
+<p>These are wired to the Kubernetes probes by the chart (<code>livenessProbe</code>, <code>readinessProbe</code>).</p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<p>Start by reading the logs (they go to <strong>stdout</strong>, <a href="#observability-and-logging">Observability and logging</a>):</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/instance<span class="o">=</span>skore-hub<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod&gt;
+</code></pre></div>
+<h3 id="image-cannot-be-pulled-imagepullbackoff-errimagepull">Image cannot be pulled (<code>ImagePullBackOff</code> / <code>ErrImagePull</code>)<a class="headerlink" href="#image-cannot-be-pulled-imagepullbackoff-errimagepull" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The <code>imagePullSecrets</code> name in your values matches an existing secret in the namespace, and that secret has the correct Scaleway credentials (<a href="../01-installation/#images-and-registry">Images and registry</a>).</li>
+<li><code>image.repository</code> and <code>image.tag</code> are correct.</li>
+<li>Nodes can reach <code>rg.fr-par.scw.cloud</code> (or your mirror).</li>
+</ul>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>scw-registry<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.type}&#39;</span><span class="w">   </span><span class="c1"># kubernetes.io/dockerconfigjson</span>
+</code></pre></div>
+<h3 id="migration-job-fails">Migration Job fails<a class="headerlink" href="#migration-job-fails" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>job/skore-hub-backend-db-migrations
+</code></pre></div>
+<ul>
+<li><strong>Auth/connection</strong>: check <code>SKH__DB__HOST/PORT/NAME/USER/PASSWORD</code> and network reachability from the pod.</li>
+<li><strong>Permission denied creating tables</strong>: the DB user needs DDL rights on the database.</li>
+<li><strong>TLS errors</strong>: verify <code>SKH__DB__SSL_ENABLED</code> and the mounted CA cert (<code>SKH__DB__SSL_ROOT_CERT</code>).</li>
+</ul>
+<p>The release fails until migrations succeed; fix and re-run <code>helm upgrade</code>.</p>
+<h3 id="pod-not-ready-readiness-failing">Pod not Ready / <code>readiness</code> failing<a class="headerlink" href="#pod-not-ready-readiness-failing" title="Permanent link">&para;</a></h3>
+<p>Query which dependency is down:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>port-forward<span class="w"> </span>svc/skore-hub-backend<span class="w"> </span><span class="m">8000</span>:8000<span class="w"> </span><span class="p">&amp;</span>
+curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:8000/readiness<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+<ul>
+<li>DB <code>false</code> → PostgreSQL settings/network.</li>
+<li>Redis <code>false</code> → <code>SKH__REDIS__*</code> (and <code>SKH__REDIS__IS_ENABLED=true</code>).</li>
+<li>Storage <code>false</code> → <code>SKH__OBJECT_STORAGE__*</code> (endpoint reachable, bucket exists, keys valid).</li>
+</ul>
+<h3 id="oidc-login-problems">OIDC login problems<a class="headerlink" href="#oidc-login-problems" title="Permanent link">&para;</a></h3>
+<p><strong><code>redirect_uri</code> mismatch / invalid redirect.</strong> The redirect URI built by the backend must exactly match what is registered in the IdP:</p>
+<ul>
+<li>Register <code>https://&lt;API_HOST&gt;/identity/oauth/callback</code> (and <code>/identity/oauth/device/callback</code>); see <a href="../01-installation/#oidc-identity-provider">OIDC</a>.</li>
+<li>The ingress must preserve the <code>Host</code> header and set <code>X-Forwarded-Proto: https</code>, otherwise the backend may build an <code>http://</code> or wrong-host redirect URI; see <a href="../01-installation/#ingress-tls-and-dns">Ingress, TLS and DNS</a>.</li>
+</ul>
+<p><strong>Discovery fails at startup.</strong> <code>${SKH__IDP__BASE_URL}/.well-known/openid-configuration</code> must be reachable from the pod and return valid JSON. Test from inside the pod.</p>
+<p><strong>Empty user name/email after login.</strong> The <code>profile</code> and <code>email</code> scopes must be granted and the IdP <code>userinfo</code> endpoint must return <code>email</code>, <code>given_name</code>, <code>family_name</code> claims (<a href="../01-installation/#oidc-identity-provider">OIDC</a>).</p>
+<p><strong>Logout doesn't call the IdP.</strong> Expected if your IdP does not advertise a <code>revocation_endpoint</code>/<code>end_session_endpoint</code>; cookies are still cleared.</p>
+<h3 id="cors-cookies">CORS / cookies<a class="headerlink" href="#cors-cookies" title="Permanent link">&para;</a></h3>
+<p>Symptoms: API calls from the SPA blocked by the browser, or the session drops right after login.</p>
+<ul>
+<li>Set <code>SKH__CORS__ALLOW_ORIGINS</code> to the exact frontend origin, and <code>SKH__CORS__ALLOW_CREDENTIALS=true</code>.</li>
+<li>Cross-site cookies require <code>SKH__COOKIE__SAMESITE=none</code> <strong>and</strong> <code>SKH__COOKIE__SECURE=true</code> (HTTPS).</li>
+</ul>
+<h3 id="uploads-fail-413-request-entity-too-large">Uploads fail / 413 Request Entity Too Large<a class="headerlink" href="#uploads-fail-413-request-entity-too-large" title="Permanent link">&para;</a></h3>
+<p>Raise the ingress body-size limit (e.g. <code>nginx.ingress.kubernetes.io/proxy-body-size: "100m"</code>), and make sure the S3 endpoint is reachable from <strong>both</strong> the pods and the browser (<a href="../01-installation/#external-services">External services</a>, <a href="../01-installation/#ingress-tls-and-dns">Ingress, TLS and DNS</a>).</p>
+<h3 id="config-value-not-taking-effect">Config value not taking effect<a class="headerlink" href="#config-value-not-taking-effect" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Remember the mapping: <code>SKH__DB__HOST</code> → <code>db.host</code>, <code>__</code> is the nesting delimiter, and the prefix is always <code>SKH__</code>.</li>
+<li>Non-secret values live in <code>skh.env</code>; secrets are injected via <code>skh.extraEnv</code> (<code>secretKeyRef</code>). A value set in both places: the <code>env</code>/<code>extraEnv</code> list wins if duplicated; avoid defining the same variable twice.</li>
+<li>After changing a Secret, restart: <code>kubectl -n skore-hub rollout restart deploy/skore-hub-backend</code>.</li>
+</ul>
+<h3 id="inspect-the-effective-configuration">Inspect the effective configuration<a class="headerlink" href="#inspect-the-effective-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>deploy/skore-hub-backend<span class="w"> </span>--<span class="w"> </span>printenv<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;^SKH__&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
+</code></pre></div>
+<p>(Secret values will be visible here, so run with appropriate care.)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

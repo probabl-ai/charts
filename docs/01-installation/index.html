@@ -1,0 +1,2115 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Deploy and operate the skore-hub platform on Kubernetes.">
+      
+      
+      
+        <link rel="canonical" href="https://probabl-ai.github.io/charts/docs/01-installation/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../02-operations/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Installation - skore-hub Deployment Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="skore-hub Deployment Guide" class="md-header__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            skore-hub Deployment Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Installation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="skore-hub Deployment Guide" class="md-nav__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    skore-hub Deployment Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#images-and-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Images and registry
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Images and registry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-pull-directly-from-scaleway" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A: Pull directly from Scaleway
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-mirror-into-your-internal-registry-air-gapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B: Mirror into your internal registry (air-gapped)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-content-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image content (backend)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      External services
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="External services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3-compatible-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      S3-compatible object storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smtp" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oidc-identity-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      OIDC identity provider
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OIDC identity provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register-a-client-in-your-idp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register a client in your IdP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Register a client in your IdP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      Redirect URIs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#claims" class="md-nav__link">
+    <span class="md-ellipsis">
+      Claims
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-skore-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure skore-hub
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#login-logout-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Login / logout flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-and-caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes and caveats
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick verification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-secrets-are-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which secrets are needed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create the Secret
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-the-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install the backend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Install the backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-prepare-your-values-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Prepare your values file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-validate-before-applying" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Validate before applying
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Install / upgrade
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-the-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Verify the rollout
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-install-time-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common install-time settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-frontend-is-configured-at-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      The frontend is configured at runtime
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The frontend is configured at runtime">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-variables-skh_ui_" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime variables (SKH_UI_*)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topology-frontend-and-api-on-separate-hosts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Topology: frontend and API on separate hosts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-the-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy the frontend
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingress-tls-and-dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ingress, TLS and DNS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingress, TLS and DNS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      DNS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      TLS certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backend-ingress-chart-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend Ingress (chart-managed)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-preserve-host-and-scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important: preserve host and scheme
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#body-size-uploads" class="md-nav__link">
+    <span class="md-ellipsis">
+      Body size (uploads)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference-configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#images-and-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      Images and registry
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Images and registry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-pull-directly-from-scaleway" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A: Pull directly from Scaleway
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-mirror-into-your-internal-registry-air-gapped" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B: Mirror into your internal registry (air-gapped)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-content-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image content (backend)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#external-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      External services
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="External services">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Redis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3-compatible-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      S3-compatible object storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smtp" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMTP
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oidc-identity-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      OIDC identity provider
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OIDC identity provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#register-a-client-in-your-idp" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register a client in your IdP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Register a client in your IdP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      Redirect URIs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#claims" class="md-nav__link">
+    <span class="md-ellipsis">
+      Claims
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configure-skore-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure skore-hub
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#login-logout-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Login / logout flow
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-and-caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes and caveats
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick verification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-secrets-are-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which secrets are needed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create the Secret
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-the-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install the backend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Install the backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-prepare-your-values-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Prepare your values file
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-validate-before-applying" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Validate before applying
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Install / upgrade
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database migrations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-the-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Verify the rollout
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-install-time-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common install-time settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Frontend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-frontend-is-configured-at-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      The frontend is configured at runtime
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The frontend is configured at runtime">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-variables-skh_ui_" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runtime variables (SKH_UI_*)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#topology-frontend-and-api-on-separate-hosts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Topology: frontend and API on separate hosts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-the-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy the frontend
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ingress-tls-and-dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ingress, TLS and DNS
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingress, TLS and DNS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dns" class="md-nav__link">
+    <span class="md-ellipsis">
+      DNS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tls-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      TLS certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backend-ingress-chart-managed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backend Ingress (chart-managed)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-preserve-host-and-scheme" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important: preserve host and scheme
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#body-size-uploads" class="md-nav__link">
+    <span class="md-ellipsis">
+      Body size (uploads)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
+<p>This document covers the full installation flow, in deployment order: pulling the images, configuring the external services you provide, registering the OIDC client, creating the secrets, installing the backend, deploying the frontend, and exposing everything through the Ingress.</p>
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#images-and-registry">Images and registry</a></li>
+<li><a href="#external-services">External services</a></li>
+<li><a href="#oidc-identity-provider">OIDC identity provider</a></li>
+<li><a href="#secrets">Secrets</a></li>
+<li><a href="#install-the-backend">Install the backend</a></li>
+<li><a href="#frontend">Frontend</a></li>
+<li><a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a></li>
+</ul>
+<h2 id="images-and-registry">Images and registry<a class="headerlink" href="#images-and-registry" title="Permanent link">&para;</a></h2>
+<p>The skore-hub images are published on the <strong>Scaleway container registry</strong>. Probabl provides you with a dedicated username/password.</p>
+<ul>
+<li>Registry host: <code>rg.fr-par.scw.cloud</code></li>
+<li>Backend image: <code>rg.fr-par.scw.cloud/probabl-skh/skh:&lt;tag&gt;</code></li>
+<li>Frontend image: <code>rg.fr-par.scw.cloud/probabl-skh/skh-ui:&lt;tag&gt;</code> (see <a href="#frontend">Frontend</a>).</li>
+</ul>
+<p>Two kinds of tags are published for each image:</p>
+<ul>
+<li><code>X.Y.Z</code>: an immutable version tag matching the release (for example <code>skh:X.Y.Z</code>, <code>skh-ui:X.Y.Z</code>).</li>
+<li><code>latest</code>: always points to the most recent release. Convenient, but it moves.</li>
+</ul>
+<blockquote>
+<p>Each chart pins a default image tag through its <code>appVersion</code> (with <code>imagePullPolicy: IfNotPresent</code>), so deployments are reproducible out of the box. The current release is <code>0.33.0</code>; see the chart <code>appVersion</code> for the exact default. If you prefer to always track the newest release, set <code>image.tag: latest</code> and <code>imagePullPolicy: Always</code>.</p>
+</blockquote>
+<h3 id="option-a-pull-directly-from-scaleway">Option A: Pull directly from Scaleway<a class="headerlink" href="#option-a-pull-directly-from-scaleway" title="Permanent link">&para;</a></h3>
+<p>Create a Kubernetes <code>docker-registry</code> pull secret in the target namespace and reference it from the chart (<code>imagePullSecrets</code>).</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>skore-hub
+
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>docker-registry<span class="w"> </span>scw-registry<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-server<span class="o">=</span>rg.fr-par.scw.cloud<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-username<span class="o">=</span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-password<span class="o">=</span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
+</code></pre></div>
+<p>In your values file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">imagePullSecrets</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scw-registry</span>
+<span class="nt">image</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rg.fr-par.scw.cloud/probabl-skh/skh</span>
+<span class="w">  </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w">                 </span><span class="c1"># empty falls back to the chart appVersion; set &quot;X.Y.Z&quot; to override, or &quot;latest&quot;</span>
+<span class="w">  </span><span class="nt">pullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
+</code></pre></div>
+<p>Verify you can pull:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># from a machine with docker/podman and the credentials</span>
+docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
+docker<span class="w"> </span>pull<span class="w"> </span>rg.fr-par.scw.cloud/probabl-skh/skh:X.Y.Z
+</code></pre></div>
+<h3 id="option-b-mirror-into-your-internal-registry-air-gapped">Option B: Mirror into your internal registry (air-gapped)<a class="headerlink" href="#option-b-mirror-into-your-internal-registry-air-gapped" title="Permanent link">&para;</a></h3>
+<p>If cluster nodes cannot reach the public internet, mirror the images into your internal registry and point the chart at it.</p>
+<div class="highlight"><pre><span></span><code><span class="nv">SRC</span><span class="o">=</span>rg.fr-par.scw.cloud/probabl-skh/skh:X.Y.Z
+<span class="nv">DST</span><span class="o">=</span>registry.internal/skore-hub/skh:X.Y.Z
+
+<span class="c1"># On a host that can reach both registries:</span>
+docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
+docker<span class="w"> </span>pull<span class="w">  </span><span class="s2">&quot;</span><span class="nv">$SRC</span><span class="s2">&quot;</span>
+docker<span class="w"> </span>tag<span class="w">   </span><span class="s2">&quot;</span><span class="nv">$SRC</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DST</span><span class="s2">&quot;</span>
+docker<span class="w"> </span>login<span class="w"> </span>registry.internal
+docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quot;</span><span class="nv">$DST</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Then set <code>image.repository</code> to your internal path and create the corresponding <code>imagePullSecrets</code> (or rely on node-level registry auth).</p>
+<blockquote>
+<p><code>skopeo copy</code> is a convenient alternative for mirroring without a Docker daemon: <code>skopeo copy docker://$SRC docker://$DST</code>.</p>
+</blockquote>
+<h3 id="image-content-backend">Image content (backend)<a class="headerlink" href="#image-content-backend" title="Permanent link">&para;</a></h3>
+<p>The backend image is self-contained: it bundles the API server and the Alembic migration tooling. The Helm chart runs migrations with:</p>
+<div class="highlight"><pre><span></span><code>/skh/hub/.venv/bin/alembic upgrade head
+</code></pre></div>
+<p>You do not need any separate migration image; see <a href="#install-the-backend">Install the backend</a>.</p>
+<h2 id="external-services">External services<a class="headerlink" href="#external-services" title="Permanent link">&para;</a></h2>
+<p>skore-hub connects to services <strong>you operate</strong>. This section lists what each one is used for and the exact <code>SKH__*</code> settings to connect to it.</p>
+<blockquote>
+<p><strong>Sensitive vs non-sensitive.</strong> Non-sensitive settings go in <code>skh.env</code> (plain env). Secrets (passwords, keys) must come from a Kubernetes Secret via <code>skh.extraEnv</code> (<code>secretKeyRef</code>); see <a href="#secrets">Secrets</a>. The tables below mark secrets with 🔒.</p>
+</blockquote>
+<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
+<p><strong>Used for:</strong> all relational/application data. The schema is created and migrated automatically by the Alembic migration Job (see <a href="#install-the-backend">Install the backend</a>).</p>
+<p>Prepare beforehand:</p>
+<ul>
+<li>A dedicated database (e.g. <code>skore_hub</code>).</li>
+<li>A user that <strong>owns</strong> that database (needs DDL rights: the migration Job creates and alters tables).</li>
+<li>Optionally, TLS and a CA certificate.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host</td>
+<td><code>SKH__DB__HOST</code></td>
+<td><code>postgres.internal</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Port</td>
+<td><code>SKH__DB__PORT</code></td>
+<td><code>5432</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Database</td>
+<td><code>SKH__DB__NAME</code></td>
+<td><code>skore_hub</code></td>
+<td></td>
+</tr>
+<tr>
+<td>User 🔒</td>
+<td><code>SKH__DB__USER</code></td>
+<td><code>skore_hub</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Password 🔒</td>
+<td><code>SKH__DB__PASSWORD</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>TLS on/off</td>
+<td><code>SKH__DB__SSL_ENABLED</code></td>
+<td><code>true</code></td>
+<td></td>
+</tr>
+<tr>
+<td>CA cert path</td>
+<td><code>SKH__DB__SSL_ROOT_CERT</code></td>
+<td><code>/etc/ssl/certs/pg-ca.pem</code></td>
+<td>Mount via <code>volumes</code>/<code>volumeMounts</code>.</td>
+</tr>
+<tr>
+<td>Pool size</td>
+<td><code>SKH__DB__POOL_SIZE</code></td>
+<td><code>20</code></td>
+<td>Tune for <code>replicaCount</code>.</td>
+</tr>
+<tr>
+<td>Pool overflow</td>
+<td><code>SKH__DB__MAX_OVERFLOW</code></td>
+<td><code>10</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Connection budget.</strong> Max connections ≈ <code>replicaCount × (pool_size + max_overflow)</code>. Make sure PostgreSQL <code>max_connections</code> accommodates it.</p>
+</blockquote>
+<p>To mount a CA certificate for TLS, add to your values file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-ca</span>
+<span class="w">    </span><span class="nt">secret</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skore-hub-pg-ca</span>
+<span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg-ca</span>
+<span class="w">    </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/ssl/certs/pg-ca.pem</span>
+<span class="w">    </span><span class="nt">subPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ca.pem</span>
+<span class="w">    </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>
+<p><strong>Used for:</strong> OAuth token/state storage and API-key verification cache.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enabled</td>
+<td><code>SKH__REDIS__IS_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Set <code>true</code> in production.</td>
+</tr>
+<tr>
+<td>Host</td>
+<td><code>SKH__REDIS__HOST</code></td>
+<td><code>redis.internal</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Port</td>
+<td><code>SKH__REDIS__PORT</code></td>
+<td><code>6379</code></td>
+<td></td>
+</tr>
+<tr>
+<td>DB index</td>
+<td><code>SKH__REDIS__DB</code></td>
+<td><code>0</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Username 🔒</td>
+<td><code>SKH__REDIS__USERNAME</code></td>
+<td></td>
+<td>Redis ACL user (optional).</td>
+</tr>
+<tr>
+<td>Password 🔒</td>
+<td><code>SKH__REDIS__PASSWORD</code></td>
+<td></td>
+<td>Optional.</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td><code>SKH__REDIS__SSL</code></td>
+<td><code>true</code></td>
+<td></td>
+</tr>
+<tr>
+<td>TLS verify</td>
+<td><code>SKH__REDIS__SSL_CERT_REQS</code></td>
+<td><code>required</code></td>
+<td><code>required</code>/<code>optional</code>/<code>none</code>.</td>
+</tr>
+<tr>
+<td>CA certs</td>
+<td><code>SKH__REDIS__SSL_CA_CERTS</code></td>
+<td><code>/etc/ssl/certs/redis-ca.pem</code></td>
+<td>Mount if needed.</td>
+</tr>
+<tr>
+<td>Max connections</td>
+<td><code>SKH__REDIS__MAX_CONNECTIONS</code></td>
+<td><code>1000</code></td>
+<td></td>
+</tr>
+<tr>
+<td>API-key cache TTL</td>
+<td><code>SKH__REDIS__API_KEY_VERIFICATION_CACHE_TTL_SECONDS</code></td>
+<td><code>120</code></td>
+<td><code>0</code> disables caching.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s3-compatible-object-storage">S3-compatible object storage<a class="headerlink" href="#s3-compatible-object-storage" title="Permanent link">&para;</a></h3>
+<p><strong>Used for:</strong> storing uploaded artifacts and generated objects.</p>
+<p>Prepare beforehand: a bucket and an access key / secret key with read/write on it.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td><code>SKH__OBJECT_STORAGE__TYPE</code></td>
+<td><code>s3</code></td>
+<td><code>s3</code> for standard S3-compatible storage.</td>
+</tr>
+<tr>
+<td>Endpoint</td>
+<td><code>SKH__OBJECT_STORAGE__ENDPOINT</code></td>
+<td><code>https://s3.internal</code></td>
+<td>Your S3 API endpoint.</td>
+</tr>
+<tr>
+<td>Bucket</td>
+<td><code>SKH__OBJECT_STORAGE__BUCKET_NAME</code></td>
+<td><code>skore-hub</code></td>
+<td>Must exist.</td>
+</tr>
+<tr>
+<td>Region</td>
+<td><code>SKH__OBJECT_STORAGE__REGION_NAME</code></td>
+<td><code>eu-west-1</code></td>
+<td>Optional, if required by your provider.</td>
+</tr>
+<tr>
+<td>Access key 🔒</td>
+<td><code>SKH__OBJECT_STORAGE__ACCESS_KEY</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Secret key 🔒</td>
+<td><code>SKH__OBJECT_STORAGE__SECRET_KEY</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Presigned URL TTL</td>
+<td><code>SKH__OBJECT_STORAGE__PRESIGNED_URL_EXPIRES_IN</code></td>
+<td><code>3600</code></td>
+<td>Seconds.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>The backend generates <strong>presigned URLs</strong> for object download/upload. The <code>SKH__OBJECT_STORAGE__ENDPOINT</code> must therefore be reachable <strong>both</strong> from the backend pods <strong>and</strong> from the clients that use those URLs: end-user browsers (frontend) and the <strong>skore Python library</strong> in users' environments (or expose an equivalent endpoint that resolves to the same storage).</p>
+</blockquote>
+<h3 id="smtp">SMTP<a class="headerlink" href="#smtp" title="Permanent link">&para;</a></h3>
+<p><strong>Used for:</strong> transactional emails (e.g. notifications). Provide a relay reachable from the cluster.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host</td>
+<td><code>SKH__SMTP__HOST</code></td>
+<td><code>smtp.internal</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Port</td>
+<td><code>SKH__SMTP__PORT</code></td>
+<td><code>587</code></td>
+<td>25/465/587 depending on your relay.</td>
+</tr>
+<tr>
+<td>Use TLS</td>
+<td><code>SKH__SMTP__USE_TLS</code></td>
+<td><code>true</code></td>
+<td>STARTTLS/TLS.</td>
+</tr>
+<tr>
+<td>User 🔒</td>
+<td><code>SKH__SMTP__USER</code></td>
+<td></td>
+<td>Optional (open relays may not need it).</td>
+</tr>
+<tr>
+<td>Password 🔒</td>
+<td><code>SKH__SMTP__PASSWORD</code></td>
+<td></td>
+<td>Optional.</td>
+</tr>
+<tr>
+<td>Sender</td>
+<td><code>SKH__SMTP__SENDER</code></td>
+<td><code>no-reply@example.com</code></td>
+<td>From address.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="oidc-identity-provider">OIDC identity provider<a class="headerlink" href="#oidc-identity-provider" title="Permanent link">&para;</a></h2>
+<p>skore-hub delegates authentication to <strong>your</strong> OpenID Connect provider. The backend uses the standard OIDC building blocks only:</p>
+<ul>
+<li><strong>Discovery</strong>: <code>${SKH__IDP__BASE_URL}/.well-known/openid-configuration</code></li>
+<li><strong>Authorization Code flow</strong> (browser and Python library login)</li>
+<li><strong>Token endpoint</strong> (code exchange and refresh)</li>
+<li><strong>Userinfo endpoint</strong> (to read the user's profile)</li>
+<li><strong>Revocation / end-session endpoints</strong> (used for logout <strong>if advertised</strong> by the discovery document, optional)</li>
+</ul>
+<h3 id="register-a-client-in-your-idp">Register a client in your IdP<a class="headerlink" href="#register-a-client-in-your-idp" title="Permanent link">&para;</a></h3>
+<p>Create a <strong>confidential</strong> client (a client secret is used) with:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client type</td>
+<td>Confidential (server-side, has a secret)</td>
+</tr>
+<tr>
+<td>Grant types</td>
+<td><code>authorization_code</code>, <code>refresh_token</code></td>
+</tr>
+<tr>
+<td>Response type</td>
+<td><code>code</code></td>
+</tr>
+<tr>
+<td>Scopes</td>
+<td><code>openid</code>, <code>profile</code>, <code>email</code>, <code>offline_access</code></td>
+</tr>
+<tr>
+<td>Token endpoint auth</td>
+<td><code>client_secret_basic</code> or <code>client_secret_post</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="redirect-uris">Redirect URIs<a class="headerlink" href="#redirect-uris" title="Permanent link">&para;</a></h4>
+<p>Register these <strong>exact</strong> callback URLs, where <code>&lt;API_HOST&gt;</code> is the public FQDN of the <strong>backend</strong> (the host on your Ingress that routes to the backend service):</p>
+<div class="highlight"><pre><span></span><code>https://&lt;API_HOST&gt;/identity/oauth/callback
+https://&lt;API_HOST&gt;/identity/oauth/device/callback
+</code></pre></div>
+<blockquote>
+<p>The backend derives the redirect URI from the incoming request host, so the public URL used by browsers must match exactly what you register (scheme, host, path). Ensure your Ingress preserves the original host and forwards <code>X-Forwarded-Proto: https</code>.</p>
+</blockquote>
+<h4 id="claims">Claims<a class="headerlink" href="#claims" title="Permanent link">&para;</a></h4>
+<p>The <code>userinfo</code> endpoint (and/or the ID token) must expose these standard claims:</p>
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Used for</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sub</code></td>
+<td>Stable unique user id</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>User email</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>email_verified</code></td>
+<td>Verification flag</td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td><code>given_name</code></td>
+<td>First name</td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td><code>family_name</code></td>
+<td>Last name</td>
+<td>Recommended</td>
+</tr>
+</tbody>
+</table>
+<p>Make sure the <code>profile</code> and <code>email</code> scopes are granted so these claims are returned; otherwise user names/emails will be empty.</p>
+<h3 id="configure-skore-hub">Configure skore-hub<a class="headerlink" href="#configure-skore-hub" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable IdP</td>
+<td><code>SKH__IDP__IS_ENABLED</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td>Issuer / base URL</td>
+<td><code>SKH__IDP__BASE_URL</code></td>
+<td><code>https://sso.example.com/realms/skore</code></td>
+</tr>
+<tr>
+<td>Scopes</td>
+<td><code>SKH__IDP__SCOPE</code></td>
+<td><code>openid profile email offline_access</code></td>
+</tr>
+<tr>
+<td>Client id 🔒</td>
+<td><code>SKH__IDP__CLIENT_ID</code></td>
+<td><em>(from your IdP)</em></td>
+</tr>
+<tr>
+<td>Client secret 🔒</td>
+<td><code>SKH__IDP__CLIENT_SECRET</code></td>
+<td><em>(from your IdP)</em></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>SKH__IDP__BASE_URL</code> is the <strong>issuer</strong> URL. The backend appends <code>/.well-known/openid-configuration</code> to discover the other endpoints, so it must be reachable from the backend pods and return the standard discovery document.</li>
+</ul>
+<h3 id="login-logout-flow">Login / logout flow<a class="headerlink" href="#login-logout-flow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>The frontend sends the user to the backend <code>/identity/oauth/login</code>.</li>
+<li>The backend redirects the browser to your IdP authorization endpoint.</li>
+<li>After authentication, the IdP redirects back to <code>/identity/oauth/callback</code> with an authorization <code>code</code>.</li>
+<li>The backend exchanges the code for tokens, reads the profile from the <code>userinfo</code> endpoint, provisions/updates the local user, and sets session cookies.</li>
+<li>On <strong>logout</strong>, the backend revokes the tokens (if the IdP advertises a <code>revocation_endpoint</code>) and clears the cookies.</li>
+</ol>
+<h3 id="notes-and-caveats">Notes and caveats<a class="headerlink" href="#notes-and-caveats" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>User provisioning is just-in-time</strong>: users are created/updated in skore-hub on their first successful login, from the OIDC <code>userinfo</code> claims. There is no bulk user import on this path.</li>
+<li>If your IdP does <strong>not</strong> advertise a <code>revocation_endpoint</code> or <code>end_session_endpoint</code>, logout still works (cookies are cleared); it simply won't call those endpoints.</li>
+<li>Use HTTPS end to end. Cookies are issued with <code>Secure</code> and <code>SameSite=Lax</code> by default (<code>SKH__COOKIE__SECURE</code>, <code>SKH__COOKIE__SAMESITE</code>).</li>
+</ul>
+<h3 id="quick-verification">Quick verification<a class="headerlink" href="#quick-verification" title="Permanent link">&para;</a></h3>
+<p>From a pod that can reach the IdP:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SKH__IDP__BASE_URL</span><span class="si">}</span><span class="s2">/.well-known/openid-configuration&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;{issuer, authorization_endpoint, token_endpoint, userinfo_endpoint, end_session_endpoint, revocation_endpoint}&#39;</span>
+</code></pre></div>
+<p>You should get a valid JSON document with at least <code>issuer</code>, <code>authorization_endpoint</code>, <code>token_endpoint</code> and <code>userinfo_endpoint</code>.</p>
+<h2 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h2>
+<p>skore-hub reads its configuration from <code>SKH__*</code> environment variables. Sensitive values must come from Kubernetes Secrets, not from a plain values file.</p>
+<h3 id="which-secrets-are-needed">Which secrets are needed<a class="headerlink" href="#which-secrets-are-needed" title="Permanent link">&para;</a></h3>
+<p>Create a Secret (default name <code>skore-hub-backend-secrets</code>) with these keys. The keys below match the <code>secretKeyRef</code> mappings in <code>values.example.yaml</code> (<code>skh.extraEnv</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Secret key</th>
+<th>Maps to env var</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>db-user</code></td>
+<td><code>SKH__DB__USER</code></td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td><code>db-password</code></td>
+<td><code>SKH__DB__PASSWORD</code></td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td><code>idp-client-id</code></td>
+<td><code>SKH__IDP__CLIENT_ID</code></td>
+<td>OIDC</td>
+</tr>
+<tr>
+<td><code>idp-client-secret</code></td>
+<td><code>SKH__IDP__CLIENT_SECRET</code></td>
+<td>OIDC</td>
+</tr>
+<tr>
+<td><code>s3-access-key</code></td>
+<td><code>SKH__OBJECT_STORAGE__ACCESS_KEY</code></td>
+<td>S3</td>
+</tr>
+<tr>
+<td><code>s3-secret-key</code></td>
+<td><code>SKH__OBJECT_STORAGE__SECRET_KEY</code></td>
+<td>S3</td>
+</tr>
+<tr>
+<td><code>redis-password</code></td>
+<td><code>SKH__REDIS__PASSWORD</code></td>
+<td>Redis (if used)</td>
+</tr>
+<tr>
+<td><code>smtp-user</code></td>
+<td><code>SKH__SMTP__USER</code></td>
+<td>SMTP (if used)</td>
+</tr>
+<tr>
+<td><code>smtp-password</code></td>
+<td><code>SKH__SMTP__PASSWORD</code></td>
+<td>SMTP (if used)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Only include the keys you actually use. If a service needs no auth (e.g. an open SMTP relay), omit its keys and remove the matching entries from <code>skh.extraEnv</code>.</p>
+</blockquote>
+<h3 id="create-the-secret">Create the Secret<a class="headerlink" href="#create-the-secret" title="Permanent link">&para;</a></h3>
+<p>Create the Secret directly. The chart references it via <code>secretKeyRef</code> (<code>skh.extraEnv</code>), so nothing sensitive is stored in Helm values or history.</p>
+<p>If you manage secrets through an external system (Vault, a cloud secret manager, SealedSecrets, an operator, ...), produce the same <code>skore-hub-backend-secrets</code> Secret with the keys above through your usual mechanism.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>skore-hub-backend-secrets<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>db-user<span class="o">=</span><span class="s1">&#39;skore_hub&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>db-password<span class="o">=</span><span class="s1">&#39;&lt;db-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-id<span class="o">=</span><span class="s1">&#39;&lt;client-id&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-secret<span class="o">=</span><span class="s1">&#39;&lt;client-secret&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>s3-access-key<span class="o">=</span><span class="s1">&#39;&lt;s3-access-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>s3-secret-key<span class="o">=</span><span class="s1">&#39;&lt;s3-secret-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>redis-password<span class="o">=</span><span class="s1">&#39;&lt;redis-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>smtp-user<span class="o">=</span><span class="s1">&#39;&lt;smtp-user&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>smtp-password<span class="o">=</span><span class="s1">&#39;&lt;smtp-password&gt;&#39;</span>
+</code></pre></div>
+<p>This is the default assumed by <a href="#install-the-backend">Install the backend</a>.</p>
+<blockquote>
+<p><strong>envFrom vs secretKeyRef.</strong> By default the chart also references <code>skh.envSecret</code> via <code>envFrom</code>. If you inject every sensitive value through <code>skh.extraEnv</code> (<code>secretKeyRef</code>) as above, the two mechanisms point at the same Secret and that is fine. If you prefer to inject the whole Secret wholesale, name each Secret key exactly as the <code>SKH__*</code> env var and drop the <code>skh.extraEnv</code> mappings. To disable <code>envFrom</code> entirely, set <code>skh.envSecret: ""</code>.</p>
+</blockquote>
+<h3 id="rotation">Rotation<a class="headerlink" href="#rotation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Rotating DB/S3/SMTP/Redis credentials or the IdP client secret: update the Secret, then restart the backend:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deploy/skore-hub-backend
+</code></pre></div>
+<h2 id="install-the-backend">Install the backend<a class="headerlink" href="#install-the-backend" title="Permanent link">&para;</a></h2>
+<p>This section installs the <code>skore-hub-backend</code> Helm chart. It assumes you have:</p>
+<ul>
+<li>pulled/mirrored the image (<a href="#images-and-registry">Images and registry</a>),</li>
+<li>prepared PostgreSQL, Redis, S3, SMTP (<a href="#external-services">External services</a>),</li>
+<li>registered the OIDC client (<a href="#oidc-identity-provider">OIDC</a>),</li>
+<li>created the registry pull secret and the application Secret (<a href="#secrets">Secrets</a>).</li>
+</ul>
+<p>Add the chart repository (once per workstation):</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>probabl<span class="w"> </span>https://probabl-ai.github.io/charts
+helm<span class="w"> </span>repo<span class="w"> </span>update
+helm<span class="w"> </span>search<span class="w"> </span>repo<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span>--versions
+</code></pre></div>
+<h3 id="1-prepare-your-values-file">1. Prepare your values file<a class="headerlink" href="#1-prepare-your-values-file" title="Permanent link">&para;</a></h3>
+<p>Generate a starting values file from the chart defaults and adapt it:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>show<span class="w"> </span>values<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span>&gt;<span class="w"> </span>values.yaml
+<span class="nv">$EDITOR</span><span class="w"> </span>values.yaml
+</code></pre></div>
+<p>A ready-to-adapt example (<code>values.example.yaml</code>) is also available alongside the chart in the <a href="https://github.com/probabl-ai/charts/tree/main/charts/skore-hub-backend">repository</a>.</p>
+<p>At minimum, set: <code>image.repository</code>/<code>image.tag</code>, <code>imagePullSecrets</code>, all <code>skh.env</code> connection settings, the <code>skh.extraEnv</code> secret mappings, and <code>ingress</code> (see <a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a>).</p>
+<h3 id="2-validate-before-applying">2. Validate before applying<a class="headerlink" href="#2-validate-before-applying" title="Permanent link">&para;</a></h3>
+<p>Render the manifests locally and review them:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>lint<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span>-f<span class="w"> </span>values.yaml
+
+helm<span class="w"> </span>template<span class="w"> </span>skore-hub<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>-f<span class="w"> </span>values.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
+</code></pre></div>
+<h3 id="3-install-upgrade">3. Install / upgrade<a class="headerlink" href="#3-install-upgrade" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>skore-hub<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--version<span class="w"> </span>&lt;chart-version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span>values.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--wait<span class="w"> </span>--timeout<span class="w"> </span>10m
+</code></pre></div>
+<p>Pick <code>&lt;chart-version&gt;</code> from <code>helm search repo ... --versions</code> to pin a specific chart release; omit <code>--version</code> to install the latest.</p>
+<blockquote>
+<p><strong>Install from source (alternative).</strong> If you prefer to work from a checkout instead of the hosted repository, clone <code>https://github.com/probabl-ai/charts</code> and point Helm at the local path, e.g. <code>helm upgrade --install skore-hub charts/skore-hub-backend -n skore-hub -f values.yaml</code>.</p>
+</blockquote>
+<p><code>--wait</code> blocks until the Deployment is ready. The database migration Job runs <strong>before</strong> the app rolls out (see below).</p>
+<h3 id="database-migrations">Database migrations<a class="headerlink" href="#database-migrations" title="Permanent link">&para;</a></h3>
+<p>Migrations run automatically as a Helm hook <strong>Job</strong> on every <code>install</code> and <code>upgrade</code>, before the new pods start:</p>
+<ul>
+<li>Command: <code>/skh/hub/.venv/bin/alembic upgrade head</code></li>
+<li>Hook: <code>pre-install,pre-upgrade</code></li>
+<li>The Job uses the same image and the same DB credentials as the app.</li>
+</ul>
+<p>Migrations always run: the application cannot start against an un-migrated schema, so there is no toggle to skip them.</p>
+<p>Requirements:</p>
+<ul>
+<li>The DB user must be allowed to create/alter tables (DDL) on the target database.</li>
+<li>Migrations are <strong>idempotent</strong>: re-running against an up-to-date schema is a no-op.</li>
+</ul>
+<p>Inspect the migration Job:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>get<span class="w"> </span><span class="nb">jobs</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>logs<span class="w"> </span>job/skore-hub-backend-db-migrations
+</code></pre></div>
+<p>If the Job fails, the release fails fast; fix the DB connectivity/permissions and re-run the <code>helm upgrade</code>.</p>
+<h3 id="4-verify-the-rollout">4. Verify the rollout<a class="headerlink" href="#4-verify-the-rollout" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/instance<span class="o">=</span>skore-hub
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deploy/skore-hub-backend
+</code></pre></div>
+<p>Then run the smoke tests in <a href="../02-operations/#verification-and-smoke-tests">Verification and smoke tests</a>.</p>
+<h3 id="common-install-time-settings">Common install-time settings<a class="headerlink" href="#common-install-time-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>More API replicas</td>
+<td><code>replicaCount: 3</code></td>
+</tr>
+<tr>
+<td>Autoscaling</td>
+<td><code>autoscaling.enabled: true</code>, <code>minReplicas</code>, <code>maxReplicas</code></td>
+</tr>
+<tr>
+<td>CPU/memory</td>
+<td><code>resources.requests</code> / <code>resources.limits</code> (default example: request cpu <code>1</code> / mem <code>4Gi</code>, limit mem <code>4Gi</code>, no CPU limit)</td>
+</tr>
+<tr>
+<td>Clean resource names</td>
+<td><code>fullnameOverride: skore-hub-backend</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h2>
+<p>The skore-hub <strong>frontend</strong> is a static Single Page Application (SPA) served by <strong>nginx</strong>. It is delivered as:</p>
+<ul>
+<li>a container image, published on the Scaleway registry (<code>rg.fr-par.scw.cloud/probabl-skh/skh-ui</code>), and</li>
+<li>the <strong><code>skore-hub-frontend</code> Helm chart</strong> (in this repository, under <code>charts/skore-hub-frontend/</code>).</li>
+</ul>
+<h3 id="the-frontend-is-configured-at-runtime">The frontend is configured at runtime<a class="headerlink" href="#the-frontend-is-configured-at-runtime" title="Permanent link">&para;</a></h3>
+<p>The SPA is configured at <strong>runtime</strong> through <code>SKH_UI_*</code> environment variables (most importantly the <strong>backend API URL</strong>), set via the chart's <code>env</code> map.</p>
+<p>You configure the SPA by setting the <code>SKH_UI_*</code> variables below. Any variable you leave unset or empty falls back to the image's built-in default.</p>
+<h4 id="runtime-variables-skh_ui_">Runtime variables (<code>SKH_UI_*</code>)<a class="headerlink" href="#runtime-variables-skh_ui_" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH_UI_API_BASE_URL</code></td>
+<td>Backend API base URL used by the SPA. Also injected into JupyterLite as <code>SKORE_HUB_URI</code> so the embedded skore library reaches the Hub (see note below).</td>
+</tr>
+<tr>
+<td><code>SKH_UI_IDP_PROFILE_SETTINGS_URL</code></td>
+<td>Link to the IdP account settings page, shown in the toolbar menu.</td>
+</tr>
+<tr>
+<td><code>SKH_UI_SENTRY_DSN</code></td>
+<td>Error reporting DSN. Leave <strong>empty</strong> to disable Sentry; no DSN is baked into the image, so error reporting is <strong>off by default</strong> and your users' frontend errors are <strong>not</strong> sent anywhere.</td>
+</tr>
+<tr>
+<td><code>SKH_UI_SENTRY_ENVIRONMENT</code></td>
+<td>Optional. Sentry environment tag (only relevant if a DSN is set).</td>
+</tr>
+<tr>
+<td><code>SKH_UI_SENTRY_RELEASE</code></td>
+<td>Optional. Sentry release tag.</td>
+</tr>
+<tr>
+<td><code>SKH_UI_BUILD_VERSION</code></td>
+<td>Optional. UI version shown in the About dialog.</td>
+</tr>
+<tr>
+<td><code>SKH_UI_JUPYTERLITE_URL</code></td>
+<td>Optional. Override for the JupyterLite iframe URL.</td>
+</tr>
+</tbody>
+</table>
+<p>Whatever you put under the chart's <code>env</code> map is forwarded to the container as-is.</p>
+<blockquote>
+<p><strong>JupyterLite / skore library.</strong> The SPA embeds JupyterLite, which runs the Python <code>skore</code> library in the browser (Pyodide). It discovers the Hub through the <code>SKORE_HUB_URI</code> environment variable, which the image patches into <code>jupyter-lite.json</code> from <code>SKH_UI_API_BASE_URL</code> at startup. Because Python cannot use a relative URL, <strong>always set <code>SKH_UI_API_BASE_URL</code> to an absolute URL</strong>, otherwise the embedded skore library will not reach the Hub.</p>
+</blockquote>
+<h3 id="topology-frontend-and-api-on-separate-hosts">Topology: frontend and API on separate hosts<a class="headerlink" href="#topology-frontend-and-api-on-separate-hosts" title="Permanent link">&para;</a></h3>
+<p>Expose the frontend and the backend API on <strong>two separate hosts</strong>:</p>
+<div class="highlight"><pre><span></span><code>https://skore-hub.example.com       -&gt; frontend
+https://api.skore-hub.example.com   -&gt; backend
+</code></pre></div>
+<p>Set the backend API URL on the frontend to the absolute API host:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">env</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">SKH_UI_API_BASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://api.skore-hub.example.com&quot;</span>
+<span class="w">  </span><span class="nt">SKH_UI_IDP_PROFILE_SETTINGS_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://idp.example.com/account&quot;</span>
+<span class="w">  </span><span class="nt">SKH_UI_SENTRY_DSN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+</code></pre></div>
+<p>Because the browser origin (frontend) differs from the API origin, you <strong>must</strong> configure CORS and cross-site cookies on the backend:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">SKH__UI_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://skore-hub.example.com&quot;</span>
+<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_ORIGINS</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[&quot;https://skore-hub.example.com&quot;]&#39;</span>
+<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_CREDENTIALS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="c1"># Cookies must be sent cross-site:</span>
+<span class="w">    </span><span class="nt">SKH__COOKIE__SAMESITE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="w">    </span><span class="nt">SKH__COOKIE__SECURE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+</code></pre></div>
+<p>OIDC redirect URIs use the <strong>API</strong> host: <code>https://api.skore-hub.example.com/identity/oauth/callback</code>.</p>
+<blockquote>
+<p><code>SameSite=none</code> requires <code>Secure</code>, so both hosts must be served over HTTPS.</p>
+</blockquote>
+<h3 id="deploy-the-frontend">Deploy the frontend<a class="headerlink" href="#deploy-the-frontend" title="Permanent link">&para;</a></h3>
+<p>The frontend deploys like the backend (same chart repository, same registry pull secret, same namespace):</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>show<span class="w"> </span>values<span class="w"> </span>probabl/skore-hub-frontend<span class="w"> </span>&gt;<span class="w"> </span>frontend-values.yaml
+<span class="nv">$EDITOR</span><span class="w"> </span>frontend-values.yaml
+
+helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>skore-hub-ui<span class="w"> </span>probabl/skore-hub-frontend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--version<span class="w"> </span>&lt;chart-version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>-f<span class="w"> </span>frontend-values.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--wait<span class="w"> </span>--timeout<span class="w"> </span>5m
+</code></pre></div>
+<p>Set at least <code>image.repository</code>/<code>image.tag</code>, <code>imagePullSecrets</code>, the runtime <code>env</code> (<code>SKH_UI_API_BASE_URL</code>, <code>SKH_UI_IDP_PROFILE_SETTINGS_URL</code>, empty <code>SKH_UI_SENTRY_DSN</code>), and <code>ingress</code>. See the chart's <a href="https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md">README</a> and <a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a>.</p>
+<h2 id="ingress-tls-and-dns">Ingress, TLS and DNS<a class="headerlink" href="#ingress-tls-and-dns" title="Permanent link">&para;</a></h2>
+<p>This section exposes skore-hub to users over HTTPS. Adapt to your ingress controller and certificate tooling.</p>
+<h3 id="dns">DNS<a class="headerlink" href="#dns" title="Permanent link">&para;</a></h3>
+<p>Create DNS records that resolve to your ingress controller's load balancer, one per host:</p>
+<ul>
+<li><code>skore-hub.example.com</code> (frontend)</li>
+<li><code>api.skore-hub.example.com</code> (backend)</li>
+</ul>
+<h3 id="tls-certificates">TLS certificates<a class="headerlink" href="#tls-certificates" title="Permanent link">&para;</a></h3>
+<p>Use whichever fits your environment:</p>
+<ul>
+<li><strong>cert-manager</strong> with an internal/ACME issuer (add the issuer annotation to the Ingress and let it create the <code>tls</code> secret), or</li>
+<li><strong>corporate PKI</strong>: create a <code>kubernetes.io/tls</code> secret manually.</li>
+</ul>
+<p>Manual TLS secret example:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>tls<span class="w"> </span>skore-hub-api-tls<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cert<span class="o">=</span>api.crt<span class="w"> </span>--key<span class="o">=</span>api.key
+</code></pre></div>
+<h3 id="backend-ingress-chart-managed">Backend Ingress (chart-managed)<a class="headerlink" href="#backend-ingress-chart-managed" title="Permanent link">&para;</a></h3>
+<p>The backend chart can create its own Ingress:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">className</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nginx&quot;</span><span class="w">          </span><span class="c1"># your IngressClass</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">             </span><span class="c1"># controller-specific annotations</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.skore-hub.example.com</span>
+<span class="w">      </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">          </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prefix</span>
+<span class="w">  </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skore-hub-api-tls</span>
+<span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.skore-hub.example.com</span>
+</code></pre></div>
+<p>The chart auto-selects the correct Ingress API version for your cluster.</p>
+<h3 id="important-preserve-host-and-scheme">Important: preserve host and scheme<a class="headerlink" href="#important-preserve-host-and-scheme" title="Permanent link">&para;</a></h3>
+<p>The backend builds OIDC redirect URIs from the incoming request. Your ingress / proxy must forward the original host and mark the connection as HTTPS:</p>
+<ul>
+<li><code>Host</code> header preserved (do not rewrite to the internal Service name).</li>
+<li><code>X-Forwarded-Proto: https</code> set by the TLS-terminating hop.</li>
+</ul>
+<p>Most controllers do this by default. If redirect URIs come out as <code>http://</code> or with the wrong host, this is the first thing to check (<a href="../02-operations/#troubleshooting">Troubleshooting</a>).</p>
+<h3 id="body-size-uploads">Body size (uploads)<a class="headerlink" href="#body-size-uploads" title="Permanent link">&para;</a></h3>
+<p>skore-hub uploads artifacts to S3. If you proxy uploads through the ingress, raise the max body size accordingly, e.g. for ingress-nginx:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100m&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>
