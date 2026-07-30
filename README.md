@@ -41,7 +41,8 @@ configuration options.
 
 ## Documentation
 
-The full deployment and operations guide lives under [`docs/`](docs/README.md):
+The full deployment and operations guide lives under [`docs/`](docs/README.md) and
+is published at <https://probabl-ai.github.io/charts/docs/>:
 
 - [Overview, architecture and prerequisites](docs/README.md)
 - [Installation](docs/01-installation.md): images, external services, OIDC, secrets, backend, frontend, ingress.
