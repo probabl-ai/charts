@@ -11,6 +11,7 @@ This document covers the full installation flow, in deployment order: pulling th
 - [Install the backend](#install-the-backend)
 - [Frontend](#frontend)
 - [Ingress, TLS and DNS](#ingress-tls-and-dns)
+- [Skore agent (optional)](#skore-agent-optional)
 
 ## Images and registry
 
@@ -135,11 +136,11 @@ volumeMounts:
 
 ### Redis
 
-**Used for:** OAuth token/state storage and API-key verification cache.
+**Used for:** OAuth token/state storage, API-key verification cache, and Skore agent harness session state (message history, pending tool calls) when running more than one backend replica.
 
 | Setting | Env var | Example | Notes |
 | --- | --- | --- | --- |
-| Enabled | `SKH__REDIS__IS_ENABLED` | `true` | Set `true` in production. |
+| Enabled | `SKH__REDIS__IS_ENABLED` | `true` | Set `true` in production. **Required** for the agent when `replicaCount > 1`. |
 | Host | `SKH__REDIS__HOST` | `redis.internal` | |
 | Port | `SKH__REDIS__PORT` | `6379` | |
 | DB index | `SKH__REDIS__DB` | `0` | |
@@ -285,6 +286,11 @@ Create a Secret (default name `skore-hub-backend-secrets`) with these keys. The 
 | `redis-password` | `SKH__REDIS__PASSWORD` | Redis (if used) |
 | `smtp-user` | `SKH__SMTP__USER` | SMTP (if used) |
 | `smtp-password` | `SKH__SMTP__PASSWORD` | SMTP (if used) |
+| `encryption-key` | `SKH__ENCRYPTION__KEY` | Skore agent (required for per-workspace providers) |
+| `anthropic-api-key` | `SKH__AGENT__ANTHROPIC_API_KEY` | Skore agent (Skore-managed path, if used) |
+| `bedrock-external-id` | `SKH__AGENT__BEDROCK_EXTERNAL_ID` | Skore agent Bedrock (if using assume-role) |
+| `aws-access-key-id` | `SKH__AGENT__AWS_ACCESS_KEY_ID` | Skore agent Bedrock (if using static creds) |
+| `aws-secret-access-key` | `SKH__AGENT__AWS_SECRET_ACCESS_KEY` | Skore agent Bedrock (if using static creds) |
 
 > Only include the keys you actually use. If a service needs no auth (e.g. an open SMTP relay), omit its keys and remove the matching entries from `skh.extraEnv`.
 
@@ -304,8 +310,12 @@ kubectl -n skore-hub create secret generic skore-hub-backend-secrets \
   --from-literal=s3-secret-key='<s3-secret-key>' \
   --from-literal=redis-password='<redis-password>' \
   --from-literal=smtp-user='<smtp-user>' \
-  --from-literal=smtp-password='<smtp-password>'
+  --from-literal=smtp-password='<smtp-password>' \
+  --from-literal=encryption-key='<fernet-key>' \
+  --from-literal=anthropic-api-key='<sk-ant-...>'
 ```
+
+Only add the Bedrock keys (`bedrock-external-id`, `aws-access-key-id`, `aws-secret-access-key`) if you use the Bedrock provider with static credentials; on EKS prefer IRSA (see [Skore agent](#skore-agent-optional)).
 
 This is the default assumed by [Install the backend](#install-the-backend).
 
@@ -563,3 +573,56 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
 ```
+
+### Streaming (Skore agent)
+
+The Skore agent exposes streaming endpoints (`/v1/chat/completions`, `/v1/messages`) that hold long-lived Server-Sent Events connections, potentially longer than a single LLM turn. The hub sets `X-Accel-Buffering: no` on these responses, but your ingress / load balancer must also cooperate:
+
+- **Disable response buffering** for these paths (e.g. ingress-nginx `proxy-buffering: "off"`, or per-route).
+- **Raise read/idle timeouts** above your longest expected LLM turn (e.g. `proxy-read-timeout: "3600"`, `proxy-send-timeout: "3600"`).
+- Keep `Connection: keep-alive` and do not close idle SSE sockets early.
+
+Example for ingress-nginx (apply to the backend Ingress, scoped to the agent paths if your controller supports path-specific annotations):
+
+```yaml
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+```
+
+## Skore agent (optional)
+
+The Skore agent is the hub-side LLM orchestration ("brain") exposed to harnesses (Claude Code, OpenCode, Cursor, Pi) as an OpenAI/Anthropic-compatible endpoint on `/v1/chat/completions`, `/v1/messages`, `/v1/models`. It is **off by default** (`SKH__AGENT__BACKEND=mock`) and requires configuration plus outbound LLM access to be functional.
+
+> [!NOTE]
+> **Air-gapped notice.** The agent only supports Anthropic (SaaS) and AWS Bedrock as LLM backends. A deployment with no outbound access to either is **not supported** in this version.
+
+### Network egress
+
+Backend pods need outbound HTTPS to the LLM provider you select:
+
+| Provider | Egress destination | Notes |
+| --- | --- | --- |
+| Anthropic | `api.anthropic.com` (443) | Skore-managed path and BYO Anthropic workspaces. |
+| AWS Bedrock | `bedrock-runtime.<region>.amazonaws.com` (443) + `sts.amazonaws.com` (443) | STS only needed for assume-role. |
+
+### Required configuration
+
+1. **Migrations** — the `agent_workspace_provider_config` table is created by the standard Alembic migration Job; no extra step.
+2. **Encryption key** — set `SKH__ENCRYPTION__KEY` (Fernet) so workspaces can store their own provider credentials. See [Encryption](reference-configuration.md#encryption-encryption).
+3. **Global agent settings** — at minimum `SKH__AGENT__BACKEND=anthropic` and a provider. See the full reference in [Skore agent](reference-configuration.md#skore-agent-agent).
+4. **Redis** — required when `replicaCount > 1` (agent session state).
+
+### Deployment models
+
+| Model | What the operator provides | Per-workspace setup |
+| --- | --- | --- |
+| **Skore-managed** | `SKH__AGENT__ANTHROPIC_API_KEY` + `SKH__AGENT__MANAGED_EMAILS` allowlist | Activate a `skore` provider (no credentials stored) |
+| **BYO Anthropic** | `SKH__ENCRYPTION__KEY` (global key may stay empty) | Register and activate an Anthropic key via the Hub UI |
+| **BYO Bedrock** | AWS credentials or IAM role (see [Bedrock IAM](03-agent-setup.md)) | Register and activate AWS creds/role via the Hub UI |
+
+Every workspace needs exactly one **active** provider in all three cases; there is no silent fallback to the global configuration.
+
+The full onboarding workflow (provider registration, harness setup wizard, workspace API keys) is in [Agent setup](03-agent-setup.md).
