@@ -1,0 +1,824 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Deploy and operate the skore-hub platform on Kubernetes.">
+      
+      
+      
+        <link rel="canonical" href="https://probabl-ai.github.io/charts/docs/03-agent-setup/">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
+    
+    
+      
+        <title>Agent setup - skore-hub Deployment Guide</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agent-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="skore-hub Deployment Guide" class="md-header__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            skore-hub Deployment Guide
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Agent setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="skore-hub Deployment Guide" class="md-nav__button md-logo" aria-label="skore-hub Deployment Guide" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    skore-hub Deployment Guide
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/probabl-ai/charts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    probabl-ai/charts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference-configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#minimal-global-config-by-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimal global config by model
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bedrock-iam-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bedrock IAM patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bedrock IAM patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aws-side-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      AWS-side prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-irsa-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 1 — IRSA (EKS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-static-credentials-vanilla-on-prem-non-eks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 2 — Static credentials (vanilla on-prem / non-EKS)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-cross-account-assume-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pattern 3 — Cross-account assume-role
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#activate-the-agent-on-the-hub" class="md-nav__link">
+    <span class="md-ellipsis">
+      Activate the agent on the hub
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#register-a-workspace-llm-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      Register a workspace LLM provider
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-workspace-api-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a workspace API key
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#point-a-harness-at-the-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Point a harness at the agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-end-to-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify end to end
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="agent-setup">Agent setup<a class="headerlink" href="#agent-setup" title="Permanent link">&para;</a></h1>
+<p>This document covers the post-install onboarding of the <strong>Skore agent</strong>, the hub-side LLM orchestration exposed to harnesses (Claude Code, OpenCode, Cursor, Pi) as an OpenAI/Anthropic-compatible endpoint on <code>/v1/chat/completions</code>, <code>/v1/messages</code>, <code>/v1/models</code>.</p>
+<p>It assumes the backend is already installed (<a href="../01-installation/#install-the-backend">Installation</a>) and reachable. For the full list of <code>SKH__AGENT__*</code> and <code>SKH__ENCRYPTION__*</code> settings, see <a href="../reference-configuration/#skore-agent-agent">Configuration reference</a>.</p>
+<blockquote>
+<p>[!NOTE]
+<strong>Air-gapped notice.</strong> The agent only supports <strong>Anthropic</strong> (SaaS) and <strong>AWS Bedrock</strong> as LLM backends. A deployment with no outbound access to either is <strong>not supported</strong> in this version. See <a href="#deployment-models">Deployment models</a>.</p>
+</blockquote>
+<h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#deployment-models">Deployment models</a></li>
+<li><a href="#bedrock-iam-patterns">Bedrock IAM patterns</a></li>
+<li><a href="#activate-the-agent-on-the-hub">Activate the agent on the hub</a></li>
+<li><a href="#register-a-workspace-llm-provider">Register a workspace LLM provider</a></li>
+<li><a href="#create-a-workspace-api-key">Create a workspace API key</a></li>
+<li><a href="#point-a-harness-at-the-agent">Point a harness at the agent</a></li>
+<li><a href="#verify-end-to-end">Verify end to end</a></li>
+</ul>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Before a workspace can use the agent:</p>
+<ol>
+<li>
+<p><strong>Migrations applied.</strong> The <code>agent_workspace_provider_config</code> table is created by the standard Alembic migration Job run on every Helm install/upgrade (<a href="../01-installation/#install-the-backend">Install the backend</a>). No extra step.</p>
+</li>
+<li>
+<p><strong>Encryption key set.</strong> <code>SKH__ENCRYPTION__KEY</code> (Fernet) is <strong>required</strong> for workspaces to store their own provider credentials (Anthropic API keys, AWS/Bedrock keys, STS external ids) encrypted at rest. Generate one:</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())&quot;</span>
+</code></pre></div>
+<p>Store it in the <code>skore-hub-backend-secrets</code> Secret under the <code>encryption-key</code> key and reference it via <code>skh.extraEnv</code> (<a href="../01-installation/#secrets">Secrets</a>). Do not rotate it without re-encrypting stored secrets (<a href="../02-operations/#skore-agent-operations">Operations</a>).</p>
+<ol>
+<li>
+<p><strong>Network egress</strong> to the LLM provider you intend to use (<a href="../01-installation/#skore-agent-optional">Skore agent</a>):</p>
+</li>
+<li>
+<p>Anthropic: <code>api.anthropic.com</code> (443)</p>
+</li>
+<li>
+<p>AWS Bedrock: <code>bedrock-runtime.&lt;region&gt;.amazonaws.com</code> (443) and, for assume-role, <code>sts.amazonaws.com</code> (443)</p>
+</li>
+<li>
+<p><strong>Redis</strong> when running more than one backend replica (<code>SKH__REDIS__IS_ENABLED=true</code>), so agent session state is shared across pods.</p>
+</li>
+</ol>
+<h2 id="deployment-models">Deployment models<a class="headerlink" href="#deployment-models" title="Permanent link">&para;</a></h2>
+<p>Pick the model that matches who provides the LLM credentials. All three can coexist on the same hub: the global config sets defaults, and each workspace picks its own provider in the Hub UI.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Operator provides</th>
+<th>Per-workspace</th>
+<th>Air-gapped?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skore-managed</strong></td>
+<td><code>SKH__AGENT__ANTHROPIC_API_KEY</code> + <code>SKH__AGENT__MANAGED_EMAILS</code> allowlist</td>
+<td>None, entitled users select the Skore provider</td>
+<td>No (egress to Anthropic)</td>
+</tr>
+<tr>
+<td><strong>BYO Anthropic</strong></td>
+<td><code>SKH__ENCRYPTION__KEY</code> (global Anthropic key may stay empty)</td>
+<td>Each workspace registers its own Anthropic API key</td>
+<td>No (egress to Anthropic)</td>
+</tr>
+<tr>
+<td><strong>BYO Bedrock</strong></td>
+<td>AWS credentials or IAM role (see <a href="#bedrock-iam-patterns">Bedrock IAM</a>)</td>
+<td>Each workspace registers AWS creds/role</td>
+<td>No (egress to AWS)</td>
+</tr>
+<tr>
+<td><strong>Air-gapped</strong></td>
+<td>-</td>
+<td>-</td>
+<td><strong>Not supported</strong> in this version (no local LLM backend)</td>
+</tr>
+</tbody>
+</table>
+<pre class="mermaid"><code>flowchart LR
+  harness(["Harness&lt;br/&gt;(Claude Code, Cursor, ...)"])
+  harness --&gt;|"/v1 + workspace API key"| hub["skore-hub backend&lt;br/&gt;Skore agent"]
+
+  hub --&gt;|"provider: skore or anthropic"| anthropic[["api.anthropic.com"]]
+  hub --&gt;|"provider: bedrock"| bedrock[["bedrock-runtime.region&lt;br/&gt;amazonaws.com"]]
+  hub -.-&gt;|"not supported"| local[["Self-hosted LLM&lt;br/&gt;vLLM / Ollama"]]
+
+  hub --&gt; pg[("PostgreSQL&lt;br/&gt;encrypted provider creds")]
+  hub --&gt; redis[("Redis&lt;br/&gt;session state")]</code></pre>
+<p>The dashed edge is the air-gapped case: the hub has no self-hosted LLM backend, so at least one of the two solid egress paths must be reachable.</p>
+<h3 id="minimal-global-config-by-model">Minimal global config by model<a class="headerlink" href="#minimal-global-config-by-model" title="Permanent link">&para;</a></h3>
+<p><strong>Skore-managed</strong> (operator pays the LLM bill for entitled users):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[agent]</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
+<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
+<span class="n">anthropic_api_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
+<span class="n">managed_emails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*@yourcompany.com&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># or explicit addresses</span>
+</code></pre></div>
+<p><strong>BYO Anthropic</strong> (each workspace brings its own key):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[encryption]</span>
+<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;fernet-key&gt;&quot;</span>
+
+<span class="k">[agent]</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
+<span class="c1"># anthropic_api_key may stay empty; workspaces use their own</span>
+<span class="n">anthropic_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;claude-opus-4-8&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;claude-sonnet-4-6&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>BYO Bedrock</strong> (each workspace brings AWS creds/role):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[encryption]</span>
+<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;fernet-key&gt;&quot;</span>
+
+<span class="k">[agent]</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span><span class="w">   </span><span class="c1"># legacy global flag; effective provider comes from the workspace</span>
+<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bedrock&quot;</span>
+<span class="n">aws_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
+<span class="n">bedrock_model_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
+<span class="n">bedrock_model_normal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
+<span class="n">bedrock_model_small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
+<span class="n">bedrock_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;...&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># required: workspaces can only pin a model listed here</span>
+<span class="c1"># Optional global Bedrock creds (ambient chain / IRSA also work):</span>
+<span class="c1"># bedrock_role_arn = &quot;&quot;</span>
+<span class="c1"># aws_access_key_id = &quot;&quot;</span>
+<span class="c1"># aws_secret_access_key = &quot;&quot;</span>
+</code></pre></div>
+<blockquote>
+<p>[!IMPORTANT]
+On Bedrock, only <strong>Anthropic models</strong> are supported in this version. Use cross-region inference profile ids rather than bare foundation-model ids.</p>
+</blockquote>
+<h2 id="bedrock-iam-patterns">Bedrock IAM patterns<a class="headerlink" href="#bedrock-iam-patterns" title="Permanent link">&para;</a></h2>
+<p>The hub reads AWS credentials through the standard credential chain. Three patterns cover the common on-prem cases.</p>
+<h3 id="aws-side-prerequisites">AWS-side prerequisites<a class="headerlink" href="#aws-side-prerequisites" title="Permanent link">&para;</a></h3>
+<p>These apply to all three patterns and are the most common cause of a provider that registers fine but fails on the first prompt.</p>
+<p><strong>Credential format.</strong> Supported credentials are an access key id with its secret access key, an assumable role, or an instance/pod identity. The short-term <strong>Bedrock API keys</strong> issued by the console (bearer tokens starting with <code>bedrock-api-key-</code>) are <strong>not supported</strong>.</p>
+<p><strong>Model access.</strong> Anthropic models on Bedrock require the account to have submitted the <em>Anthropic use case details</em> form in the Bedrock console, once per account. Until it is accepted, every call fails with <code>ResourceNotFoundException: Model use case details have not been submitted for this account</code>, regardless of IAM permissions. The form is console-only; no API or CLI can submit it, and changes take up to 15 minutes to propagate.</p>
+<p><strong>Policy scope.</strong> Granting <code>bedrock:InvokeModel</code> on the inference profile alone is not enough. A cross-region profile forwards the request to the underlying foundation model in whichever region serves it, and that call is authorized separately, so the policy must also cover the foundation model in every region the profile can reach:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;bedrock:InvokeModel&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bedrock:InvokeModelWithResponseStream&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;arn:aws:bedrock:&lt;region&gt;:&lt;account&gt;:inference-profile/&lt;profile-id&gt;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;arn:aws:bedrock:*::foundation-model/&lt;foundation-model-id&gt;&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="pattern-1-irsa-eks">Pattern 1 — IRSA (EKS)<a class="headerlink" href="#pattern-1-irsa-eks" title="Permanent link">&para;</a></h3>
+<p>Annotate the chart's ServiceAccount with the IAM role ARN; the chart already mounts that ServiceAccount on the backend pods.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">serviceAccount</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">create</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">eks.amazonaws.com/role-arn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arn:aws:iam::&lt;account&gt;:role/skore-hub-bedrock</span>
+</code></pre></div>
+<p>The IAM role must allow <code>bedrock:InvokeModel</code> on the target models, with the resource scope described in <a href="#aws-side-prerequisites">AWS-side prerequisites</a>. For cross-account Bedrock, add <code>sts:AssumeRole</code> and configure the trust policy of the target role to trust this role.</p>
+<h3 id="pattern-2-static-credentials-vanilla-on-prem-non-eks">Pattern 2 — Static credentials (vanilla on-prem / non-EKS)<a class="headerlink" href="#pattern-2-static-credentials-vanilla-on-prem-non-eks" title="Permanent link">&para;</a></h3>
+<p>Inject the keys through the <code>skore-hub-backend-secrets</code> Secret and reference them via <code>skh.extraEnv</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">extraEnv</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__AWS_ACCESS_KEY_ID</span>
+<span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">aws-access-key-id</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__AWS_SECRET_ACCESS_KEY</span>
+<span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">aws-secret-access-key</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__AWS_REGION</span>
+<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span>
+</code></pre></div>
+<h3 id="pattern-3-cross-account-assume-role">Pattern 3 — Cross-account assume-role<a class="headerlink" href="#pattern-3-cross-account-assume-role" title="Permanent link">&para;</a></h3>
+<p>When Bedrock lives in another AWS account, the hub assumes a role there using STS. Set the role ARN and the matching external id (the external id is secret):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__BEDROCK_ROLE_ARN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;arn:aws:iam::&lt;target-account&gt;:role/bedrock-cross-account&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__AWS_REGION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span>
+<span class="w">  </span><span class="nt">extraEnv</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__BEDROCK_EXTERNAL_ID</span>
+<span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">bedrock-external-id</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>The target role's trust policy must allow the caller (the hub's IRSA role or static-key principal) with <code>sts:AssumeRole</code> and the configured <code>ExternalId</code>. The hub refreshes the assumed credentials automatically.</p>
+<h2 id="activate-the-agent-on-the-hub">Activate the agent on the hub<a class="headerlink" href="#activate-the-agent-on-the-hub" title="Permanent link">&para;</a></h2>
+<p>Set the global agent env vars on the backend chart. With the Skore-managed model as an example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__BACKEND</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;anthropic&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__PROVIDER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;anthropic&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MANAGED_EMAILS</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[&quot;*@yourcompany.com&quot;]&#39;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_BIG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-opus-4-8&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_NORMAL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-sonnet-4-6&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_SMALL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-haiku-4-5&quot;</span>
+<span class="w">  </span><span class="nt">extraEnv</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__ANTHROPIC_API_KEY</span>
+<span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">anthropic-api-key</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__ENCRYPTION__KEY</span>
+<span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">encryption-key</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>Apply and let the pods roll:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>skore-hub<span class="w"> </span>probabl/skore-hub-backend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>-f<span class="w"> </span>values.yaml<span class="w"> </span>--wait<span class="w"> </span>--timeout<span class="w"> </span>10m
+</code></pre></div>
+<h2 id="register-a-workspace-llm-provider">Register a workspace LLM provider<a class="headerlink" href="#register-a-workspace-llm-provider" title="Permanent link">&para;</a></h2>
+<p><strong>Every workspace needs one active provider</strong>, whichever model you chose — there is no silent fallback to the global configuration. Requests from a workspace without one return <code>HTTP 400 no_active_provider</code>.</p>
+<p>Through the Hub UI:</p>
+<ol>
+<li>Open the workspace in the frontend.</li>
+<li>Go to the <strong>Agent provider</strong> section of the workspace detail view.</li>
+<li>Add a provider and enter its credentials, if any:</li>
+<li><strong><code>skore</code></strong> (Skore-managed): no credentials stored; it uses the deployment's own <code>[agent]</code> config and per-task Auto routing. Only available to users whose email matches <code>SKH__AGENT__MANAGED_EMAILS</code>, otherwise the API returns <code>403</code>.</li>
+<li><strong><code>anthropic</code></strong> / <strong><code>bedrock</code></strong> (bring your own): credentials are encrypted at rest with <code>SKH__ENCRYPTION__KEY</code>, and the workspace pins a single explicit model.</li>
+<li><strong>Activate</strong> the provider. A workspace may register several providers but at most one is active.</li>
+</ol>
+<blockquote>
+<p>Providers are add/remove only — there is no edit. To change a credential, register a new provider and activate it.</p>
+</blockquote>
+<p>A BYO workspace can only pin a model that the operator has allowlisted globally, through <code>SKH__AGENT__ANTHROPIC_MODELS</code> and <code>SKH__AGENT__BEDROCK_MODELS</code>. Anything else is rejected with <code>Model '&lt;id&gt;' is not selectable for provider '&lt;provider&gt;'</code>. The Anthropic list has a built-in default, but <code>SKH__AGENT__BEDROCK_MODELS</code> is <strong>empty by default</strong>, so no Bedrock provider can be registered until you set it.</p>
+<h2 id="create-a-workspace-api-key">Create a workspace API key<a class="headerlink" href="#create-a-workspace-api-key" title="Permanent link">&para;</a></h2>
+<p>Harnesses authenticate to the agent with a workspace-scoped API key (recommended) instead of a browser session.</p>
+<ol>
+<li>In the workspace, create an API key from the workspace settings.</li>
+<li>Store the returned key securely, it is shown once.</li>
+</ol>
+<p>The harness will send it as <code>Authorization: Bearer &lt;key&gt;</code> (or the harness-specific equivalent) and the hub scopes all agent calls to that workspace and its active provider.</p>
+<h2 id="point-a-harness-at-the-agent">Point a harness at the agent<a class="headerlink" href="#point-a-harness-at-the-agent" title="Permanent link">&para;</a></h2>
+<p>The frontend ships a setup wizard at <code>/&lt;workspacePublicId&gt;/agent-setup</code> that produces ready-to-paste config snippets for each supported harness. The common shape:</p>
+<ul>
+<li><strong>Base URL</strong>: <code>&lt;HUB_API_BASE_URL&gt;/v1</code> (the public backend URL, same host you use for the API).</li>
+<li><strong>Model</strong>: <code>skore-agent</code> (the <code>SKH__AGENT__PUBLIC_MODEL_ID</code>).</li>
+<li><strong>Auth</strong>: the workspace API key created above.</li>
+<li><strong>Headers</strong> (when not using a bearer token): <code>X-Skore-Workspace: &lt;workspace-slug&gt;</code> and a stable <code>X-Skore-Session-Id</code> per conversation (or the OpenAI <code>user</code> field).</li>
+</ul>
+<p>Open the wizard in the UI and copy the snippet for your harness (Claude Code, OpenCode, Cursor, or Pi).</p>
+<p>Send the <strong>full conversation history</strong> on every turn, as OpenAI-compatible clients do by default. A client that reuses a session id but posts only the latest message gets the previous answer returned again rather than an error.</p>
+<p>The <code>usage</code> block in responses always reports zero tokens, so harnesses that display context consumption show nothing.</p>
+<h2 id="verify-end-to-end">Verify end to end<a class="headerlink" href="#verify-end-to-end" title="Permanent link">&para;</a></h2>
+<ol>
+<li>The agent advertises its model. <code>/v1/models</code> is workspace-scoped: call it through the public URL with the workspace API key created above. An unauthenticated call returns <code>401</code>, including from inside the cluster.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;workspace-api-key&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;&lt;HUB_API_BASE_URL&gt;/v1/models&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+<span class="c1"># expect &quot;skore-agent&quot; in the list</span>
+</code></pre></div>
+<ol>
+<li>Send a prompt with the same key:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;workspace-api-key&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;&lt;HUB_API_BASE_URL&gt;/v1/chat/completions&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;skore-agent&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;ping&quot;}]}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+<p>Add <code>"stream": true</code> for the SSE shape, or post to <code>/v1/messages</code> for the Anthropic shape. A harness configured with the key issues the same request.</p>
+<ol>
+<li>If calls fail, see <a href="../02-operations/#skore-agent-operations">Skore agent operations</a> for the common errors (<code>no_active_provider</code>, <code>503</code> after key rotation, SSE drops, Bedrock <code>AccessDenied</code>).</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      
+    
+  </body>
+</html>

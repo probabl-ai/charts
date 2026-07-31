@@ -659,13 +659,18 @@
 <h1 id="skore-hub-on-premise-deployment-guide">skore-hub: On-premise deployment guide<a class="headerlink" href="#skore-hub-on-premise-deployment-guide" title="Permanent link">&para;</a></h1>
 <p>This guide describes how to deploy and operate the <strong>skore-hub</strong> platform (backend API + frontend) on your own Kubernetes cluster.</p>
 <p>It is written for an infrastructure/platform team that already operates Kubernetes. It focuses on <strong>what skore-hub needs</strong> and <strong>how to wire it to your existing services</strong>; it does not teach Kubernetes itself.</p>
-<p>The guide is split into four documents:</p>
+<p>The guide is split into five documents:</p>
 <ul>
 <li><strong>This overview</strong>: what you deploy, architecture, prerequisites, and the deployment order.</li>
 <li><strong><a href="01-installation/">Installation</a></strong>: images, external services, OIDC, secrets, backend, frontend, ingress.</li>
 <li><strong><a href="02-operations/">Operations</a></strong>: verification, observability/logging, troubleshooting.</li>
+<li><strong><a href="03-agent-setup/">Agent setup</a></strong>: enabling and onboarding the Skore agent (LLM orchestration).</li>
 <li><strong><a href="reference-configuration/">Configuration reference</a></strong>: every <code>SKH__*</code> setting.</li>
 </ul>
+<blockquote>
+<p>[!NOTE]
+<strong>Skore agent: air-gapped notice.</strong> The Skore agent (hub-side LLM orchestration) only supports <strong>Anthropic</strong> (SaaS) and <strong>AWS Bedrock</strong> as LLM backends. A deployment with no outbound access to either is <strong>not supported</strong> in this version. See <a href="03-agent-setup/">Agent setup</a>.</p>
+</blockquote>
 <h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#what-you-deploy">What you deploy</a></li>
@@ -822,6 +827,7 @@
 <li><a href="02-operations/#observability-and-logging">Observability and logging</a>.</li>
 <li><a href="02-operations/#verification-and-smoke-tests">Verification and smoke tests</a>.</li>
 <li><a href="02-operations/#troubleshooting">Troubleshooting</a>.</li>
+<li><a href="03-agent-setup/">Agent setup</a> (optional): enable the Skore agent and onboard harnesses.</li>
 </ol>
 <p>Reference:</p>
 <ul>

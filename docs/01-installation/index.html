@@ -729,6 +729,57 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#streaming-skore-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming (Skore agent)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skore-agent-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent (optional)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skore agent (optional)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-egress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network egress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment models
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1217,6 +1268,57 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#streaming-skore-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Streaming (Skore agent)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skore-agent-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent (optional)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skore agent (optional)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#network-egress" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network egress
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deployment-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment models
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1251,6 +1353,7 @@
 <li><a href="#install-the-backend">Install the backend</a></li>
 <li><a href="#frontend">Frontend</a></li>
 <li><a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a></li>
+<li><a href="#skore-agent-optional">Skore agent (optional)</a></li>
 </ul>
 <h2 id="images-and-registry">Images and registry<a class="headerlink" href="#images-and-registry" title="Permanent link">&para;</a></h2>
 <p>The skore-hub images are published on the <strong>Scaleway container registry</strong>. Probabl provides you with a dedicated username/password.</p>
@@ -1404,7 +1507,7 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quo
 <span class="w">    </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>
-<p><strong>Used for:</strong> OAuth token/state storage and API-key verification cache.</p>
+<p><strong>Used for:</strong> OAuth token/state storage, API-key verification cache, and Skore agent harness session state (message history, pending tool calls) when running more than one backend replica.</p>
 <table>
 <thead>
 <tr>
@@ -1419,7 +1522,7 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quo
 <td>Enabled</td>
 <td><code>SKH__REDIS__IS_ENABLED</code></td>
 <td><code>true</code></td>
-<td>Set <code>true</code> in production.</td>
+<td>Set <code>true</code> in production. <strong>Required</strong> for the agent when <code>replicaCount &gt; 1</code>.</td>
 </tr>
 <tr>
 <td>Host</td>
@@ -1799,6 +1902,31 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 <td><code>SKH__SMTP__PASSWORD</code></td>
 <td>SMTP (if used)</td>
 </tr>
+<tr>
+<td><code>encryption-key</code></td>
+<td><code>SKH__ENCRYPTION__KEY</code></td>
+<td>Skore agent (required for per-workspace providers)</td>
+</tr>
+<tr>
+<td><code>anthropic-api-key</code></td>
+<td><code>SKH__AGENT__ANTHROPIC_API_KEY</code></td>
+<td>Skore agent (Skore-managed path, if used)</td>
+</tr>
+<tr>
+<td><code>bedrock-external-id</code></td>
+<td><code>SKH__AGENT__BEDROCK_EXTERNAL_ID</code></td>
+<td>Skore agent Bedrock (if using assume-role)</td>
+</tr>
+<tr>
+<td><code>aws-access-key-id</code></td>
+<td><code>SKH__AGENT__AWS_ACCESS_KEY_ID</code></td>
+<td>Skore agent Bedrock (if using static creds)</td>
+</tr>
+<tr>
+<td><code>aws-secret-access-key</code></td>
+<td><code>SKH__AGENT__AWS_SECRET_ACCESS_KEY</code></td>
+<td>Skore agent Bedrock (if using static creds)</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
@@ -1816,8 +1944,11 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 <span class="w">  </span>--from-literal<span class="o">=</span>s3-secret-key<span class="o">=</span><span class="s1">&#39;&lt;s3-secret-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span>redis-password<span class="o">=</span><span class="s1">&#39;&lt;redis-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span>smtp-user<span class="o">=</span><span class="s1">&#39;&lt;smtp-user&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>smtp-password<span class="o">=</span><span class="s1">&#39;&lt;smtp-password&gt;&#39;</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>smtp-password<span class="o">=</span><span class="s1">&#39;&lt;smtp-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>encryption-key<span class="o">=</span><span class="s1">&#39;&lt;fernet-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>anthropic-api-key<span class="o">=</span><span class="s1">&#39;&lt;sk-ant-...&gt;&#39;</span>
 </code></pre></div>
+<p>Only add the Bedrock keys (<code>bedrock-external-id</code>, <code>aws-access-key-id</code>, <code>aws-secret-access-key</code>) if you use the Bedrock provider with static credentials; on EKS prefer IRSA (see <a href="#skore-agent-optional">Skore agent</a>).</p>
 <p>This is the default assumed by <a href="#install-the-backend">Install the backend</a>.</p>
 <blockquote>
 <p><strong>envFrom vs secretKeyRef.</strong> By default the chart also references <code>skh.envSecret</code> via <code>envFrom</code>. If you inject every sensitive value through <code>skh.extraEnv</code> (<code>secretKeyRef</code>) as above, the two mechanisms point at the same Secret and that is fine. If you prefer to inject the whole Secret wholesale, name each Secret key exactly as the <code>SKH__*</code> env var and drop the <code>skh.extraEnv</code> mappings. To disable <code>envFrom</code> entirely, set <code>skh.envSecret: ""</code>.</p>
@@ -2053,6 +2184,85 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100m&quot;</span>
 </code></pre></div>
+<h3 id="streaming-skore-agent">Streaming (Skore agent)<a class="headerlink" href="#streaming-skore-agent" title="Permanent link">&para;</a></h3>
+<p>The Skore agent exposes streaming endpoints (<code>/v1/chat/completions</code>, <code>/v1/messages</code>) that hold long-lived Server-Sent Events connections, potentially longer than a single LLM turn. The hub sets <code>X-Accel-Buffering: no</code> on these responses, but your ingress / load balancer must also cooperate:</p>
+<ul>
+<li><strong>Disable response buffering</strong> for these paths (e.g. ingress-nginx <code>proxy-buffering: "off"</code>, or per-route).</li>
+<li><strong>Raise read/idle timeouts</strong> above your longest expected LLM turn (e.g. <code>proxy-read-timeout: "3600"</code>, <code>proxy-send-timeout: "3600"</code>).</li>
+<li>Keep <code>Connection: keep-alive</code> and do not close idle SSE sockets early.</li>
+</ul>
+<p>Example for ingress-nginx (apply to the backend Ingress, scoped to the agent paths if your controller supports path-specific annotations):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-buffering</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;off&quot;</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-read-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3600&quot;</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-send-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3600&quot;</span>
+</code></pre></div>
+<h2 id="skore-agent-optional">Skore agent (optional)<a class="headerlink" href="#skore-agent-optional" title="Permanent link">&para;</a></h2>
+<p>The Skore agent is the hub-side LLM orchestration ("brain") exposed to harnesses (Claude Code, OpenCode, Cursor, Pi) as an OpenAI/Anthropic-compatible endpoint on <code>/v1/chat/completions</code>, <code>/v1/messages</code>, <code>/v1/models</code>. It is <strong>off by default</strong> (<code>SKH__AGENT__BACKEND=mock</code>) and requires configuration plus outbound LLM access to be functional.</p>
+<blockquote>
+<p>[!NOTE]
+<strong>Air-gapped notice.</strong> The agent only supports Anthropic (SaaS) and AWS Bedrock as LLM backends. A deployment with no outbound access to either is <strong>not supported</strong> in this version.</p>
+</blockquote>
+<h3 id="network-egress">Network egress<a class="headerlink" href="#network-egress" title="Permanent link">&para;</a></h3>
+<p>Backend pods need outbound HTTPS to the LLM provider you select:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Egress destination</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anthropic</td>
+<td><code>api.anthropic.com</code> (443)</td>
+<td>Skore-managed path and BYO Anthropic workspaces.</td>
+</tr>
+<tr>
+<td>AWS Bedrock</td>
+<td><code>bedrock-runtime.&lt;region&gt;.amazonaws.com</code> (443) + <code>sts.amazonaws.com</code> (443)</td>
+<td>STS only needed for assume-role.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="required-configuration">Required configuration<a class="headerlink" href="#required-configuration" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Migrations</strong> — the <code>agent_workspace_provider_config</code> table is created by the standard Alembic migration Job; no extra step.</li>
+<li><strong>Encryption key</strong> — set <code>SKH__ENCRYPTION__KEY</code> (Fernet) so workspaces can store their own provider credentials. See <a href="../reference-configuration/#encryption-encryption">Encryption</a>.</li>
+<li><strong>Global agent settings</strong> — at minimum <code>SKH__AGENT__BACKEND=anthropic</code> and a provider. See the full reference in <a href="../reference-configuration/#skore-agent-agent">Skore agent</a>.</li>
+<li><strong>Redis</strong> — required when <code>replicaCount &gt; 1</code> (agent session state).</li>
+</ol>
+<h3 id="deployment-models">Deployment models<a class="headerlink" href="#deployment-models" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>What the operator provides</th>
+<th>Per-workspace setup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Skore-managed</strong></td>
+<td><code>SKH__AGENT__ANTHROPIC_API_KEY</code> + <code>SKH__AGENT__MANAGED_EMAILS</code> allowlist</td>
+<td>Activate a <code>skore</code> provider (no credentials stored)</td>
+</tr>
+<tr>
+<td><strong>BYO Anthropic</strong></td>
+<td><code>SKH__ENCRYPTION__KEY</code> (global key may stay empty)</td>
+<td>Register and activate an Anthropic key via the Hub UI</td>
+</tr>
+<tr>
+<td><strong>BYO Bedrock</strong></td>
+<td>AWS credentials or IAM role (see <a href="../03-agent-setup/">Bedrock IAM</a>)</td>
+<td>Register and activate AWS creds/role via the Hub UI</td>
+</tr>
+</tbody>
+</table>
+<p>Every workspace needs exactly one <strong>active</strong> provider in all three cases; there is no silent fallback to the global configuration.</p>
+<p>The full onboarding workflow (provider registration, harness setup wizard, workspace API keys) is in <a href="../03-agent-setup/">Agent setup</a>.</p>
 
 
 

@@ -422,6 +422,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#encryption-encryption" class="md-nav__link">
+    <span class="md-ellipsis">
+      Encryption (encryption)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skore-agent-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent (agent)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cookies-cookie" class="md-nav__link">
     <span class="md-ellipsis">
       Cookies (cookie)
@@ -564,6 +582,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#encryption-encryption" class="md-nav__link">
+    <span class="md-ellipsis">
+      Encryption (encryption)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#skore-agent-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent (agent)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#cookies-cookie" class="md-nav__link">
     <span class="md-ellipsis">
       Cookies (cookie)
@@ -642,6 +678,8 @@
 <li><a href="#object-storage-object_storage-s3">Object storage (object_storage): S3</a></li>
 <li><a href="#redis-redis">Redis (redis)</a></li>
 <li><a href="#smtp-smtp">SMTP (smtp)</a></li>
+<li><a href="#encryption-encryption">Encryption (encryption)</a></li>
+<li><a href="#skore-agent-agent">Skore agent (agent)</a></li>
 <li><a href="#cookies-cookie">Cookies (cookie)</a></li>
 <li><a href="#cors-cors">CORS (cors)</a></li>
 <li><a href="#observability-optional">Observability (optional)</a></li>
@@ -933,6 +971,146 @@
 <td><code>SKH__SMTP__SENDER</code></td>
 <td><code>(none)</code></td>
 <td>From address; set your own (e.g. <code>no-reply@example.com</code>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="encryption-encryption">Encryption (<code>encryption</code>)<a class="headerlink" href="#encryption-encryption" title="Permanent link">&para;</a></h2>
+<p>Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: most importantly the per-workspace Skore agent provider credentials (Anthropic API keys, AWS/Bedrock keys, STS external ids) registered through the Hub UI. Generate with <code>python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH__ENCRYPTION__KEY</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Fernet key. <strong>Required</strong> to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see <a href="../02-operations/#skore-agent-operations">Skore agent operations</a>).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="skore-agent-agent">Skore agent (<code>agent</code>)<a class="headerlink" href="#skore-agent-agent" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH__AGENT__BACKEND</code></td>
+<td><code>mock</code></td>
+<td>Global execution mode. <code>anthropic</code> enables the Skore-managed LLM path; <code>mock</code> is a key-less trace for unscoped requests only. Workspace API-key callers always use their workspace provider regardless of this value.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__PROVIDER</code></td>
+<td><code>anthropic</code></td>
+<td>LLM backend when <code>backend</code> is not <code>mock</code>: <code>anthropic</code> or <code>bedrock</code>. Workspaces may override via the Hub UI.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__ANTHROPIC_API_KEY</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Anthropic API key for the global server-side path. Empty falls back to <code>mock</code> when no workspace override applies.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__MANAGED_EMAILS</code></td>
+<td><code>[]</code></td>
+<td>JSON allowlist of users entitled to the Skore-managed provider. Entries are exact addresses or <code>*@domain</code> wildcards. Empty denies everyone.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__MODEL_BIG</code></td>
+<td><code>claude-opus-4-8</code></td>
+<td>Default Anthropic model for the big routing tier (reasoning-heavy).</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__MODEL_NORMAL</code></td>
+<td><code>claude-sonnet-4-6</code></td>
+<td>Default Anthropic model for the normal tier (setup/tooling).</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__MODEL_SMALL</code></td>
+<td><code>claude-haiku-4-5</code></td>
+<td>Default Anthropic model for the small tier (trivial skills).</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_MODEL_BIG</code></td>
+<td><code>(none)</code></td>
+<td>Bedrock model id for the big tier. <strong>Required</strong> before Bedrock routing works.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_MODEL_NORMAL</code></td>
+<td><code>(none)</code></td>
+<td>Bedrock model id for the normal tier.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_MODEL_SMALL</code></td>
+<td><code>(none)</code></td>
+<td>Bedrock model id for the small tier.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__CACHE_TTL</code></td>
+<td><code>5m</code></td>
+<td>Anthropic prompt-cache breakpoint TTL: <code>5m</code> or <code>1h</code>.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__ANTHROPIC_MODELS</code></td>
+<td><code>["claude-opus-4-8","claude-sonnet-4-6"]</code></td>
+<td>JSON allowlist of model ids a workspace may pin as its single model instead of tier-based "auto" routing.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_MODELS</code></td>
+<td><code>[]</code></td>
+<td>Same for Bedrock.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__AWS_REGION</code></td>
+<td><code>(none)</code></td>
+<td>AWS region for Bedrock. Required when <code>provider</code> is <code>bedrock</code>.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_ROLE_ARN</code></td>
+<td><code>(none)</code></td>
+<td>Optional IAM role to assume for cross-account Bedrock. Empty uses the ambient credential chain.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__BEDROCK_EXTERNAL_ID</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Optional STS <code>ExternalId</code> for <code>bedrock_role_arn</code>.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__AWS_ACCESS_KEY_ID</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Optional static AWS credentials. Empty uses the ambient chain (or assume-role output).</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__AWS_SECRET_ACCESS_KEY</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Optional static AWS credentials.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__ENTRY_SKILL</code></td>
+<td><code>iterate-ml-experiment</code></td>
+<td>Skill id loaded at the start of a new conversation.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__SESSION_TTL_SECONDS</code></td>
+<td><code>3600</code></td>
+<td>Redis TTL (s) for server-side harness session state. Requires Redis when running more than one replica.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__PUBLIC_MODEL_ID</code></td>
+<td><code>skore-agent</code></td>
+<td>Single model id advertised to harnesses; the hub maps it to tier routing internally.</td>
+</tr>
+<tr>
+<td><code>SKH__AGENT__GUARDS_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Enable deterministic prompt-injection/extraction guards (input scan + output redaction).</td>
 </tr>
 </tbody>
 </table>

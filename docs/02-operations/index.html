@@ -547,6 +547,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#skore-agent-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skore agent operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verify-the-agent-is-reachable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the agent is reachable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-metrics-token-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent metrics (token usage)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -808,6 +850,48 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#skore-agent-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Skore agent operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Skore agent operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verify-the-agent-is-reachable" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the agent is reachable
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-metrics-token-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent metrics (token usage)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -833,6 +917,7 @@
 <li><a href="#verification-and-smoke-tests">Verification and smoke tests</a></li>
 <li><a href="#observability-and-logging">Observability and logging</a></li>
 <li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#skore-agent-operations">Skore agent operations</a></li>
 </ul>
 <h2 id="verification-and-smoke-tests">Verification and smoke tests<a class="headerlink" href="#verification-and-smoke-tests" title="Permanent link">&para;</a></h2>
 <p>Run these checks after installing the backend (<a href="../01-installation/#install-the-backend">Install the backend</a>) and, where relevant, the frontend (<a href="../01-installation/#frontend">Frontend</a>).</p>
@@ -1031,6 +1116,44 @@ curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:8000/read
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>deploy/skore-hub-backend<span class="w"> </span>--<span class="w"> </span>printenv<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;^SKH__&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort
 </code></pre></div>
 <p>(Secret values will be visible here, so run with appropriate care.)</p>
+<h2 id="skore-agent-operations">Skore agent operations<a class="headerlink" href="#skore-agent-operations" title="Permanent link">&para;</a></h2>
+<p>Operational notes specific to the Skore agent (<a href="../03-agent-setup/">setup</a>, <a href="../reference-configuration/#skore-agent-agent">config reference</a>).</p>
+<h3 id="verify-the-agent-is-reachable">Verify the agent is reachable<a class="headerlink" href="#verify-the-agent-is-reachable" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># From inside a backend pod (bypasses ingress):</span>
+kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>deploy/skore-hub-backend<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>http://127.0.0.1:8000/v1/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+<p>The response must list <code>skore-agent</code> (the <code>SKH__AGENT__PUBLIC_MODEL_ID</code>). If the list is empty or the endpoint 404s, the agent router is not mounted. Check the image version and that migrations ran.</p>
+<h3 id="agent-metrics-token-usage">Agent metrics (token usage)<a class="headerlink" href="#agent-metrics-token-usage" title="Permanent link">&para;</a></h3>
+<p>The agent exports token-usage metrics through the same OTLP push path as the rest of the hub. Enable it with:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable OTLP metrics</td>
+<td><code>SKH__OTEL_METRICS__IS_ENABLED=true</code></td>
+</tr>
+<tr>
+<td>OTLP endpoint</td>
+<td><code>SKH__OTEL_METRICS__SERVER_ADDRESS</code></td>
+</tr>
+</tbody>
+</table>
+<p>A ready-made Grafana dashboard for agent token usage ships with the hub source at <code>docker/grafana-dashboards/agent-token-usage.json</code>. Import it into your Grafana if you surface hub metrics there.</p>
+<h3 id="troubleshooting_1">Troubleshooting<a class="headerlink" href="#troubleshooting_1" title="Permanent link">&para;</a></h3>
+<p><strong><code>HTTP 400 no_active_provider</code>.</strong> The workspace has no <em>active</em> LLM provider. Every workspace needs one provider registered <strong>and activated</strong> in the Hub UI, including for Skore-managed inference, where the provider is of type <code>skore</code> (<a href="../03-agent-setup/">Agent setup</a>). There is no silent fallback to the global configuration.</p>
+<p><strong><code>HTTP 400 no_workspace</code>.</strong> The request could not be scoped to a workspace: the caller used neither a workspace-scoped API key nor a valid <code>X-Skore-Workspace</code> header (the workspace slug, and the user must be a member of it). Unscoped requests only succeed when the deployment runs with <code>SKH__AGENT__BACKEND=mock</code>.</p>
+<p><strong><code>HTTP 503</code> after rotating <code>SKH__ENCRYPTION__KEY</code>.</strong> Per-workspace provider credentials are encrypted at rest with the Fernet key. Rotating the key without re-encrypting the stored secrets makes them unreadable and the agent returns 503. To rotate: decrypt existing provider credentials with the old key, re-encrypt with the new key, then roll the pods. There is no automatic re-encryption in this version.</p>
+<p><strong>Agent calls hang / SSE drops.</strong> Long-lived streaming responses on <code>/v1/chat/completions</code> and <code>/v1/messages</code> need ingress timeouts longer than the longest LLM turn and response buffering disabled (<a href="../01-installation/#streaming-skore-agent">Streaming</a>). If calls cut off after ~60s, check <code>proxy-read-timeout</code>/<code>proxy-send-timeout</code> on your ingress.</p>
+<p><strong>Sessions lost across replicas.</strong> With <code>replicaCount &gt; 1</code>, agent session state must live in Redis. Confirm <code>SKH__REDIS__IS_ENABLED=true</code> and that all replicas reach the same Redis instance. Without Redis, a conversation routed to a different pod has no history and starts over.</p>
+<p><strong>Bedrock <code>AccessDenied</code> / <code>ExpiredToken</code>.</strong> Either the static AWS credentials are wrong/expired, or the IAM role (IRSA / assume-role) lacks <code>bedrock:InvokeModel</code> on the target model. A policy scoped to the inference profile alone is a common cause: a cross-region profile also needs the underlying foundation model allowed in every region it can reach (<a href="../03-agent-setup/#aws-side-prerequisites">AWS-side prerequisites</a>). For cross-account access via <code>SKH__AGENT__BEDROCK_ROLE_ARN</code>, the assumed role's trust policy must allow the caller with the configured <code>SKH__AGENT__BEDROCK_EXTERNAL_ID</code>.</p>
+<p><strong>Bedrock <code>ResourceNotFoundException: Model use case details have not been submitted</code>.</strong> An account-level gate on Anthropic models, not an IAM problem. Submit the <em>Anthropic use case details</em> form in the Bedrock console and allow up to 15 minutes for it to propagate (<a href="../03-agent-setup/#aws-side-prerequisites">AWS-side prerequisites</a>).</p>
+<p><strong>Bedrock <code>ValidationException</code> on prompt caching.</strong> The workspace pinned a non-Anthropic Bedrock model. Only Anthropic models on Bedrock are supported in this version (<a href="../03-agent-setup/#minimal-global-config-by-model">Deployment models</a>).</p>
 
 
 
