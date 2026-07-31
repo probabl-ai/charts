@@ -50,6 +50,13 @@ The full deployment and operations guide lives under [`docs/`](docs/README.md):
 
 ## Versioning
 
-Each chart is versioned independently through its `Chart.yaml` `version`. The
-chart `appVersion` is the default application image tag; you can override it per
-release with `image.tag`.
+The `skore-hub-backend` and `skore-hub-frontend` charts share a single
+`version` (kept in sync by Renovate on every application image bump) and ship
+together in one GitHub release tagged `skore-hub-<chart-version>`. Each such
+release contains both tarballs:
+
+- `skore-hub-backend-<chart-version>.tgz`
+- `skore-hub-frontend-<chart-version>.tgz`
+
+The chart `appVersion` is the default application image tag; you can override it
+per release with `image.tag`.

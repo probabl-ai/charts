@@ -22,14 +22,51 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1
+      - name: Read & assert chart versions match
+        id: ver
+        run: |
+          be=$(sed -n 's/^version:[[:space:]]*//p' charts/skore-hub-backend/Chart.yaml)
+          fe=$(sed -n 's/^version:[[:space:]]*//p' charts/skore-hub-frontend/Chart.yaml)
+          echo "backend=$be frontend=$fe"
+          if [ "$be" != "$fe" ]; then
+            echo "::error::chart versions diverge (backend=$be, frontend=$fe); refusing to publish a unified skore-hub release"
+            exit 1
+          fi
+          echo "version=$be" >> "$GITHUB_OUTPUT"
+          echo "tag=skore-hub-$be" >> "$GITHUB_OUTPUT"
+
+      - name: Package both charts
+        run: |
+          mkdir -p .cr-release-packages
+          helm package charts/skore-hub-backend  --destination .cr-release-packages
+          helm package charts/skore-hub-frontend --destination .cr-release-packages
+
+      - name: Create unified GitHub release with both tarballs
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
-          # Serve the .tgz packages from the gh-pages branch (not as private
-          # release assets), so `helm repo add` works anonymously on a private
-          # repository.
-          packages_with_index: true
-        env:
-          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: skore-hub
+          body: |
+            skore-hub ${{ steps.ver.outputs.version }}
+
+            Contains:
+            - `skore-hub-backend-${{ steps.ver.outputs.version }}.tgz`
+            - `skore-hub-frontend-${{ steps.ver.outputs.version }}.tgz`
+          files: .cr-release-packages/*.tgz
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+
+      - name: Publish tarballs + index to gh-pages
+        run: |
+          git worktree add --detach /tmp/gh-pages origin/gh-pages
+          cp .cr-release-packages/*.tgz /tmp/gh-pages/
+          # regenerate index from ONLY the new tarballs, merging the existing
+          # index so historical entries (timestamps + digests) are preserved.
+          helm repo index .cr-release-packages --merge /tmp/gh-pages/index.yaml
+          cp .cr-release-packages/index.yaml /tmp/gh-pages/index.yaml
+          cd /tmp/gh-pages
+          git add '*.tgz' index.yaml
+          git commit -m "Publish skore-hub ${{ steps.ver.outputs.version }}" || true
+          git push origin HEAD:refs/heads/gh-pages
