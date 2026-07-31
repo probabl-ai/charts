@@ -496,7 +496,7 @@ helm upgrade --install skore-hub-ui probabl/skore-hub-frontend \
   --wait --timeout 5m
 ```
 
-Set at least `image.repository`/`image.tag`, `imagePullSecrets`, the runtime `env` (`SKH_UI_API_BASE_URL`, `SKH_UI_IDP_PROFILE_SETTINGS_URL`, empty `SKH_UI_SENTRY_DSN`), and `ingress`. See the chart's [README](../charts/skore-hub-frontend/README.md) and [Ingress, TLS and DNS](#ingress-tls-and-dns).
+Set at least `image.repository`/`image.tag`, `imagePullSecrets`, the runtime `env` (`SKH_UI_API_BASE_URL`, `SKH_UI_IDP_PROFILE_SETTINGS_URL`, empty `SKH_UI_SENTRY_DSN`), and `ingress`. See the chart's [README](https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md) and [Ingress, TLS and DNS](#ingress-tls-and-dns).
 
 ## Ingress, TLS and DNS
 

@@ -7,6 +7,12 @@ on:
     paths:
       - "charts/**"
 
+# Serialize with the docs workflow: both push to the gh-pages branch and must
+# not run at the same time.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest

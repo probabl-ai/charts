@@ -1,0 +1,56 @@
+site_name: skore-hub Deployment Guide
+site_description: Deploy and operate the skore-hub platform on Kubernetes.
+site_url: https://probabl-ai.github.io/charts/docs/
+docs_dir: docs
+use_directory_urls: true
+
+repo_url: https://github.com/probabl-ai/charts
+repo_name: probabl-ai/charts
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+nav:
+  - Overview: README.md
+  - Installation: 01-installation.md
+  - Operations: 02-operations.md
+  - Configuration reference: reference-configuration.md
