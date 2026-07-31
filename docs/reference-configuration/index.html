@@ -721,6 +721,11 @@
 <td><code>(none)</code></td>
 <td>Public URL of the frontend.</td>
 </tr>
+<tr>
+<td><code>SKH__SESSION_SECRET_KEY</code> 🔒</td>
+<td>random per process</td>
+<td>Signs cookie-based session state. The default is regenerated every time a pod starts, so sessions do not survive a restart and are not shared between replicas. Set it explicitly to a stable random value.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="database-db">Database (<code>db</code>)<a class="headerlink" href="#database-db" title="Permanent link">&para;</a></h2>
@@ -814,6 +819,11 @@
 <td><code>SKH__IDP__CLIENT_SECRET</code> 🔒</td>
 <td><code>(none)</code></td>
 <td>OIDC client secret.</td>
+</tr>
+<tr>
+<td><code>SKH__IDP__CACHE_EXP</code></td>
+<td><code>900</code></td>
+<td>Seconds the OIDC discovery document and JWKS are cached. Lower it if your IdP rotates signing keys frequently.</td>
 </tr>
 </tbody>
 </table>
@@ -921,6 +931,16 @@
 <td>CA cert path.</td>
 </tr>
 <tr>
+<td><code>SKH__REDIS__SSL_CERTFILE</code></td>
+<td><code>(none)</code></td>
+<td>Client cert path, for mutual TLS.</td>
+</tr>
+<tr>
+<td><code>SKH__REDIS__SSL_KEYFILE</code></td>
+<td><code>(none)</code></td>
+<td>Client key path, for mutual TLS.</td>
+</tr>
+<tr>
 <td><code>SKH__REDIS__MAX_CONNECTIONS</code></td>
 <td><code>1000</code></td>
 <td>Pool cap.</td>
@@ -971,6 +991,11 @@
 <td><code>SKH__SMTP__SENDER</code></td>
 <td><code>(none)</code></td>
 <td>From address; set your own (e.g. <code>no-reply@example.com</code>).</td>
+</tr>
+<tr>
+<td><code>SKH__SMTP__SENDER_NAME</code></td>
+<td><code>Skore Team</code></td>
+<td>Display name shown next to the From address.</td>
 </tr>
 </tbody>
 </table>
@@ -1195,6 +1220,16 @@
 <td>OTLP collector.</td>
 </tr>
 <tr>
+<td><code>SKH__TEMPO__INSECURE</code></td>
+<td><code>true</code></td>
+<td>Send traces without TLS. Set <code>false</code> when the collector is remote.</td>
+</tr>
+<tr>
+<td><code>SKH__TEMPO__SERVICE_NAME</code></td>
+<td><code>skore-hub</code></td>
+<td>Service name reported on traces.</td>
+</tr>
+<tr>
 <td><code>SKH__OTEL_METRICS__IS_ENABLED</code></td>
 <td><code>false</code></td>
 <td>Enable OTLP metrics push.</td>
@@ -1218,6 +1253,11 @@
 <td><code>SKH__PYROSCOPE__SERVER_ADDRESS</code></td>
 <td><code>http://localhost:4040</code></td>
 <td>Pyroscope server.</td>
+</tr>
+<tr>
+<td><code>SKH__PYROSCOPE__APPLICATION_NAME</code></td>
+<td><code>skore-hub</code></td>
+<td>Application name reported to Pyroscope.</td>
 </tr>
 </tbody>
 </table>

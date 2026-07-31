@@ -1858,6 +1858,11 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 </thead>
 <tbody>
 <tr>
+<td><code>session-secret-key</code></td>
+<td><code>SKH__SESSION_SECRET_KEY</code></td>
+<td>Generate one (see below); required for stable sessions</td>
+</tr>
+<tr>
 <td><code>db-user</code></td>
 <td><code>SKH__DB__USER</code></td>
 <td>PostgreSQL</td>
@@ -1932,6 +1937,10 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 <blockquote>
 <p>Only include the keys you actually use. If a service needs no auth (e.g. an open SMTP relay), omit its keys and remove the matching entries from <code>skh.extraEnv</code>.</p>
 </blockquote>
+<p>Generate the session key once and keep it stable for the life of the deployment:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import secrets; print(secrets.token_urlsafe(48))&quot;</span>
+</code></pre></div>
+<p>Left unset, the backend generates a random one at each pod start, so sessions break on every restart and are not shared between replicas.</p>
 <h3 id="create-the-secret">Create the Secret<a class="headerlink" href="#create-the-secret" title="Permanent link">&para;</a></h3>
 <p>Create the Secret directly. The chart references it via <code>secretKeyRef</code> (<code>skh.extraEnv</code>), so nothing sensitive is stored in Helm values or history.</p>
 <p>If you manage secrets through an external system (Vault, a cloud secret manager, SealedSecrets, an operator, ...), produce the same <code>skore-hub-backend-secrets</code> Secret with the keys above through your usual mechanism.</p>
