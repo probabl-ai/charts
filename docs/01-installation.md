@@ -277,6 +277,7 @@ Create a Secret (default name `skore-hub-backend-secrets`) with these keys. The 
 
 | Secret key | Maps to env var | Source |
 | --- | --- | --- |
+| `session-secret-key` | `SKH__SESSION_SECRET_KEY` | Generate one (see below); required for stable sessions |
 | `db-user` | `SKH__DB__USER` | PostgreSQL |
 | `db-password` | `SKH__DB__PASSWORD` | PostgreSQL |
 | `idp-client-id` | `SKH__IDP__CLIENT_ID` | OIDC |
@@ -293,6 +294,14 @@ Create a Secret (default name `skore-hub-backend-secrets`) with these keys. The 
 | `aws-secret-access-key` | `SKH__AGENT__AWS_SECRET_ACCESS_KEY` | Skore agent Bedrock (if using static creds) |
 
 > Only include the keys you actually use. If a service needs no auth (e.g. an open SMTP relay), omit its keys and remove the matching entries from `skh.extraEnv`.
+
+Generate the session key once and keep it stable for the life of the deployment:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Left unset, the backend generates a random one at each pod start, so sessions break on every restart and are not shared between replicas.
 
 ### Create the Secret
 

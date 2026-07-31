@@ -84,6 +84,15 @@ skh:
 
   # Sensitive values, mapped from the Secret named in skh.envSecret.
   extraEnv:
+    # Signs cookie-based session state. Without it the backend generates a new
+    # random key at every pod start, so sessions break on restart and are not
+    # shared between replicas.
+    - name: SKH__SESSION_SECRET_KEY
+      valueFrom:
+        {
+          secretKeyRef:
+            { name: skore-hub-backend-secrets, key: session-secret-key },
+        }
     - name: SKH__DB__USER
       valueFrom:
         { secretKeyRef: { name: skore-hub-backend-secrets, key: db-user } }
