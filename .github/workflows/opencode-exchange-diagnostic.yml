@@ -1,0 +1,44 @@
+name: opencode-exchange-diagnostic
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Fetch OIDC token (audience opencode-github-action)
+        id: oidc
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Request URL: $ACTIONS_ID_TOKEN_REQUEST_URL"
+          resp=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=opencode-github-action")
+          echo "OIDC raw response: $resp"
+          jwt=$(printf '%s' "$resp" | jq -r '.value // empty')
+          if [ -z "$jwt" ]; then
+            echo "::error::No OIDC token returned"
+            exit 1
+          fi
+          # Decode JWT payload (no verification) for debugging claims
+          payload=$(printf '%s' "$jwt" | cut -d'.' -f2 | tr '_-' '/+' | base64 -d 2>/dev/null || true)
+          echo "OIDC payload: $payload"
+          # Mask the JWT itself in logs
+          echo "::add-mask::$jwt"
+          echo "jwt=$jwt" >> "$GITHUB_OUTPUT"
+
+      - name: Exchange OIDC token for OpenCode app token
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "=== POST https://api.opencode.ai/exchange_github_app_token ==="
+          curl -sS -i -X POST https://api.opencode.ai/exchange_github_app_token \
+            -H "Authorization: Bearer ${{ steps.oidc.outputs.jwt }}" \
+            -o exchange_response.txt -w "\n__HTTP_STATUS=%{http_code}\n__CT=%{content_type}\n"
+          echo "----- response (headers + body) -----"
+          cat exchange_response.txt
+          echo
+          echo "----- end -----"
