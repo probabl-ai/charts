@@ -32,6 +32,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 | `SKH__LOG_LEVEL` | `INFO` | `DEBUG`/`INFO`/`WARNING`/`ERROR`. |
 | `SKH__LOG_FORMATTER` | `default` | `json` (structured) or `default` (plain). |
 | `SKH__UI_URL` | `(none)` | Public URL of the frontend. |
+| `SKH__SESSION_SECRET_KEY` 🔒 | random per process | Signs cookie-based session state. The default is regenerated every time a pod starts, so sessions do not survive a restart and are not shared between replicas. Set it explicitly to a stable random value. |
 
 ## Database (`db`)
 
@@ -56,6 +57,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 | `SKH__IDP__SCOPE` | `openid offline_access` | Set `openid profile email offline_access`. |
 | `SKH__IDP__CLIENT_ID` 🔒 | `(none)` | OIDC client id. |
 | `SKH__IDP__CLIENT_SECRET` 🔒 | `(none)` | OIDC client secret. |
+| `SKH__IDP__CACHE_EXP` | `900` | Seconds the OIDC discovery document and JWKS are cached. Lower it if your IdP rotates signing keys frequently. |
 
 See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 
@@ -84,6 +86,8 @@ See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 | `SKH__REDIS__SSL` | `false` | Enable TLS. |
 | `SKH__REDIS__SSL_CERT_REQS` | `required` | `required`/`optional`/`none`. |
 | `SKH__REDIS__SSL_CA_CERTS` | `(none)` | CA cert path. |
+| `SKH__REDIS__SSL_CERTFILE` | `(none)` | Client cert path, for mutual TLS. |
+| `SKH__REDIS__SSL_KEYFILE` | `(none)` | Client key path, for mutual TLS. |
 | `SKH__REDIS__MAX_CONNECTIONS` | `1000` | Pool cap. |
 | `SKH__REDIS__API_KEY_VERIFICATION_CACHE_TTL_SECONDS` | `120` | API-key cache TTL; `0` disables. |
 
@@ -97,6 +101,7 @@ See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 | `SKH__SMTP__USER` 🔒 | `(none)` | Username (optional). |
 | `SKH__SMTP__PASSWORD` 🔒 | `(none)` | Password (optional). |
 | `SKH__SMTP__SENDER` | `(none)` | From address; set your own (e.g. `no-reply@example.com`). |
+| `SKH__SMTP__SENDER_NAME` | `Skore Team` | Display name shown next to the From address. |
 
 ## Encryption (`encryption`)
 
@@ -158,11 +163,14 @@ All disabled by default. See [Observability and logging](02-operations.md#observ
 | --- | --- | --- |
 | `SKH__TEMPO__IS_ENABLED` | `false` | Enable OTLP traces. |
 | `SKH__TEMPO__SERVER_ADDRESS` | `http://localhost:4317` | OTLP collector. |
+| `SKH__TEMPO__INSECURE` | `true` | Send traces without TLS. Set `false` when the collector is remote. |
+| `SKH__TEMPO__SERVICE_NAME` | `skore-hub` | Service name reported on traces. |
 | `SKH__OTEL_METRICS__IS_ENABLED` | `false` | Enable OTLP metrics push. |
 | `SKH__OTEL_METRICS__SERVER_ADDRESS` | `(none)` | OTLP metrics endpoint. |
 | `SKH__OTEL_METRICS__EXPORT_INTERVAL_MILLIS` | `5000` | Export interval. |
 | `SKH__PYROSCOPE__IS_ENABLED` | `false` | Enable profiling. |
 | `SKH__PYROSCOPE__SERVER_ADDRESS` | `http://localhost:4040` | Pyroscope server. |
+| `SKH__PYROSCOPE__APPLICATION_NAME` | `skore-hub` | Application name reported to Pyroscope. |
 
 ## Error tracking (optional)
 
