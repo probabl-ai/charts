@@ -1,5 +1,11 @@
 # Probabl Helm charts
 
+[![Deployment guide](https://img.shields.io/badge/docs-deployment%20guide-1f6feb)](https://probabl-ai.github.io/charts/docs/)
+[![skore-hub-backend chart](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fprobabl-ai.github.io%2Fcharts%2Findex.yaml&query=%24.entries.skore-hub-backend%5B0%5D.version&label=skore-hub-backend&color=0f9d58)](charts/skore-hub-backend)
+[![skore-hub-frontend chart](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fprobabl-ai.github.io%2Fcharts%2Findex.yaml&query=%24.entries.skore-hub-frontend%5B0%5D.version&label=skore-hub-frontend&color=0f9d58)](charts/skore-hub-frontend)
+[![Lint charts](https://img.shields.io/github/actions/workflow/status/probabl-ai/charts/lint-test.yml?label=lint)](https://github.com/probabl-ai/charts/actions/workflows/lint-test.yml)
+[![Release charts](https://img.shields.io/github/actions/workflow/status/probabl-ai/charts/release.yml?branch=main&label=release)](https://github.com/probabl-ai/charts/actions/workflows/release.yml)
+
 Helm charts for Probabl products.
 
 ## Requirements
@@ -41,13 +47,15 @@ configuration options.
 
 ## Documentation
 
-The full deployment and operations guide lives under [`docs/`](docs/README.md) and
-is published at <https://probabl-ai.github.io/charts/docs/>:
+The full deployment and operations guide is published at
+**<https://probabl-ai.github.io/charts/docs/>**:
 
-- [Overview, architecture and prerequisites](docs/README.md)
-- [Installation](docs/01-installation.md): images, external services, OIDC, secrets, backend, frontend, ingress.
-- [Operations](docs/02-operations.md): verification, observability/logging, troubleshooting.
-- [Configuration reference](docs/reference-configuration.md): every `SKH__*` setting.
+- [Overview, architecture and prerequisites](https://probabl-ai.github.io/charts/docs/)
+- [Installation](https://probabl-ai.github.io/charts/docs/01-installation/): images, external services, OIDC, secrets, backend, frontend, ingress.
+- [Operations](https://probabl-ai.github.io/charts/docs/02-operations/): verification, observability/logging, troubleshooting.
+- [Configuration reference](https://probabl-ai.github.io/charts/docs/reference-configuration/): every `SKH__*` setting.
+
+The sources live under [`docs/`](docs/README.md) in this repository.
 
 ## Versioning
 
