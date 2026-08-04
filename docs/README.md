@@ -102,7 +102,7 @@ The following must be reachable **from the cluster network** before deploying:
 | --- | --- |
 | PostgreSQL | 14+ recommended (we run 18). One database + credentials for skore-hub. TLS optional. |
 | Redis | 6+ recommended (we run 7.2). Standalone or cluster. TLS/auth optional. |
-| S3-compatible storage | A bucket + access/secret keys. Path-style or virtual-host. |
+| S3-compatible storage | A bucket + access/secret keys. Path-style or virtual-host. Google Cloud Storage is supported via its S3 interoperability API (HMAC keys) — see [GCS via S3 interoperability](reference-configuration.md#gcs-via-s3-interoperability). |
 | SMTP | Host/port + optional credentials and STARTTLS/TLS. |
 | OIDC IdP | Must expose `/.well-known/openid-configuration`, an authorization code flow, a token endpoint and a `userinfo` endpoint. See [OIDC](01-installation.md#oidc-identity-provider). |
 

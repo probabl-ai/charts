@@ -170,6 +170,22 @@ Prepare beforehand: a bucket and an access key / secret key with read/write on i
 
 > The backend generates **presigned URLs** for object download/upload. The `SKH__OBJECT_STORAGE__ENDPOINT` must therefore be reachable **both** from the backend pods **and** from the clients that use those URLs: end-user browsers (frontend) and the **skore Python library** in users' environments (or expose an equivalent endpoint that resolves to the same storage).
 
+#### GCS via S3 interoperability
+
+Google Cloud Storage works with the S3 driver above — keep `SKH__OBJECT_STORAGE__TYPE=s3` and point the endpoint at GCS's S3-compatible API:
+
+| Setting | Env var | Example | Notes |
+| --- | --- | --- | --- |
+| Endpoint | `SKH__OBJECT_STORAGE__ENDPOINT` | `https://storage.googleapis.com` | GCS S3 interoperability API. |
+| Bucket | `SKH__OBJECT_STORAGE__BUCKET_NAME` | `skore-hub` | GCS bucket (must exist). |
+| Region | `SKH__OBJECT_STORAGE__REGION_NAME` | `auto` | Or a specific GCP region (`europe-west1`, ...). |
+| Access key 🔒 | `SKH__OBJECT_STORAGE__ACCESS_KEY` | | HMAC **Access Key** of a GCP service account. |
+| Secret key 🔒 | `SKH__OBJECT_STORAGE__SECRET_KEY` | | Matching HMAC **Secret**. |
+
+Setup: create a GCP service account with `roles/storage.objectAdmin` on the bucket, then generate HMAC keys for it under **Cloud Storage → Settings → Interoperability**. The same `s3-access-key` / `s3-secret-key` Kubernetes Secret keys (see [Secrets](#secrets)) hold the HMAC Access Key / Secret. The S3 client signs with `s3v4`, which GCS accepts — no other change needed.
+
+> Native GCS is also available (`SKH__OBJECT_STORAGE__TYPE=gcs` with `GOOGLE_APPLICATION_CREDENTIALS` / `GOOGLE_PROJECT`); the S3 interoperability path above is generally simpler for Kubernetes deployments. See [Configuration reference](reference-configuration.md#gcs-via-s3-interoperability).
+
 ### SMTP
 
 **Used for:** transactional emails (e.g. notifications). Provide a relay reachable from the cluster.

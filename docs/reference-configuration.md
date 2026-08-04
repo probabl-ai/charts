@@ -13,6 +13,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Database (db)](#database-db)
 - [Identity provider (idp): OIDC](#identity-provider-idp-oidc)
 - [Object storage (object_storage): S3](#object-storage-object_storage-s3)
+  - [GCS via S3 interoperability](#gcs-via-s3-interoperability)
 - [Redis (redis)](#redis-redis)
 - [SMTP (smtp)](#smtp-smtp)
 - [Encryption (encryption)](#encryption-encryption)
@@ -65,13 +66,34 @@ See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 
 | Env var | Default | Description |
 | --- | --- | --- |
-| `SKH__OBJECT_STORAGE__TYPE` | `minio` | Use `s3` for standard S3-compatible storage. |
-| `SKH__OBJECT_STORAGE__ENDPOINT` | `http://localhost:9000` | S3 API endpoint. |
+| `SKH__OBJECT_STORAGE__TYPE` | `minio` | Backend driver. `s3` (or `minio`) for any S3-compatible storage, including GCS via its S3 interoperability endpoint. `gcs` selects the native Google Cloud Storage driver (see [GCS via S3 interoperability](#gcs-via-s3-interoperability)). |
+| `SKH__OBJECT_STORAGE__ENDPOINT` | `http://localhost:9000` | S3 API endpoint. For GCS S3 interoperability use `https://storage.googleapis.com`. Ignored when `type` is `gcs`. |
 | `SKH__OBJECT_STORAGE__BUCKET_NAME` | `hub` | Bucket (must exist). |
-| `SKH__OBJECT_STORAGE__REGION_NAME` | `(none)` | Region, if required. |
-| `SKH__OBJECT_STORAGE__ACCESS_KEY` 🔒 | `(none)` | Access key. |
-| `SKH__OBJECT_STORAGE__SECRET_KEY` 🔒 | `(none)` | Secret key. |
+| `SKH__OBJECT_STORAGE__REGION_NAME` | `(none)` | Region, if required. GCS S3 interoperability expects a region (e.g. `auto`, or a specific GCP region such as `europe-west1`). |
+| `SKH__OBJECT_STORAGE__ACCESS_KEY` 🔒 | `(none)` | Access key. For GCS S3 interoperability, this is the HMAC access key of a service account. |
+| `SKH__OBJECT_STORAGE__SECRET_KEY` 🔒 | `(none)` | Secret key. For GCS S3 interoperability, this is the HMAC secret of the same service account. |
 | `SKH__OBJECT_STORAGE__PRESIGNED_URL_EXPIRES_IN` | `3600` | Presigned URL TTL (s). |
+
+> Google Cloud Storage (GCS) can be used **either** through its S3 interoperability endpoint (recommended — keep `type` as `s3`/`minio`) **or** through the native Google driver (`type = "gcs"`). Native GCS uses `SKH__OBJECT_STORAGE__GOOGLE_APPLICATION_CREDENTIALS` and `SKH__OBJECT_STORAGE__GOOGLE_PROJECT` instead of access/secret keys; the S3 fields above are ignored in that mode.
+
+### GCS via S3 interoperability
+
+GCS exposes an S3-compatible API at `https://storage.googleapis.com`. You keep the standard S3 configuration (`type = "s3"`) and authenticate with the HMAC keys of a GCP service account — no native GCS credentials needed. The S3 client signs requests with `s3v4`, which GCS accepts.
+
+1. Create or pick a GCP service account, and grant it `roles/storage.objectAdmin` (or the minimum scope you need) on the bucket.
+2. Create **HMAC keys** for that service account in Cloud Storage → Settings → Interoperability. You get an **Access Key** and a **Secret**.
+3. Create a GCS bucket, then configure the backend:
+
+    | Env var | Value |
+    | --- | --- |
+    | `SKH__OBJECT_STORAGE__TYPE` | `s3` |
+    | `SKH__OBJECT_STORAGE__ENDPOINT` | `https://storage.googleapis.com` |
+    | `SKH__OBJECT_STORAGE__BUCKET_NAME` | your GCS bucket name |
+    | `SKH__OBJECT_STORAGE__REGION_NAME` | `auto` (or a specific GCP region) |
+    | `SKH__OBJECT_STORAGE__ACCESS_KEY` 🔒 | HMAC Access Key |
+    | `SKH__OBJECT_STORAGE__SECRET_KEY` 🔒 | HMAC Secret |
+
+> The backend generates **presigned URLs**. For GCS, the S3 interoperability endpoint `https://storage.googleapis.com` must be reachable from both the backend pods and the end-user browsers / **skore Python library** that consume those URLs.
 
 ## Redis (`redis`)
 
