@@ -406,6 +406,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="S3-compatible object storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gcs-via-s3-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      GCS via S3 interoperability
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -944,6 +959,21 @@
       S3-compatible object storage
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="S3-compatible object storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gcs-via-s3-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      GCS via S3 interoperability
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1645,6 +1675,54 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quo
 </table>
 <blockquote>
 <p>The backend generates <strong>presigned URLs</strong> for object download/upload. The <code>SKH__OBJECT_STORAGE__ENDPOINT</code> must therefore be reachable <strong>both</strong> from the backend pods <strong>and</strong> from the clients that use those URLs: end-user browsers (frontend) and the <strong>skore Python library</strong> in users' environments (or expose an equivalent endpoint that resolves to the same storage).</p>
+</blockquote>
+<h4 id="gcs-via-s3-interoperability">GCS via S3 interoperability<a class="headerlink" href="#gcs-via-s3-interoperability" title="Permanent link">&para;</a></h4>
+<p>Google Cloud Storage works with the S3 driver above — keep <code>SKH__OBJECT_STORAGE__TYPE=s3</code> and point the endpoint at GCS's S3-compatible API:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Env var</th>
+<th>Example</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Endpoint</td>
+<td><code>SKH__OBJECT_STORAGE__ENDPOINT</code></td>
+<td><code>https://storage.googleapis.com</code></td>
+<td>GCS S3 interoperability API.</td>
+</tr>
+<tr>
+<td>Bucket</td>
+<td><code>SKH__OBJECT_STORAGE__BUCKET_NAME</code></td>
+<td><code>skore-hub</code></td>
+<td>GCS bucket (must exist).</td>
+</tr>
+<tr>
+<td>Region</td>
+<td><code>SKH__OBJECT_STORAGE__REGION_NAME</code></td>
+<td><code>auto</code></td>
+<td>Or a specific GCP region (<code>europe-west1</code>, ...).</td>
+</tr>
+<tr>
+<td>Access key 🔒</td>
+<td><code>SKH__OBJECT_STORAGE__ACCESS_KEY</code></td>
+<td></td>
+<td>HMAC <strong>Access Key</strong> of a GCP service account.</td>
+</tr>
+<tr>
+<td>Secret key 🔒</td>
+<td><code>SKH__OBJECT_STORAGE__SECRET_KEY</code></td>
+<td></td>
+<td>Matching HMAC <strong>Secret</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p>Setup: create a GCP service account with <code>roles/storage.objectAdmin</code> on the bucket, then generate HMAC keys for it under <strong>Cloud Storage → Settings → Interoperability</strong>. The same <code>s3-access-key</code> / <code>s3-secret-key</code> Kubernetes Secret keys (see <a href="#secrets">Secrets</a>) hold the HMAC Access Key / Secret. The S3 client signs with <code>s3v4</code>, which GCS accepts — no other change needed.</p>
+<blockquote>
+<p>Native GCS is also available (<code>SKH__OBJECT_STORAGE__TYPE=gcs</code> with <code>GOOGLE_APPLICATION_CREDENTIALS</code> / <code>GOOGLE_PROJECT</code>); the S3 interoperability path above is generally simpler for Kubernetes deployments. See <a href="../reference-configuration/#gcs-via-s3-interoperability">Configuration reference</a>.</p>
 </blockquote>
 <h3 id="smtp">SMTP<a class="headerlink" href="#smtp" title="Permanent link">&para;</a></h3>
 <p><strong>Used for:</strong> transactional emails (e.g. notifications). Provide a relay reachable from the cluster.</p>

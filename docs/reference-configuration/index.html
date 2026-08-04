@@ -401,6 +401,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Object storage (object_storage): S3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gcs-via-s3-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      GCS via S3 interoperability
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -561,6 +576,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Object storage (object_storage): S3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gcs-via-s3-interoperability" class="md-nav__link">
+    <span class="md-ellipsis">
+      GCS via S3 interoperability
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -676,6 +706,7 @@
 <li><a href="#database-db">Database (db)</a></li>
 <li><a href="#identity-provider-idp-oidc">Identity provider (idp): OIDC</a></li>
 <li><a href="#object-storage-object_storage-s3">Object storage (object_storage): S3</a></li>
+<li><a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a></li>
 <li><a href="#redis-redis">Redis (redis)</a></li>
 <li><a href="#smtp-smtp">SMTP (smtp)</a></li>
 <li><a href="#encryption-encryption">Encryption (encryption)</a></li>
@@ -841,12 +872,12 @@
 <tr>
 <td><code>SKH__OBJECT_STORAGE__TYPE</code></td>
 <td><code>minio</code></td>
-<td>Use <code>s3</code> for standard S3-compatible storage.</td>
+<td>Backend driver. <code>s3</code> (or <code>minio</code>) for any S3-compatible storage, including GCS via its S3 interoperability endpoint. <code>gcs</code> selects the native Google Cloud Storage driver (see <a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a>).</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__ENDPOINT</code></td>
 <td><code>http://localhost:9000</code></td>
-<td>S3 API endpoint.</td>
+<td>S3 API endpoint. For GCS S3 interoperability use <code>https://storage.googleapis.com</code>. Ignored when <code>type</code> is <code>gcs</code>.</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__BUCKET_NAME</code></td>
@@ -856,17 +887,17 @@
 <tr>
 <td><code>SKH__OBJECT_STORAGE__REGION_NAME</code></td>
 <td><code>(none)</code></td>
-<td>Region, if required.</td>
+<td>Region, if required. GCS S3 interoperability expects a region (e.g. <code>auto</code>, or a specific GCP region such as <code>europe-west1</code>).</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__ACCESS_KEY</code> 🔒</td>
 <td><code>(none)</code></td>
-<td>Access key.</td>
+<td>Access key. For GCS S3 interoperability, this is the HMAC access key of a service account.</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__SECRET_KEY</code> 🔒</td>
 <td><code>(none)</code></td>
-<td>Secret key.</td>
+<td>Secret key. For GCS S3 interoperability, this is the HMAC secret of the same service account.</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__PRESIGNED_URL_EXPIRES_IN</code></td>
@@ -875,6 +906,55 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>Google Cloud Storage (GCS) can be used <strong>either</strong> through its S3 interoperability endpoint (recommended — keep <code>type</code> as <code>s3</code>/<code>minio</code>) <strong>or</strong> through the native Google driver (<code>type = "gcs"</code>). Native GCS uses <code>SKH__OBJECT_STORAGE__GOOGLE_APPLICATION_CREDENTIALS</code> and <code>SKH__OBJECT_STORAGE__GOOGLE_PROJECT</code> instead of access/secret keys; the S3 fields above are ignored in that mode.</p>
+</blockquote>
+<h3 id="gcs-via-s3-interoperability">GCS via S3 interoperability<a class="headerlink" href="#gcs-via-s3-interoperability" title="Permanent link">&para;</a></h3>
+<p>GCS exposes an S3-compatible API at <code>https://storage.googleapis.com</code>. You keep the standard S3 configuration (<code>type = "s3"</code>) and authenticate with the HMAC keys of a GCP service account — no native GCS credentials needed. The S3 client signs requests with <code>s3v4</code>, which GCS accepts.</p>
+<ol>
+<li>Create or pick a GCP service account, and grant it <code>roles/storage.objectAdmin</code> (or the minimum scope you need) on the bucket.</li>
+<li>Create <strong>HMAC keys</strong> for that service account in Cloud Storage → Settings → Interoperability. You get an <strong>Access Key</strong> and a <strong>Secret</strong>.</li>
+<li>
+<p>Create a GCS bucket, then configure the backend:</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__TYPE</code></td>
+<td><code>s3</code></td>
+</tr>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__ENDPOINT</code></td>
+<td><code>https://storage.googleapis.com</code></td>
+</tr>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__BUCKET_NAME</code></td>
+<td>your GCS bucket name</td>
+</tr>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__REGION_NAME</code></td>
+<td><code>auto</code> (or a specific GCP region)</td>
+</tr>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__ACCESS_KEY</code> 🔒</td>
+<td>HMAC Access Key</td>
+</tr>
+<tr>
+<td><code>SKH__OBJECT_STORAGE__SECRET_KEY</code> 🔒</td>
+<td>HMAC Secret</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<blockquote>
+<p>The backend generates <strong>presigned URLs</strong>. For GCS, the S3 interoperability endpoint <code>https://storage.googleapis.com</code> must be reachable from both the backend pods and the end-user browsers / <strong>skore Python library</strong> that consume those URLs.</p>
+</blockquote>
 <h2 id="redis-redis">Redis (<code>redis</code>)<a class="headerlink" href="#redis-redis" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
