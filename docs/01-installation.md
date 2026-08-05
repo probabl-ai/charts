@@ -184,8 +184,6 @@ Google Cloud Storage works with the S3 driver above — keep `SKH__OBJECT_STORAG
 
 Setup: create a GCP service account with `roles/storage.objectAdmin` on the bucket, then generate HMAC keys for it under **Cloud Storage → Settings → Interoperability**. The same `s3-access-key` / `s3-secret-key` Kubernetes Secret keys (see [Secrets](#secrets)) hold the HMAC Access Key / Secret. The S3 client signs with `s3v4`, which GCS accepts — no other change needed.
 
-> Native GCS is also available (`SKH__OBJECT_STORAGE__TYPE=gcs` with `GOOGLE_APPLICATION_CREDENTIALS` / `GOOGLE_PROJECT`); the S3 interoperability path above is generally simpler for Kubernetes deployments. See [Configuration reference](reference-configuration.md#gcs-via-s3-interoperability).
-
 ### SMTP
 
 **Used for:** transactional emails (e.g. notifications). Provide a relay reachable from the cluster.

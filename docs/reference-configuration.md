@@ -66,15 +66,15 @@ See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 
 | Env var | Default | Description |
 | --- | --- | --- |
-| `SKH__OBJECT_STORAGE__TYPE` | `minio` | Backend driver. `s3` (or `minio`) for any S3-compatible storage, including GCS via its S3 interoperability endpoint. `gcs` selects the native Google Cloud Storage driver (see [GCS via S3 interoperability](#gcs-via-s3-interoperability)). |
-| `SKH__OBJECT_STORAGE__ENDPOINT` | `http://localhost:9000` | S3 API endpoint. For GCS S3 interoperability use `https://storage.googleapis.com`. Ignored when `type` is `gcs`. |
+| `SKH__OBJECT_STORAGE__TYPE` | `s3` | Backend driver. `s3` for any S3-compatible storage, including GCS via its S3 interoperability endpoint (see [GCS via S3 interoperability](#gcs-via-s3-interoperability)). |
+| `SKH__OBJECT_STORAGE__ENDPOINT` | `http://localhost:9000` | S3 API endpoint. For GCS S3 interoperability use `https://storage.googleapis.com`. |
 | `SKH__OBJECT_STORAGE__BUCKET_NAME` | `hub` | Bucket (must exist). |
 | `SKH__OBJECT_STORAGE__REGION_NAME` | `(none)` | Region, if required. GCS S3 interoperability expects a region (e.g. `auto`, or a specific GCP region such as `europe-west1`). |
 | `SKH__OBJECT_STORAGE__ACCESS_KEY` 🔒 | `(none)` | Access key. For GCS S3 interoperability, this is the HMAC access key of a service account. |
 | `SKH__OBJECT_STORAGE__SECRET_KEY` 🔒 | `(none)` | Secret key. For GCS S3 interoperability, this is the HMAC secret of the same service account. |
 | `SKH__OBJECT_STORAGE__PRESIGNED_URL_EXPIRES_IN` | `3600` | Presigned URL TTL (s). |
 
-> Google Cloud Storage (GCS) can be used **either** through its S3 interoperability endpoint (recommended — keep `type` as `s3`/`minio`) **or** through the native Google driver (`type = "gcs"`). Native GCS uses `SKH__OBJECT_STORAGE__GOOGLE_APPLICATION_CREDENTIALS` and `SKH__OBJECT_STORAGE__GOOGLE_PROJECT` instead of access/secret keys; the S3 fields above are ignored in that mode.
+> Google Cloud Storage (GCS) is supported through its S3 interoperability endpoint — keep `type` as `s3` and authenticate with the HMAC keys of a GCP service account (see [GCS via S3 interoperability](#gcs-via-s3-interoperability)).
 
 ### GCS via S3 interoperability
 
