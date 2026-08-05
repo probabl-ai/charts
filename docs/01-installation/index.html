@@ -1721,9 +1721,6 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quo
 </tbody>
 </table>
 <p>Setup: create a GCP service account with <code>roles/storage.objectAdmin</code> on the bucket, then generate HMAC keys for it under <strong>Cloud Storage → Settings → Interoperability</strong>. The same <code>s3-access-key</code> / <code>s3-secret-key</code> Kubernetes Secret keys (see <a href="#secrets">Secrets</a>) hold the HMAC Access Key / Secret. The S3 client signs with <code>s3v4</code>, which GCS accepts — no other change needed.</p>
-<blockquote>
-<p>Native GCS is also available (<code>SKH__OBJECT_STORAGE__TYPE=gcs</code> with <code>GOOGLE_APPLICATION_CREDENTIALS</code> / <code>GOOGLE_PROJECT</code>); the S3 interoperability path above is generally simpler for Kubernetes deployments. See <a href="../reference-configuration/#gcs-via-s3-interoperability">Configuration reference</a>.</p>
-</blockquote>
 <h3 id="smtp">SMTP<a class="headerlink" href="#smtp" title="Permanent link">&para;</a></h3>
 <p><strong>Used for:</strong> transactional emails (e.g. notifications). Provide a relay reachable from the cluster.</p>
 <table>

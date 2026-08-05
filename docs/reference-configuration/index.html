@@ -871,13 +871,13 @@
 <tbody>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__TYPE</code></td>
-<td><code>minio</code></td>
-<td>Backend driver. <code>s3</code> (or <code>minio</code>) for any S3-compatible storage, including GCS via its S3 interoperability endpoint. <code>gcs</code> selects the native Google Cloud Storage driver (see <a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a>).</td>
+<td><code>s3</code></td>
+<td>Backend driver. <code>s3</code> for any S3-compatible storage, including GCS via its S3 interoperability endpoint (see <a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a>).</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__ENDPOINT</code></td>
 <td><code>http://localhost:9000</code></td>
-<td>S3 API endpoint. For GCS S3 interoperability use <code>https://storage.googleapis.com</code>. Ignored when <code>type</code> is <code>gcs</code>.</td>
+<td>S3 API endpoint. For GCS S3 interoperability use <code>https://storage.googleapis.com</code>.</td>
 </tr>
 <tr>
 <td><code>SKH__OBJECT_STORAGE__BUCKET_NAME</code></td>
@@ -907,7 +907,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>Google Cloud Storage (GCS) can be used <strong>either</strong> through its S3 interoperability endpoint (recommended — keep <code>type</code> as <code>s3</code>/<code>minio</code>) <strong>or</strong> through the native Google driver (<code>type = "gcs"</code>). Native GCS uses <code>SKH__OBJECT_STORAGE__GOOGLE_APPLICATION_CREDENTIALS</code> and <code>SKH__OBJECT_STORAGE__GOOGLE_PROJECT</code> instead of access/secret keys; the S3 fields above are ignored in that mode.</p>
+<p>Google Cloud Storage (GCS) is supported through its S3 interoperability endpoint — keep <code>type</code> as <code>s3</code> and authenticate with the HMAC keys of a GCP service account (see <a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a>).</p>
 </blockquote>
 <h3 id="gcs-via-s3-interoperability">GCS via S3 interoperability<a class="headerlink" href="#gcs-via-s3-interoperability" title="Permanent link">&para;</a></h3>
 <p>GCS exposes an S3-compatible API at <code>https://storage.googleapis.com</code>. You keep the standard S3 configuration (<code>type = "s3"</code>) and authenticate with the HMAC keys of a GCP service account — no native GCS credentials needed. The S3 client signs requests with <code>s3v4</code>, which GCS accepts.</p>
