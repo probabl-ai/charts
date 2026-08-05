@@ -2,10 +2,68 @@
 
 All backend settings are environment variables prefixed with `SKH__`, using `__` as the nesting delimiter (e.g. `SKH__DB__HOST` sets `db.host`).
 
-- Put **non-sensitive** values in `skh.env` (chart values).
+- Put **non-sensitive** values in `skh.env` (chart values), or — preferably — in a TOML file mounted from a ConfigMap (`skh.config`, see [Configuration via ConfigMap (TOML)](#configuration-via-configmap-toml) below).
 - Inject **secrets** (🔒) via `skh.extraEnv` → `secretKeyRef` (see [Secrets](01-installation.md#secrets)).
-- List-valued settings (like CORS origins) are provided as a **JSON string**.
+- List-valued settings are provided as a **JSON string** when set via env vars, or as native TOML arrays when set in the TOML file.
 - A `(none)` default means there is no built-in value; set it yourself if the setting applies.
+
+## Configuration via ConfigMap (TOML)
+
+The backend reads a TOML file when the `SKH_CONFIG_FILE` environment variable (or its default `config.toml`) points at one. The chart wires this up for you:
+
+```yaml
+skh:
+  config:
+    enabled: true
+    data: |
+      env = "production"
+      log_level = "INFO"
+
+      [db]
+      host = "postgres.internal"
+      port = 5432
+
+      [cors]
+      allow_origins = ["https://skore-hub.example.com"]
+
+      [cookie]
+      samesite = "none"
+      secure = true
+```
+
+When `skh.config.enabled` is true the chart:
+
+1. renders `skh.config.data` into a `ConfigMap`,
+2. mounts it into the container at `skh.config.mountPath` (default `/etc/skh`),
+3. injects `SKH_CONFIG_FILE=/etc/skh/config.toml` into both the `Deployment` and the migrations `Job`,
+4. annotates the pod templates with `checksum/skh-config` (the SHA-256 of the TOML), so a config change rolls out the Deployment and re-runs migrations.
+
+### Priority order (first wins)
+
+1. The mounted TOML file (`skh.config.data`).
+2. `SKH__*` environment variables (`skh.env`, `skh.extraEnv`, `skh.envSecret`).
+3. Built-in defaults.
+
+Concretely: a key set in the TOML takes precedence over a `SKH__*` env var with the same meaning. Env vars still fill in the keys the TOML omits — which is exactly how **secrets** are wired: keep `SKH__DB__PASSWORD`, `SKH__IDP__CLIENT_SECRET`, ... in `skh.extraEnv`/`skh.envSecret` and omit those keys from the TOML.
+
+### Secrets
+
+**Never put secrets in `skh.config.data`** — a ConfigMap is stored in plaintext. All values with a 🔒 marker below belong in `skh.extraEnv` (or `skh.envSecret`); the TOML only carries the non-sensitive companion keys.
+
+### TOML vs env var ergonomics
+
+In the TOML, lists and nested tables are native — no JSON-string quoting:
+
+| Setting | env var (JSON string) | TOML (native) |
+| --- | --- | --- |
+| CORS origins | `SKH__CORS__ALLOW_ORIGINS: '["https://..."]'` | `allow_origins = ["https://..."]` |
+| Managed emails | `SKH__AGENT__MANAGED_EMAILS: '["*@domain"]'` | `managed_emails = ["*@domain"]` |
+| Boolean | `SKH__DB__SSL_ENABLED: "true"` | `ssl_enabled = true` |
+| Integer | `SKH__DB__PORT: "5432"` | `port = 5432` |
+
+If you already set `SKH_CONFIG_FILE` yourself (in `skh.env` or `skh.extraEnv`), the chart does **not** override it — your value wins.
+
+See [`values.example.yaml`](https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-backend/values.example.yaml) for a full TOML example paired with the matching `extraEnv` secrets.
 
 ## Contents
 
@@ -26,6 +84,8 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 
 ## General
 
+> TOML: top-level keys (e.g. `env = "production"`, `log_level = "INFO"`). 🔒 keys stay in `skh.extraEnv`/`skh.envSecret`.
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__ENV` | `dev` | Environment name; set `production`. |
@@ -36,6 +96,8 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 | `SKH__SESSION_SECRET_KEY` 🔒 | random per process | Signs cookie-based session state. The default is regenerated every time a pod starts, so sessions do not survive a restart and are not shared between replicas. Set it explicitly to a stable random value. |
 
 ## Database (`db`)
+
+> TOML: `[db]` (e.g. `host`, `port`, `name`, `ssl_enabled`). 🔒 `user`/`password` stay in `skh.extraEnv`/`skh.envSecret`.
 
 | Env var | Default | Description |
 | --- | --- | --- |
@@ -51,6 +113,8 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 
 ## Identity provider (`idp`): OIDC
 
+> TOML: `[idp]` (e.g. `is_enabled`, `base_url`, `scope`). 🔒 `client_id`/`client_secret` stay in `skh.extraEnv`/`skh.envSecret`.
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__IDP__IS_ENABLED` | `true` | Enable authentication. |
@@ -63,6 +127,8 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
 
 ## Object storage (`object_storage`): S3
+
+> TOML: `[object_storage]` (e.g. `type`, `endpoint`, `bucket_name`). 🔒 `access_key`/`secret_key` stay in `skh.extraEnv`/`skh.envSecret`.
 
 | Env var | Default | Description |
 | --- | --- | --- |
@@ -97,6 +163,8 @@ GCS exposes an S3-compatible API at `https://storage.googleapis.com`. You keep t
 
 ## Redis (`redis`)
 
+> TOML: `[redis]` (e.g. `is_enabled`, `host`, `port`, `ssl`). 🔒 `username`/`password` stay in `skh.extraEnv`/`skh.envSecret`.
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__REDIS__IS_ENABLED` | `false` | Enable Redis (set `true` in production). |
@@ -115,6 +183,8 @@ GCS exposes an S3-compatible API at `https://storage.googleapis.com`. You keep t
 
 ## SMTP (`smtp`)
 
+> TOML: `[smtp]` (e.g. `host`, `port`, `use_tls`, `sender`). 🔒 `user`/`password` stay in `skh.extraEnv`/`skh.envSecret`.
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__SMTP__HOST` | `localhost` | Host. |
@@ -127,6 +197,8 @@ GCS exposes an S3-compatible API at `https://storage.googleapis.com`. You keep t
 
 ## Encryption (`encryption`)
 
+> TOML: `[encryption]`. The `key` is 🔒 — keep it in `skh.extraEnv`/`skh.envSecret`, **not** in the ConfigMap.
+
 Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: most importantly the per-workspace Skore agent provider credentials (Anthropic API keys, AWS/Bedrock keys, STS external ids) registered through the Hub UI. Generate with `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"`.
 
 | Env var | Default | Description |
@@ -134,6 +206,8 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | `SKH__ENCRYPTION__KEY` 🔒 | `(none)` | Fernet key. **Required** to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see [Skore agent operations](02-operations.md#skore-agent-operations)). |
 
 ## Skore agent (`agent`)
+
+> TOML: `[agent]`. Non-secret settings (`backend`, `provider`, `managed_emails`, `model_*`, `public_model_id`, ...) go here. 🔒 keys (`anthropic_api_key`, `bedrock_external_id`, `aws_access_key_id`, `aws_secret_access_key`) stay in `skh.extraEnv`/`skh.envSecret`.
 
 | Env var | Default | Description |
 | --- | --- | --- |
@@ -162,6 +236,8 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 
 ## Cookies (`cookie`)
 
+> TOML: `[cookie]` (e.g. `samesite = "none"`, `secure = true`).
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__COOKIE__HTTPONLY` | `true` | HttpOnly session cookies. |
@@ -169,6 +245,8 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | `SKH__COOKIE__SAMESITE` | `lax` | `lax`/`strict`/`none`. Use `none` when the frontend and API are on different hosts (requires `secure=true`). |
 
 ## CORS (`cors`)
+
+> TOML: `[cors]`. Lists are native TOML arrays: `allow_origins = ["https://..."]` (no JSON quoting, unlike the env var).
 
 | Env var | Default | Description |
 | --- | --- | --- |
@@ -178,6 +256,8 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | `SKH__CORS__ALLOW_HEADERS` | `["*"]` | JSON list. |
 
 ## Observability (optional)
+
+> TOML: `[tempo]`, `[otel_metrics]`, `[pyroscope]` (each with `is_enabled`, `server_address`, ...). All non-secret.
 
 All disabled by default. See [Observability and logging](02-operations.md#observability-and-logging).
 
@@ -196,13 +276,15 @@ All disabled by default. See [Observability and logging](02-operations.md#observ
 
 ## Error tracking (optional)
 
+> TOML: `[sentry]`. The `dsn` is 🔒 — keep it in `skh.extraEnv`/`skh.envSecret`.
+
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__SENTRY__DSN` 🔒 | `(none)` | Sentry DSN; leave empty to disable. |
 
 ## Server (`uvicorn`)
 
-Defaults are suitable as-is; the container listens on port `8000`.
+> TOML: `[uvicorn]` (`host`, `port`, `reload`). Defaults are suitable as-is; the container listens on port `8000`.
 
 | Env var | Default | Description |
 | --- | --- | --- |

@@ -27,8 +27,41 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# --- Application configuration (SKH__* environment variables) -----------------
+# --- Application configuration ------------------------------------------------
+#
+# The backend reads its configuration from three sources, in priority order
+# (first wins; later sources only fill in keys the earlier ones omit):
+#   1. a TOML file (see `skh.config` below) mounted from a ConfigMap, located
+#      by the `SKH_CONFIG_FILE` env var the chart injects automatically;
+#   2. `SKH__*` environment variables (see `skh.env`, `skh.extraEnv` below);
+#   3. a Kubernetes Secret injected wholesale via `skh.envSecret` (envFrom).
+#
+# Keep ALL sensitive values (passwords, keys, secrets) in `skh.extraEnv` /
+# `skh.envSecret` — NEVER in `skh.config.data`, which is stored in plaintext in
+# a ConfigMap. The TOML is the most readable place for non-sensitive settings
+# (host names, ports, model ids, feature toggles, ...); env vars remain useful
+# for overrides or when the TOML is disabled.
+# -----------------------------------------------------------------------------
 skh:
+  # Mount a TOML config file from a ConfigMap and point the backend at it via
+  # `SKH_CONFIG_FILE`. When enabled, TOML values take priority over `SKH__*`
+  # env vars. Disabled by default: keep the env-var-only behaviour unchanged.
+  #
+  # A change to `skh.config.data` updates the ConfigMap and the `checksum/skh-
+  # config` pod annotation, which triggers a rollout of both the Deployment
+  # and the migrations Job so the new config is picked up.
+  config:
+    enabled: false
+    # Where to mount the ConfigMap inside the container.
+    mountPath: /etc/skh
+    # File name used inside the ConfigMap and on disk (must be a `.toml`).
+    filename: config.toml
+    # Raw TOML content. NON-SENSITIVE settings only — this is a ConfigMap.
+    # Mirror the structure of the backend's `config.sample.toml`. Lists and
+    # nested tables are written as native TOML (no JSON-string quoting needed,
+    # unlike `skh.env`).
+    data: ""
+
   # Name of an existing Kubernetes Secret whose keys are injected as environment
   # variables (envFrom). Put every SENSITIVE SKH__* value here (DB password,
   # OIDC client secret, S3 keys, SMTP password...).
@@ -36,6 +69,8 @@ skh:
   envSecret: "skore-hub-backend-secrets"
 
   # Non-sensitive SKH__* settings, as a plain map (rendered as `name/value` env).
+  # When `skh.config.enabled` is true, the TOML file takes priority over these;
+  # use `env` for overrides or when the TOML is disabled.
   env: {}
   #  SKH__ENV: "production"
   #  SKH__LOG_LEVEL: "INFO"

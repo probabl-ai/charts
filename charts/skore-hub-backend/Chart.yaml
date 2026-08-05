@@ -3,7 +3,7 @@ name: skore-hub-backend
 description: skore-hub backend API.
 type: application
 home: https://probabl.ai
-version: 0.1.9
+version: 0.1.10
 # renovate: datasource=docker depName=rg.fr-par.scw.cloud/probabl-skh/skh
 appVersion: "0.36.0"
 maintainers:

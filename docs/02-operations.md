@@ -86,10 +86,12 @@ skore-hub writes **all logs to `stdout`** (and `stderr`). It does not write log 
 
 Configure the format and verbosity:
 
-| Setting | Env var | Values |
-| --- | --- | --- |
-| Log level | `SKH__LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
-| Log format | `SKH__LOG_FORMATTER` | `json` (structured, recommended) or `default` (plain text) |
+| Setting | Env var | TOML key | Values |
+| --- | --- | --- | --- |
+| Log level | `SKH__LOG_LEVEL` | `log_level` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
+| Log format | `SKH__LOG_FORMATTER` | `log_formatter` | `json` (structured, recommended) or `default` (plain text) |
+
+Set these as env vars (`skh.env`) or in `skh.config.data` ([ConfigMap](01-installation.md#configuration-via-configmap-toml)). TOML takes priority.
 
 Read logs directly:
 
@@ -115,6 +117,8 @@ Telemetry is **disabled by default** and is entirely optional. skore-hub can pus
 | Traces (Tempo/OTLP) | `SKH__TEMPO__IS_ENABLED=true` | `SKH__TEMPO__SERVER_ADDRESS` (e.g. `http://otel-collector:4317`) |
 | Metrics (OTLP push) | `SKH__OTEL_METRICS__IS_ENABLED=true` | `SKH__OTEL_METRICS__SERVER_ADDRESS` |
 | Profiling (Pyroscope) | `SKH__PYROSCOPE__IS_ENABLED=true` | `SKH__PYROSCOPE__SERVER_ADDRESS` |
+
+These map to the `[tempo]`, `[otel_metrics]` and `[pyroscope]` TOML tables (`is_enabled`, `server_address`, ...) when you use `skh.config.data`. TOML takes priority over the `SKH__*` env vars.
 
 > **Metrics are push-only.** skore-hub exports metrics via **OTLP push** (`SKH__OTEL_METRICS__*`) to a collector you run; it does **not** expose a Prometheus `/metrics` scrape endpoint. There is therefore no `ServiceMonitor` in this chart. To collect metrics, enable the OTLP export above and point it at your OpenTelemetry collector / OTLP-compatible backend (e.g. an OTel Collector, or Prometheus with the OTLP receiver enabled).
 
@@ -201,16 +205,21 @@ Raise the ingress body-size limit (e.g. `nginx.ingress.kubernetes.io/proxy-body-
 ### Config value not taking effect
 
 - Remember the mapping: `SKH__DB__HOST` → `db.host`, `__` is the nesting delimiter, and the prefix is always `SKH__`.
-- Non-secret values live in `skh.env`; secrets are injected via `skh.extraEnv` (`secretKeyRef`). A value set in both places: the `env`/`extraEnv` list wins if duplicated; avoid defining the same variable twice.
-- After changing a Secret, restart: `kubectl -n skore-hub rollout restart deploy/skore-hub-backend`.
+- **Priority order (first wins):** a mounted TOML file (`skh.config.data`, located via `SKH_CONFIG_FILE`) → `SKH__*` env vars (`skh.env`, `skh.extraEnv`, `skh.envSecret`) → built-in defaults. A key set in the TOML overrides an env var with the same meaning, so check both places. See [Configuration via ConfigMap (TOML)](01-installation.md#configuration-via-configmap-toml).
+- Non-secret values live in `skh.config.data` or `skh.env`; secrets are injected via `skh.extraEnv` (`secretKeyRef`) / `skh.envSecret`. Avoid defining the same key in two sources.
+- After changing a Secret, restart: `kubectl -n skore-hub rollout restart deploy/skore-hub-backend`. After changing `skh.config.data`, a `helm upgrade` rolls the pods automatically (via the `checksum/skh-config` annotation).
 
 ### Inspect the effective configuration
 
 ```bash
+# Env vars actually set on the pod (does NOT show the TOML file):
 kubectl -n skore-hub exec deploy/skore-hub-backend -- printenv | grep '^SKH__' | sort
+
+# The mounted TOML file, if skh.config.enabled is true:
+kubectl -n skore-hub exec deploy/skore-hub-backend -- cat "${SKH_CONFIG_FILE:-/etc/skh/config.toml}"
 ```
 
-(Secret values will be visible here, so run with appropriate care.)
+(Secret values will be visible here, so run with appropriate care.) Remember a key set in the TOML takes priority over an env var with the same meaning; check both to understand the effective value.
 
 ## Skore agent operations
 

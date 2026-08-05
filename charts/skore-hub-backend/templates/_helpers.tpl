@@ -70,3 +70,51 @@ Render the application environment (SKH__* variables) from the `skh.env` map.
   value: {{ $value | quote }}
 {{- end }}
 {{- end }}
+
+{{/*
+Volume for the TOML ConfigMap. Empty when `skh.config.enabled` is false.
+*/}}
+{{- define "skore-hub.configVolume" -}}
+{{- if .Values.skh.config.enabled }}
+- name: skh-config
+  configMap:
+    name: {{ include "skore-hub.fullname" . }}-config
+{{- end }}
+{{- end -}}
+
+{{/*
+VolumeMount for the TOML ConfigMap. Empty when `skh.config.enabled` is false.
+*/}}
+{{- define "skore-hub.configVolumeMount" -}}
+{{- if .Values.skh.config.enabled }}
+- name: skh-config
+  mountPath: {{ .Values.skh.config.mountPath }}
+  readOnly: true
+{{- end }}
+{{- end -}}
+
+{{/*
+`SKH_CONFIG_FILE` env entry pointing at the mounted TOML. Emitted only when
+`skh.config.enabled` is true AND the user has not already set `SKH_CONFIG_FILE`
+in `skh.env` or `skh.extraEnv` (their explicit value then wins).
+*/}}
+{{- define "skore-hub.configEnv" -}}
+{{- if .Values.skh.config.enabled }}
+{{- $userSet := false -}}
+{{- if hasKey .Values.skh.env "SKH_CONFIG_FILE" }}{{- $userSet = true }}{{- end -}}
+{{- range .Values.skh.extraEnv }}{{- if eq .name "SKH_CONFIG_FILE" }}{{- $userSet = true }}{{- end }}{{- end -}}
+{{- if not $userSet }}
+- name: SKH_CONFIG_FILE
+  value: {{ printf "%s/%s" .Values.skh.config.mountPath .Values.skh.config.filename | quote }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
+SHA-256 checksum of `skh.config.data`, used as a pod annotation so a config
+change rolls out the Deployment and re-runs the migrations Job. Empty when the
+ConfigMap is disabled (so no annotation is emitted).
+*/}}
+{{- define "skore-hub.configChecksum" -}}
+{{- if .Values.skh.config.enabled }}{{- .Values.skh.config.data | sha256sum }}{{- end }}
+{{- end -}}
