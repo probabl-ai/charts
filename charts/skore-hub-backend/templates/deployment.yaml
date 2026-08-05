@@ -13,9 +13,14 @@ spec:
       {{- include "skore-hub.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- if or .Values.skh.config.enabled .Values.podAnnotations }}
       annotations:
+        {{- if .Values.skh.config.enabled }}
+        checksum/skh-config: {{ include "skore-hub.configChecksum" . }}
+        {{- end }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "skore-hub.labels" . | nindent 8 }}
@@ -42,6 +47,7 @@ spec:
                 name: {{ .Values.skh.envSecret }}
           {{- end }}
           env:
+            {{- include "skore-hub.configEnv" . | nindent 12 }}
             {{- include "skore-hub.env" . | nindent 12 }}
             {{- with .Values.skh.extraEnv }}
             {{- toYaml . | nindent 12 }}
@@ -56,13 +62,21 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
+          {{- $hasMounts := or .Values.skh.config.enabled .Values.volumeMounts }}
+          {{- if $hasMounts }}
           volumeMounts:
+            {{- include "skore-hub.configVolumeMount" . | nindent 12 }}
+            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- $hasVolumes := or .Values.skh.config.enabled .Values.volumes }}
+      {{- if $hasVolumes }}
       volumes:
+        {{- include "skore-hub.configVolume" . | nindent 8 }}
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

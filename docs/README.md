@@ -10,7 +10,7 @@ The guide is split into five documents:
 - **[Installation](01-installation.md)**: images, external services, OIDC, secrets, backend, frontend, ingress.
 - **[Operations](02-operations.md)**: verification, observability/logging, troubleshooting.
 - **[Agent setup](03-agent-setup.md)**: enabling and onboarding the Skore agent (LLM orchestration).
-- **[Configuration reference](reference-configuration.md)**: every `SKH__*` setting.
+- **[Configuration reference](reference-configuration.md)**: every setting, as `SKH__*` env var or TOML key.
 
 > [!NOTE]
 > **Skore agent: air-gapped notice.** The Skore agent (hub-side LLM orchestration) only supports **Anthropic** (SaaS) and **AWS Bedrock** as LLM backends. A deployment with no outbound access to either is **not supported** in this version. See [Agent setup](03-agent-setup.md).
@@ -154,9 +154,9 @@ Have these ready. You will need them for configuration and the OIDC client regis
 
 Reference:
 
-- [Configuration reference](reference-configuration.md): every `SKH__*` setting.
+- [Configuration reference](reference-configuration.md): every setting, as `SKH__*` env var or TOML key.
 
 ## Conventions
 
-- The backend is configured through **environment variables** prefixed with `SKH__`, using `__` as the nesting delimiter (e.g. `SKH__DB__HOST` maps to the `db.host` setting).
+- The backend is configured through **environment variables** prefixed with `SKH__`, using `__` as the nesting delimiter (e.g. `SKH__DB__HOST` maps to the `db.host` setting). Non-sensitive settings may also — preferably — be written as a **TOML file** mounted from a ConfigMap (`skh.config`); the TOML takes priority over env vars, while secrets stay in env vars / Secrets. See [Configuration via ConfigMap (TOML)](01-installation.md#configuration-via-configmap-toml).
 - Examples use the namespace `skore-hub` and the release name `skore-hub`. Adapt freely.

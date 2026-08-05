@@ -1,0 +1,11 @@
+{{- if .Values.skh.config.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "skore-hub.fullname" . }}-config
+  labels:
+    {{- include "skore-hub.labels" . | nindent 4 }}
+data:
+  {{ .Values.skh.config.filename }}: |-
+{{ .Values.skh.config.data | nindent 4 }}
+{{- end }}

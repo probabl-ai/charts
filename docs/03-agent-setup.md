@@ -67,34 +67,50 @@ The dashed edge is the air-gapped case: the hub has no self-hosted LLM backend, 
 
 ### Minimal global config by model
 
+The snippets below are TOML — the most readable form — and belong in `skh.config.data` (see [Configuration via ConfigMap (TOML)](01-installation.md#configuration-via-configmap-toml)). TOML takes priority over `SKH__*` env vars, so **omit any secret key** (API keys, the Fernet key) from the TOML and keep it in `skh.extraEnv` (see [Secrets](01-installation.md#secrets)); the env var fills the gap.
+
 **Skore-managed** (operator pays the LLM bill for entitled users):
 
 ```toml
 [agent]
 backend = "anthropic"
 provider = "anthropic"
-anthropic_api_key = "sk-ant-..."
 managed_emails = ["*@yourcompany.com"]   # or explicit addresses
+# anthropic_api_key stays in skh.extraEnv (Secret), NOT here
+```
+
+with the secret mapped from the Secret:
+
+```yaml
+skh:
+  extraEnv:
+    - name: SKH__AGENT__ANTHROPIC_API_KEY
+      valueFrom:
+        secretKeyRef: { name: skore-hub-backend-secrets, key: anthropic-api-key }
 ```
 
 **BYO Anthropic** (each workspace brings its own key):
 
 ```toml
-[encryption]
-key = "<fernet-key>"
-
 [agent]
 backend = "anthropic"
 # anthropic_api_key may stay empty; workspaces use their own
 anthropic_models = ["claude-opus-4-8", "claude-sonnet-4-6"]
 ```
 
+with the Fernet key from the Secret (required so workspaces can store their own keys encrypted):
+
+```yaml
+skh:
+  extraEnv:
+    - name: SKH__ENCRYPTION__KEY
+      valueFrom:
+        secretKeyRef: { name: skore-hub-backend-secrets, key: encryption-key }
+```
+
 **BYO Bedrock** (each workspace brings AWS creds/role):
 
 ```toml
-[encryption]
-key = "<fernet-key>"
-
 [agent]
 backend = "anthropic"   # legacy global flag; effective provider comes from the workspace
 provider = "bedrock"
@@ -105,8 +121,24 @@ bedrock_model_small = "..."
 bedrock_models = ["..."]   # required: workspaces can only pin a model listed here
 # Optional global Bedrock creds (ambient chain / IRSA also work):
 # bedrock_role_arn = ""
-# aws_access_key_id = ""
-# aws_secret_access_key = ""
+# aws_access_key_id and aws_secret_access_key stay in skh.extraEnv (Secret)
+```
+
+with the Fernet key (and any static AWS creds) from the Secret:
+
+```yaml
+skh:
+  extraEnv:
+    - name: SKH__ENCRYPTION__KEY
+      valueFrom:
+        secretKeyRef: { name: skore-hub-backend-secrets, key: encryption-key }
+    # Optional static creds (ambient chain / IRSA also work):
+    # - name: SKH__AGENT__AWS_ACCESS_KEY_ID
+    #   valueFrom:
+    #     secretKeyRef: { name: skore-hub-backend-secrets, key: aws-access-key-id }
+    # - name: SKH__AGENT__AWS_SECRET_ACCESS_KEY
+    #   valueFrom:
+    #     secretKeyRef: { name: skore-hub-backend-secrets, key: aws-secret-access-key }
 ```
 
 > [!IMPORTANT]
@@ -152,7 +184,7 @@ The IAM role must allow `bedrock:InvokeModel` on the target models, with the res
 
 ### Pattern 2 — Static credentials (vanilla on-prem / non-EKS)
 
-Inject the keys through the `skore-hub-backend-secrets` Secret and reference them via `skh.extraEnv`:
+Inject the keys through the `skore-hub-backend-secrets` Secret and reference them via `skh.extraEnv`. The non-secret `aws_region` can go in `skh.config.data` (`[agent] aws_region = "us-east-1"`) or `skh.env`:
 
 ```yaml
 skh:
@@ -163,13 +195,11 @@ skh:
     - name: SKH__AGENT__AWS_SECRET_ACCESS_KEY
       valueFrom:
         secretKeyRef: { name: skore-hub-backend-secrets, key: aws-secret-access-key }
-    - name: SKH__AGENT__AWS_REGION
-      value: "us-east-1"
 ```
 
 ### Pattern 3 — Cross-account assume-role
 
-When Bedrock lives in another AWS account, the hub assumes a role there using STS. Set the role ARN and the matching external id (the external id is secret):
+When Bedrock lives in another AWS account, the hub assumes a role there using STS. The non-secret role ARN and region go in `skh.config.data` (`[agent] bedrock_role_arn = "..."`, `aws_region = "..."`) or `skh.env`; the external id is secret and comes from the Secret via `skh.extraEnv`:
 
 ```yaml
 skh:
@@ -186,7 +216,30 @@ The target role's trust policy must allow the caller (the hub's IRSA role or sta
 
 ## Activate the agent on the hub
 
-Set the global agent env vars on the backend chart. With the Skore-managed model as an example:
+Set the global agent config on the backend chart. With the Skore-managed model as an example, as TOML (preferred — goes in `skh.config.data`):
+
+```yaml
+skh:
+  config:
+    enabled: true
+    data: |
+      [agent]
+      backend = "anthropic"
+      provider = "anthropic"
+      managed_emails = ["*@yourcompany.com"]
+      model_big = "claude-opus-4-8"
+      model_normal = "claude-sonnet-4-6"
+      model_small = "claude-haiku-4-5"
+  extraEnv:
+    - name: SKH__AGENT__ANTHROPIC_API_KEY
+      valueFrom:
+        secretKeyRef: { name: skore-hub-backend-secrets, key: anthropic-api-key }
+    - name: SKH__ENCRYPTION__KEY
+      valueFrom:
+        secretKeyRef: { name: skore-hub-backend-secrets, key: encryption-key }
+```
+
+…or the same settings as env vars (`skh.env`), if you prefer not to mount a TOML file:
 
 ```yaml
 skh:

@@ -25,62 +25,81 @@ skh:
   # Kubernetes Secret holding the sensitive values referenced in extraEnv.
   envSecret: "skore-hub-backend-secrets"
 
-  # Non-sensitive settings.
-  env:
-    SKH__ENV: "production"
-    SKH__LOG_LEVEL: "INFO"
-    SKH__LOG_FORMATTER: "json"
-    SKH__UI_URL: "https://skore-hub.example.com"
+  # Non-sensitive settings as a mounted TOML ConfigMap. The chart injects
+  # `SKH_CONFIG_FILE` automatically; TOML values take priority over `SKH__*`
+  # env vars. Secrets stay in `extraEnv` below — never in the ConfigMap.
+  # A change here updates the ConfigMap and the `checksum/skh-config` pod
+  # annotation, which rolls out the Deployment and re-runs migrations.
+  config:
+    enabled: true
+    data: |
+      # Skore Hub backend configuration (non-sensitive only).
+      # Secrets live in the Kubernetes Secret referenced in `extraEnv` below.
 
-    # Database (PostgreSQL)
-    SKH__DB__HOST: "postgres.internal"
-    SKH__DB__PORT: "5432"
-    SKH__DB__NAME: "skore_hub"
-    SKH__DB__SSL_ENABLED: "true"
+      env = "production"
+      app_name = "Skore Hub"
+      ui_url = "https://skore-hub.example.com"
 
-    # Identity provider (OIDC issuer)
-    SKH__IDP__IS_ENABLED: "true"
-    SKH__IDP__BASE_URL: "https://sso.example.com/realms/skore"
-    SKH__IDP__SCOPE: "openid profile email offline_access"
+      log_level = "INFO"
+      log_formatter = "json"
 
-    # Object storage (S3-compatible)
-    SKH__OBJECT_STORAGE__TYPE: "s3"
-    SKH__OBJECT_STORAGE__ENDPOINT: "https://s3.internal"
-    SKH__OBJECT_STORAGE__BUCKET_NAME: "skore-hub"
+      # Database (PostgreSQL) — credentials in the Secret (extraEnv).
+      [db]
+      host = "postgres.internal"
+      port = 5432
+      name = "skore_hub"
+      ssl_enabled = true
 
-    # Redis
-    SKH__REDIS__IS_ENABLED: "true"
-    SKH__REDIS__HOST: "redis.internal"
-    SKH__REDIS__PORT: "6379"
-    SKH__REDIS__SSL: "true"
+      # Identity provider (OIDC) — client id/secret in the Secret.
+      [idp]
+      is_enabled = true
+      base_url = "https://sso.example.com/realms/skore"
+      scope = "openid profile email offline_access"
 
-    # SMTP
-    SKH__SMTP__HOST: "smtp.internal"
-    SKH__SMTP__PORT: "587"
-    SKH__SMTP__USE_TLS: "true"
-    SKH__SMTP__SENDER: "no-reply@example.com"
+      # Object storage (S3-compatible) — access/secret keys in the Secret.
+      [object_storage]
+      type = "s3"
+      endpoint = "https://s3.internal"
+      bucket_name = "skore-hub"
 
-    # Skore agent (hub-side LLM orchestration). Off by default (backend=mock).
-    # Set backend=anthropic to enable the Skore-managed LLM path. Requires
-    # outbound egress to api.anthropic.com (or AWS Bedrock). Air-gapped without
-    # an external LLM is NOT supported yet. See docs/03-agent-setup.md.
-    SKH__AGENT__BACKEND: "anthropic"
-    SKH__AGENT__PROVIDER: "anthropic"
-    SKH__AGENT__MANAGED_EMAILS: '["*@yourcompany.com"]'
-    SKH__AGENT__MODEL_BIG: "claude-opus-4-8"
-    SKH__AGENT__MODEL_NORMAL: "claude-sonnet-4-6"
-    SKH__AGENT__MODEL_SMALL: "claude-haiku-4-5"
-    SKH__AGENT__PUBLIC_MODEL_ID: "skore-agent"
+      # Redis — password in the Secret.
+      [redis]
+      is_enabled = true
+      host = "redis.internal"
+      port = 6379
+      ssl = true
 
-    # CORS (restrict to the frontend origin)
-    SKH__CORS__ALLOW_ORIGINS: '["https://skore-hub.example.com"]'
-    SKH__CORS__ALLOW_CREDENTIALS: "true"
+      # SMTP — user/password in the Secret.
+      [smtp]
+      host = "smtp.internal"
+      port = 587
+      use_tls = true
+      sender = "no-reply@example.com"
 
-    # Cross-site cookies: the SPA (skore-hub.example.com) and the API
-    # (api.skore-hub.example.com) are different origins, so session cookies
-    # must be SameSite=None and Secure (HTTPS).
-    SKH__COOKIE__SAMESITE: "none"
-    SKH__COOKIE__SECURE: "true"
+      # Skore agent (hub-side LLM orchestration). API key in the Secret.
+      # Requires outbound egress to api.anthropic.com (or AWS Bedrock).
+      # Air-gapped without an external LLM is NOT supported yet.
+      # See docs/03-agent-setup.md.
+      [agent]
+      backend = "anthropic"
+      provider = "anthropic"
+      managed_emails = ["*@yourcompany.com"]
+      model_big = "claude-opus-4-8"
+      model_normal = "claude-sonnet-4-6"
+      model_small = "claude-haiku-4-5"
+      public_model_id = "skore-agent"
+
+      # CORS — restrict to the frontend origin.
+      [cors]
+      allow_origins = ["https://skore-hub.example.com"]
+      allow_credentials = true
+
+      # Cross-site cookies: the SPA (skore-hub.example.com) and the API
+      # (api.skore-hub.example.com) are different origins, so session cookies
+      # must be SameSite=None and Secure (HTTPS).
+      [cookie]
+      samesite = "none"
+      secure = true
 
   # Sensitive values, mapped from the Secret named in skh.envSecret.
   extraEnv:

@@ -8,6 +8,7 @@ This document covers the full installation flow, in deployment order: pulling th
 - [External services](#external-services)
 - [OIDC identity provider](#oidc-identity-provider)
 - [Secrets](#secrets)
+- [Configuration via ConfigMap (TOML)](#configuration-via-configmap-toml)
 - [Install the backend](#install-the-backend)
 - [Frontend](#frontend)
 - [Ingress, TLS and DNS](#ingress-tls-and-dns)
@@ -92,9 +93,11 @@ You do not need any separate migration image; see [Install the backend](#install
 
 ## External services
 
-skore-hub connects to services **you operate**. This section lists what each one is used for and the exact `SKH__*` settings to connect to it.
+skore-hub connects to services **you operate**. This section lists what each one is used for and the exact settings to connect to it.
 
-> **Sensitive vs non-sensitive.** Non-sensitive settings go in `skh.env` (plain env). Secrets (passwords, keys) must come from a Kubernetes Secret via `skh.extraEnv` (`secretKeyRef`); see [Secrets](#secrets). The tables below mark secrets with 🔒.
+> **Sensitive vs non-sensitive.** Non-sensitive settings go in `skh.env` (plain env), or — preferably — in a TOML file mounted from a ConfigMap (`skh.config`, see [Configuration via ConfigMap (TOML)](#configuration-via-configmap-toml)). Secrets (passwords, keys) must come from a Kubernetes Secret via `skh.extraEnv` (`secretKeyRef`); see [Secrets](#secrets). The tables below mark secrets with 🔒.
+>
+> Each table shows the `SKH__*` env var; the TOML equivalent is the nested key (e.g. `SKH__DB__HOST` → `[db] host = "..."` in `skh.config.data`). The [configuration reference](reference-configuration.md#configuration-via-configmap-toml) maps every setting.
 
 ### PostgreSQL
 
@@ -119,6 +122,18 @@ Prepare beforehand:
 | Pool overflow | `SKH__DB__MAX_OVERFLOW` | `10` | |
 
 > **Connection budget.** Max connections ≈ `replicaCount × (pool_size + max_overflow)`. Make sure PostgreSQL `max_connections` accommodates it.
+
+In TOML (`skh.config.data`), the non-sensitive connection settings go under `[db]` (credentials stay in `skh.extraEnv`):
+
+```toml
+[db]
+host = "postgres.internal"
+port = 5432
+name = "skore_hub"
+ssl_enabled = true
+# pool_size = 20
+# max_overflow = 10
+```
 
 To mount a CA certificate for TLS, add to your values file:
 
@@ -256,6 +271,15 @@ Make sure the `profile` and `email` scopes are granted so these claims are retur
 
 - `SKH__IDP__BASE_URL` is the **issuer** URL. The backend appends `/.well-known/openid-configuration` to discover the other endpoints, so it must be reachable from the backend pods and return the standard discovery document.
 
+In TOML, the non-sensitive IdP settings go under `[idp]` (client id/secret stay in `skh.extraEnv`):
+
+```toml
+[idp]
+is_enabled = true
+base_url = "https://sso.example.com/realms/skore"
+scope = "openid profile email offline_access"
+```
+
 ### Login / logout flow
 
 1. The frontend sends the user to the backend `/identity/oauth/login`.
@@ -352,6 +376,55 @@ This is the default assumed by [Install the backend](#install-the-backend).
 kubectl -n skore-hub rollout restart deploy/skore-hub-backend
 ```
 
+## Configuration via ConfigMap (TOML)
+
+For readability, the backend's non-sensitive settings can be written as a single **TOML file** mounted from a ConfigMap, instead of many `SKH__*` env vars. This mirrors the backend's native `config.sample.toml`: lists and nested tables are written as plain TOML (no JSON-string quoting), and comments are preserved.
+
+### How it works
+
+```yaml
+skh:
+  config:
+    enabled: true
+    data: |
+      env = "production"
+      log_level = "INFO"
+      ui_url = "https://skore-hub.example.com"
+
+      [db]
+      host = "postgres.internal"
+      port = 5432
+      name = "skore_hub"
+      ssl_enabled = true
+
+      [cors]
+      allow_origins = ["https://skore-hub.example.com"]
+      allow_credentials = true
+
+      [cookie]
+      samesite = "none"
+      secure = true
+```
+
+When `skh.config.enabled: true` the chart:
+
+1. renders `skh.config.data` into a `ConfigMap`,
+2. mounts it at `skh.config.mountPath` (default `/etc/skh`),
+3. injects `SKH_CONFIG_FILE=/etc/skh/config.toml` into both the `Deployment` and the migrations `Job`,
+4. annotates the pod templates with `checksum/skh-config` (the SHA-256 of the TOML), so a config change rolls out the Deployment and re-runs migrations on the next `helm upgrade`.
+
+### Priority and the secret split
+
+The TOML takes priority over `SKH__*` env vars (first wins). Env vars still fill in any key the TOML omits — which is how secrets are wired: keep `SKH__DB__PASSWORD`, `SKH__IDP__CLIENT_SECRET`, ... in `skh.extraEnv`/`skh.envSecret` (see [Secrets](#secrets)) and **omit those keys from the TOML**.
+
+> **Never put secrets in `skh.config.data`** — a ConfigMap is stored in plaintext. Only the non-sensitive companion keys (hosts, ports, model ids, toggles, ...) belong here.
+
+### Rolling out a config change
+
+Edit `skh.config.data` and run `helm upgrade`; the `checksum/skh-config` annotation changes, which restarts the pods and re-runs migrations automatically. No manual `rollout restart` is needed for config changes.
+
+See [`values.example.yaml`](https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-backend/values.example.yaml) for a full TOML example paired with the matching `extraEnv` secrets, and the [configuration reference](reference-configuration.md#configuration-via-configmap-toml) for the priority order and TOML ergonomics.
+
 ## Install the backend
 
 This section installs the `skore-hub-backend` Helm chart. It assumes you have:
@@ -380,7 +453,7 @@ $EDITOR values.yaml
 
 A ready-to-adapt example (`values.example.yaml`) is also available alongside the chart in the [repository](https://github.com/probabl-ai/charts/tree/main/charts/skore-hub-backend).
 
-At minimum, set: `image.repository`/`image.tag`, `imagePullSecrets`, all `skh.env` connection settings, the `skh.extraEnv` secret mappings, and `ingress` (see [Ingress, TLS and DNS](#ingress-tls-and-dns)).
+At minimum, set: `image.repository`/`image.tag`, `imagePullSecrets`, the connection settings (non-sensitive — via `skh.config` TOML or `skh.env`; secrets — via `skh.extraEnv`), and `ingress` (see [Ingress, TLS and DNS](#ingress-tls-and-dns)).
 
 ### 2. Validate before applying
 
@@ -498,7 +571,7 @@ env:
   SKH_UI_SENTRY_DSN: ""
 ```
 
-Because the browser origin (frontend) differs from the API origin, you **must** configure CORS and cross-site cookies on the backend:
+Because the browser origin (frontend) differs from the API origin, you **must** configure CORS and cross-site cookies on the backend. As env vars:
 
 ```yaml
 skh:
@@ -509,6 +582,21 @@ skh:
     # Cookies must be sent cross-site:
     SKH__COOKIE__SAMESITE: "none"
     SKH__COOKIE__SECURE: "true"
+```
+
+…or, more readably, as TOML in `skh.config.data` (lists are native TOML, no JSON quoting):
+
+```toml
+ui_url = "https://skore-hub.example.com"
+
+[cors]
+allow_origins = ["https://skore-hub.example.com"]
+allow_credentials = true
+
+# Cookies must be sent cross-site:
+[cookie]
+samesite = "none"
+secure = true
 ```
 
 OIDC redirect URIs use the **API** host: `https://api.skore-hub.example.com/identity/oauth/callback`.
