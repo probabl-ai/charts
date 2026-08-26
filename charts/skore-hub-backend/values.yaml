@@ -40,6 +40,10 @@ skh:
   #  SKH__ENV: "production"
   #  SKH__LOG_LEVEL: "INFO"
   #
+  #  # MCP (Model Context Protocol) support for agent-harness communication.
+  #  # Off by default; set true to enable MCP server endpoints.
+  #  SKH__MCP_ENABLED: "true"
+  #
   #  # Skore agent (hub-side LLM orchestration, OpenAI/Anthropic-compatible on
   #  # /v1/chat/completions, /v1/messages, /v1/models). Off by default
   #  # (SKH__AGENT__BACKEND=mock). Enable with backend=anthropic + a provider.

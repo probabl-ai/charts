@@ -17,6 +17,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Redis (redis)](#redis-redis)
 - [SMTP (smtp)](#smtp-smtp)
 - [Encryption (encryption)](#encryption-encryption)
+- [MCP (mcp)](#mcp-mcp)
 - [Skore agent (agent)](#skore-agent-agent)
 - [Cookies (cookie)](#cookies-cookie)
 - [CORS (cors)](#cors-cors)
@@ -132,6 +133,14 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__ENCRYPTION__KEY` 🔒 | `(none)` | Fernet key. **Required** to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see [Skore agent operations](02-operations.md#skore-agent-operations)). |
+
+## MCP (`mcp`)
+
+Model Context Protocol — enables MCP-based agent-harness communication.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__MCP_ENABLED` | `false` | Enable MCP server endpoints for agent-harness communication. |
 
 ## Skore agent (`agent`)
 
