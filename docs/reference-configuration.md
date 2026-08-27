@@ -17,7 +17,6 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Redis (redis)](#redis-redis)
 - [SMTP (smtp)](#smtp-smtp)
 - [Encryption (encryption)](#encryption-encryption)
-- [MCP (mcp)](#mcp-mcp)
 - [Skore agent (agent)](#skore-agent-agent)
 - [Cookies (cookie)](#cookies-cookie)
 - [CORS (cors)](#cors-cors)
@@ -134,14 +133,6 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | --- | --- | --- |
 | `SKH__ENCRYPTION__KEY` 🔒 | `(none)` | Fernet key. **Required** to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see [Skore agent operations](02-operations.md#skore-agent-operations)). |
 
-## MCP (`mcp`)
-
-Model Context Protocol — enables MCP-based agent-harness communication.
-
-| Env var | Default | Description |
-| --- | --- | --- |
-| `SKH__MCP_ENABLED` | `false` | Enable MCP server endpoints for agent-harness communication. |
-
 ## Skore agent (`agent`)
 
 | Env var | Default | Description |
@@ -168,6 +159,7 @@ Model Context Protocol — enables MCP-based agent-harness communication.
 | `SKH__AGENT__SESSION_TTL_SECONDS` | `3600` | Redis TTL (s) for server-side harness session state. Requires Redis when running more than one replica. |
 | `SKH__AGENT__PUBLIC_MODEL_ID` | `skore-agent` | Single model id advertised to harnesses; the hub maps it to tier routing internally. |
 | `SKH__AGENT__GUARDS_ENABLED` | `true` | Enable deterministic prompt-injection/extraction guards (input scan + output redaction). |
+| `SKH__MCP_ENABLED` | `false` | Enable MCP (Model Context Protocol) server endpoints for agent-harness communication. |
 
 ## Cookies (`cookie`)
 
