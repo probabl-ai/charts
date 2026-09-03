@@ -159,7 +159,7 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | `SKH__AGENT__SESSION_TTL_SECONDS` | `3600` | Redis TTL (s) for server-side harness session state. Requires Redis when running more than one replica. |
 | `SKH__AGENT__PUBLIC_MODEL_ID` | `skore-agent` | Single model id advertised to harnesses; the hub maps it to tier routing internally. |
 | `SKH__AGENT__GUARDS_ENABLED` | `true` | Enable deterministic prompt-injection/extraction guards (input scan + output redaction). |
-| `SKH__MCP_ENABLED` | `false` | Enable MCP (Model Context Protocol) server endpoints for agent-harness communication. |
+| `SKH__AGENT__MCP_ENABLED` | `false` | Enable MCP (Model Context Protocol) server endpoints for agent-harness communication. |
 
 ## Cookies (`cookie`)
 
