@@ -17,6 +17,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Redis (redis)](#redis-redis)
 - [SMTP (smtp)](#smtp-smtp)
 - [Encryption (encryption)](#encryption-encryption)
+- [Prefect (prefect)](#prefect-prefect)
 - [Skore agent (agent)](#skore-agent-agent)
 - [Cookies (cookie)](#cookies-cookie)
 - [CORS (cors)](#cors-cors)
@@ -132,6 +133,15 @@ Fernet symmetric key used to encrypt secrets the hub persists in PostgreSQL: mos
 | Env var | Default | Description |
 | --- | --- | --- |
 | `SKH__ENCRYPTION__KEY` 🔒 | `(none)` | Fernet key. **Required** to register per-workspace agent providers. Empty disables those features. Do not rotate without re-encrypting stored secrets (see [Skore agent operations](02-operations.md#skore-agent-operations)). |
+
+## Prefect (`prefect`)
+
+Background jobs the hub triggers through Prefect when a report is created.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE` | `true` | Trigger async permutation-importance media computation when a report is created. |
+| `SKH__PREFECT__INFER_DATASET_VERBOSE_NAME` | `true` | Trigger async dataset verbose-name inference when a report is created. Uses the Skore agent LLM (see [Skore agent](#skore-agent-agent)). |
 
 ## Skore agent (`agent`)
 

@@ -40,6 +40,13 @@ skh:
   #  SKH__ENV: "production"
   #  SKH__LOG_LEVEL: "INFO"
   #
+  #  # Background report jobs (Prefect). Both trigger automatically when a
+  #  # report is created: permutation-importance media computation and
+  #  # dataset verbose-name inference (the latter uses the Skore agent LLM).
+  #  # On by default; set false to skip the jobs.
+  #  SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE: "true"
+  #  SKH__PREFECT__INFER_DATASET_VERBOSE_NAME: "true"
+  #
   #  # Skore agent (hub-side LLM orchestration, OpenAI/Anthropic-compatible on
   #  # /v1/chat/completions, /v1/messages, /v1/models). Off by default
   #  # (SKH__AGENT__BACKEND=mock). Enable with backend=anthropic + a provider.

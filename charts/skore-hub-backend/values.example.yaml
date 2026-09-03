@@ -32,6 +32,12 @@ skh:
     SKH__LOG_FORMATTER: "json"
     SKH__UI_URL: "https://skore-hub.example.com"
 
+    # Background report jobs (permutation-importance media, dataset
+    # verbose-name inference). On by default; they run as Prefect jobs, so
+    # disable them when no Prefect server is configured.
+    SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE: "false"
+    SKH__PREFECT__INFER_DATASET_VERBOSE_NAME: "false"
+
     # Database (PostgreSQL)
     SKH__DB__HOST: "postgres.internal"
     SKH__DB__PORT: "5432"
