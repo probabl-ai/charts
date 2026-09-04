@@ -1406,20 +1406,20 @@
 
 kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>docker-registry<span class="w"> </span>scw-registry<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--docker-server<span class="o">=</span>rg.fr-par.scw.cloud<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--docker-username<span class="o">=</span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--docker-password<span class="o">=</span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
+<span class="w">  </span>--docker-username<span class="o">=</span><span class="s1">'&lt;scw-username&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--docker-password<span class="o">=</span><span class="s1">'&lt;scw-password&gt;'</span>
 </code></pre></div>
 <p>In your values file:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">imagePullSecrets</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scw-registry</span>
 <span class="nt">image</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rg.fr-par.scw.cloud/probabl-skh/skh</span>
-<span class="w">  </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w">                 </span><span class="c1"># empty falls back to the chart appVersion; set &quot;X.Y.Z&quot; to override, or &quot;latest&quot;</span>
+<span class="w">  </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="s">""</span><span class="w">                 </span><span class="c1"># empty falls back to the chart appVersion; set "X.Y.Z" to override, or "latest"</span>
 <span class="w">  </span><span class="nt">pullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IfNotPresent</span>
 </code></pre></div>
 <p>Verify you can pull:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># from a machine with docker/podman and the credentials</span>
-docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
+docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">'&lt;scw-username&gt;'</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">'&lt;scw-password&gt;'</span>
 docker<span class="w"> </span>pull<span class="w"> </span>rg.fr-par.scw.cloud/probabl-skh/skh:X.Y.Z
 </code></pre></div>
 <h3 id="option-b-mirror-into-your-internal-registry-air-gapped">Option B: Mirror into your internal registry (air-gapped)<a class="headerlink" href="#option-b-mirror-into-your-internal-registry-air-gapped" title="Permanent link">&para;</a></h3>
@@ -1428,11 +1428,11 @@ docker<span class="w"> </span>pull<span class="w"> </span>rg.fr-par.scw.cloud/pr
 <span class="nv">DST</span><span class="o">=</span>registry.internal/skore-hub/skh:X.Y.Z
 
 <span class="c1"># On a host that can reach both registries:</span>
-docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">&#39;&lt;scw-username&gt;&#39;</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">&#39;&lt;scw-password&gt;&#39;</span>
-docker<span class="w"> </span>pull<span class="w">  </span><span class="s2">&quot;</span><span class="nv">$SRC</span><span class="s2">&quot;</span>
-docker<span class="w"> </span>tag<span class="w">   </span><span class="s2">&quot;</span><span class="nv">$SRC</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DST</span><span class="s2">&quot;</span>
+docker<span class="w"> </span>login<span class="w"> </span>rg.fr-par.scw.cloud<span class="w"> </span>-u<span class="w"> </span><span class="s1">'&lt;scw-username&gt;'</span><span class="w"> </span>-p<span class="w"> </span><span class="s1">'&lt;scw-password&gt;'</span>
+docker<span class="w"> </span>pull<span class="w">  </span><span class="s2">"</span><span class="nv">$SRC</span><span class="s2">"</span>
+docker<span class="w"> </span>tag<span class="w">   </span><span class="s2">"</span><span class="nv">$SRC</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$DST</span><span class="s2">"</span>
 docker<span class="w"> </span>login<span class="w"> </span>registry.internal
-docker<span class="w"> </span>push<span class="w">  </span><span class="s2">&quot;</span><span class="nv">$DST</span><span class="s2">&quot;</span>
+docker<span class="w"> </span>push<span class="w">  </span><span class="s2">"</span><span class="nv">$DST</span><span class="s2">"</span>
 </code></pre></div>
 <p>Then set <code>image.repository</code> to your internal path and create the corresponding <code>imagePullSecrets</code> (or rely on node-level registry auth).</p>
 <blockquote>
@@ -1915,8 +1915,8 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 </ul>
 <h3 id="quick-verification">Quick verification<a class="headerlink" href="#quick-verification" title="Permanent link">&para;</a></h3>
 <p>From a pod that can reach the IdP:</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SKH__IDP__BASE_URL</span><span class="si">}</span><span class="s2">/.well-known/openid-configuration&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s1">&#39;{issuer, authorization_endpoint, token_endpoint, userinfo_endpoint, end_session_endpoint, revocation_endpoint}&#39;</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">SKH__IDP__BASE_URL</span><span class="si">}</span><span class="s2">/.well-known/openid-configuration"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'{issuer, authorization_endpoint, token_endpoint, userinfo_endpoint, end_session_endpoint, revocation_endpoint}'</span>
 </code></pre></div>
 <p>You should get a valid JSON document with at least <code>issuer</code>, <code>authorization_endpoint</code>, <code>token_endpoint</code> and <code>userinfo_endpoint</code>.</p>
 <h2 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h2>
@@ -2013,24 +2013,24 @@ https://&lt;API_HOST&gt;/identity/oauth/device/callback
 <p>Only include the keys you actually use. If a service needs no auth (e.g. an open SMTP relay), omit its keys and remove the matching entries from <code>skh.extraEnv</code>.</p>
 </blockquote>
 <p>Generate the session key once and keep it stable for the life of the deployment:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import secrets; print(secrets.token_urlsafe(48))&quot;</span>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import secrets; print(secrets.token_urlsafe(48))"</span>
 </code></pre></div>
 <p>Left unset, the backend generates a random one at each pod start, so sessions break on every restart and are not shared between replicas.</p>
 <h3 id="create-the-secret">Create the Secret<a class="headerlink" href="#create-the-secret" title="Permanent link">&para;</a></h3>
 <p>Create the Secret directly. The chart references it via <code>secretKeyRef</code> (<code>skh.extraEnv</code>), so nothing sensitive is stored in Helm values or history.</p>
 <p>If you manage secrets through an external system (Vault, a cloud secret manager, SealedSecrets, an operator, ...), produce the same <code>skore-hub-backend-secrets</code> Secret with the keys above through your usual mechanism.</p>
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>skore-hub-backend-secrets<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>db-user<span class="o">=</span><span class="s1">&#39;skore_hub&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>db-password<span class="o">=</span><span class="s1">&#39;&lt;db-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-id<span class="o">=</span><span class="s1">&#39;&lt;client-id&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-secret<span class="o">=</span><span class="s1">&#39;&lt;client-secret&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>s3-access-key<span class="o">=</span><span class="s1">&#39;&lt;s3-access-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>s3-secret-key<span class="o">=</span><span class="s1">&#39;&lt;s3-secret-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>redis-password<span class="o">=</span><span class="s1">&#39;&lt;redis-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>smtp-user<span class="o">=</span><span class="s1">&#39;&lt;smtp-user&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>smtp-password<span class="o">=</span><span class="s1">&#39;&lt;smtp-password&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>encryption-key<span class="o">=</span><span class="s1">&#39;&lt;fernet-key&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>anthropic-api-key<span class="o">=</span><span class="s1">&#39;&lt;sk-ant-...&gt;&#39;</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>db-user<span class="o">=</span><span class="s1">'skore_hub'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>db-password<span class="o">=</span><span class="s1">'&lt;db-password&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-id<span class="o">=</span><span class="s1">'&lt;client-id&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>idp-client-secret<span class="o">=</span><span class="s1">'&lt;client-secret&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>s3-access-key<span class="o">=</span><span class="s1">'&lt;s3-access-key&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>s3-secret-key<span class="o">=</span><span class="s1">'&lt;s3-secret-key&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>redis-password<span class="o">=</span><span class="s1">'&lt;redis-password&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>smtp-user<span class="o">=</span><span class="s1">'&lt;smtp-user&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>smtp-password<span class="o">=</span><span class="s1">'&lt;smtp-password&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>encryption-key<span class="o">=</span><span class="s1">'&lt;fernet-key&gt;'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>anthropic-api-key<span class="o">=</span><span class="s1">'&lt;sk-ant-...&gt;'</span>
 </code></pre></div>
 <p>Only add the Bedrock keys (<code>bedrock-external-id</code>, <code>aws-access-key-id</code>, <code>aws-secret-access-key</code>) if you use the Bedrock provider with static credentials; on EKS prefer IRSA (see <a href="#skore-agent-optional">Skore agent</a>).</p>
 <p>This is the default assumed by <a href="#install-the-backend">Install the backend</a>.</p>
@@ -2191,19 +2191,19 @@ https://api.skore-hub.example.com   -&gt; backend
 </code></pre></div>
 <p>Set the backend API URL on the frontend to the absolute API host:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">env</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">SKH_UI_API_BASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://api.skore-hub.example.com&quot;</span>
-<span class="w">  </span><span class="nt">SKH_UI_IDP_PROFILE_SETTINGS_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://idp.example.com/account&quot;</span>
-<span class="w">  </span><span class="nt">SKH_UI_SENTRY_DSN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">SKH_UI_API_BASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"https://api.skore-hub.example.com"</span>
+<span class="w">  </span><span class="nt">SKH_UI_IDP_PROFILE_SETTINGS_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"https://idp.example.com/account"</span>
+<span class="w">  </span><span class="nt">SKH_UI_SENTRY_DSN</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
 </code></pre></div>
 <p>Because the browser origin (frontend) differs from the API origin, you <strong>must</strong> configure CORS and cross-site cookies on the backend:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">SKH__UI_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://skore-hub.example.com&quot;</span>
-<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_ORIGINS</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[&quot;https://skore-hub.example.com&quot;]&#39;</span>
-<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_CREDENTIALS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">SKH__UI_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"https://skore-hub.example.com"</span>
+<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_ORIGINS</span><span class="p">:</span><span class="w"> </span><span class="s">'["https://skore-hub.example.com"]'</span>
+<span class="w">    </span><span class="nt">SKH__CORS__ALLOW_CREDENTIALS</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 <span class="w">    </span><span class="c1"># Cookies must be sent cross-site:</span>
-<span class="w">    </span><span class="nt">SKH__COOKIE__SAMESITE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
-<span class="w">    </span><span class="nt">SKH__COOKIE__SECURE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">SKH__COOKIE__SAMESITE</span><span class="p">:</span><span class="w"> </span><span class="s">"none"</span>
+<span class="w">    </span><span class="nt">SKH__COOKIE__SECURE</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 </code></pre></div>
 <p>OIDC redirect URIs use the <strong>API</strong> host: <code>https://api.skore-hub.example.com/identity/oauth/callback</code>.</p>
 <blockquote>
@@ -2242,7 +2242,7 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <p>The backend chart can create its own Ingress:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">className</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;nginx&quot;</span><span class="w">          </span><span class="c1"># your IngressClass</span>
+<span class="w">  </span><span class="nt">className</span><span class="p">:</span><span class="w"> </span><span class="s">"nginx"</span><span class="w">          </span><span class="c1"># your IngressClass</span>
 <span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">             </span><span class="c1"># controller-specific annotations</span>
 <span class="w">  </span><span class="nt">hosts</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api.skore-hub.example.com</span>
@@ -2266,7 +2266,7 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <p>skore-hub uploads artifacts to S3. If you proxy uploads through the ingress, raise the max body size accordingly, e.g. for ingress-nginx:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100m&quot;</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="s">"100m"</span>
 </code></pre></div>
 <h3 id="streaming-skore-agent">Streaming (Skore agent)<a class="headerlink" href="#streaming-skore-agent" title="Permanent link">&para;</a></h3>
 <p>The Skore agent exposes streaming endpoints (<code>/v1/chat/completions</code>, <code>/v1/messages</code>) that hold long-lived Server-Sent Events connections, potentially longer than a single LLM turn. The hub sets <code>X-Accel-Buffering: no</code> on these responses, but your ingress / load balancer must also cooperate:</p>
@@ -2278,9 +2278,9 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <p>Example for ingress-nginx (apply to the backend Ingress, scoped to the agent paths if your controller supports path-specific annotations):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">ingress</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-buffering</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;off&quot;</span>
-<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-read-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3600&quot;</span>
-<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-send-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3600&quot;</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-buffering</span><span class="p">:</span><span class="w"> </span><span class="s">"off"</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-read-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">"3600"</span>
+<span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/proxy-send-timeout</span><span class="p">:</span><span class="w"> </span><span class="s">"3600"</span>
 </code></pre></div>
 <h2 id="skore-agent-optional">Skore agent (optional)<a class="headerlink" href="#skore-agent-optional" title="Permanent link">&para;</a></h2>
 <p>The Skore agent is the hub-side LLM orchestration ("brain") exposed to harnesses (Claude Code, OpenCode, Cursor, Pi) as an OpenAI/Anthropic-compatible endpoint on <code>/v1/chat/completions</code>, <code>/v1/messages</code>, <code>/v1/models</code>. It is <strong>off by default</strong> (<code>SKH__AGENT__BACKEND=mock</code>) and requires configuration plus outbound LLM access to be functional.</p>

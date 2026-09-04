@@ -534,7 +534,7 @@
 <p><strong>Encryption key set.</strong> <code>SKH__ENCRYPTION__KEY</code> (Fernet) is <strong>required</strong> for workspaces to store their own provider credentials (Anthropic API keys, AWS/Bedrock keys, STS external ids) encrypted at rest. Generate one:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())&quot;</span>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"</span>
 </code></pre></div>
 <p>Store it in the <code>skore-hub-backend-secrets</code> Secret under the <code>encryption-key</code> key and reference it via <code>skh.extraEnv</code> (<a href="../01-installation/#secrets">Secrets</a>). Do not rotate it without re-encrypting stored secrets (<a href="../02-operations/#skore-agent-operations">Operations</a>).</p>
 <ol>
@@ -603,36 +603,36 @@
 <h3 id="minimal-global-config-by-model">Minimal global config by model<a class="headerlink" href="#minimal-global-config-by-model" title="Permanent link">&para;</a></h3>
 <p><strong>Skore-managed</strong> (operator pays the LLM bill for entitled users):</p>
 <div class="highlight"><pre><span></span><code><span class="k">[agent]</span>
-<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
-<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
-<span class="n">anthropic_api_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sk-ant-...&quot;</span>
-<span class="n">managed_emails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*@yourcompany.com&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># or explicit addresses</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"anthropic"</span>
+<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"anthropic"</span>
+<span class="n">anthropic_api_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"sk-ant-..."</span>
+<span class="n">managed_emails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"*@yourcompany.com"</span><span class="p">]</span><span class="w">   </span><span class="c1"># or explicit addresses</span>
 </code></pre></div>
 <p><strong>BYO Anthropic</strong> (each workspace brings its own key):</p>
 <div class="highlight"><pre><span></span><code><span class="k">[encryption]</span>
-<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;fernet-key&gt;&quot;</span>
+<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&lt;fernet-key&gt;"</span>
 
 <span class="k">[agent]</span>
-<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"anthropic"</span>
 <span class="c1"># anthropic_api_key may stay empty; workspaces use their own</span>
-<span class="n">anthropic_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;claude-opus-4-8&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;claude-sonnet-4-6&quot;</span><span class="p">]</span>
+<span class="n">anthropic_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"claude-opus-4-8"</span><span class="p">,</span><span class="w"> </span><span class="s2">"claude-sonnet-4-6"</span><span class="p">]</span>
 </code></pre></div>
 <p><strong>BYO Bedrock</strong> (each workspace brings AWS creds/role):</p>
 <div class="highlight"><pre><span></span><code><span class="k">[encryption]</span>
-<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;fernet-key&gt;&quot;</span>
+<span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&lt;fernet-key&gt;"</span>
 
 <span class="k">[agent]</span>
-<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span><span class="w">   </span><span class="c1"># legacy global flag; effective provider comes from the workspace</span>
-<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bedrock&quot;</span>
-<span class="n">aws_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
-<span class="n">bedrock_model_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
-<span class="n">bedrock_model_normal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
-<span class="n">bedrock_model_small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;...&quot;</span>
-<span class="n">bedrock_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;...&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># required: workspaces can only pin a model listed here</span>
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"anthropic"</span><span class="w">   </span><span class="c1"># legacy global flag; effective provider comes from the workspace</span>
+<span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"bedrock"</span>
+<span class="n">aws_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"us-east-1"</span>
+<span class="n">bedrock_model_big</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"..."</span>
+<span class="n">bedrock_model_normal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"..."</span>
+<span class="n">bedrock_model_small</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"..."</span>
+<span class="n">bedrock_models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"..."</span><span class="p">]</span><span class="w">   </span><span class="c1"># required: workspaces can only pin a model listed here</span>
 <span class="c1"># Optional global Bedrock creds (ambient chain / IRSA also work):</span>
-<span class="c1"># bedrock_role_arn = &quot;&quot;</span>
-<span class="c1"># aws_access_key_id = &quot;&quot;</span>
-<span class="c1"># aws_secret_access_key = &quot;&quot;</span>
+<span class="c1"># bedrock_role_arn = ""</span>
+<span class="c1"># aws_access_key_id = ""</span>
+<span class="c1"># aws_secret_access_key = ""</span>
 </code></pre></div>
 <blockquote>
 <p>[!IMPORTANT]
@@ -646,11 +646,11 @@ On Bedrock, only <strong>Anthropic models</strong> are supported in this version
 <p><strong>Model access.</strong> Anthropic models on Bedrock require the account to have submitted the <em>Anthropic use case details</em> form in the Bedrock console, once per account. Until it is accepted, every call fails with <code>ResourceNotFoundException: Model use case details have not been submitted for this account</code>, regardless of IAM permissions. The form is console-only; no API or CLI can submit it, and changes take up to 15 minutes to propagate.</p>
 <p><strong>Policy scope.</strong> Granting <code>bedrock:InvokeModel</code> on the inference profile alone is not enough. A cross-region profile forwards the request to the underlying foundation model in whichever region serves it, and that call is authorized separately, so the policy must also cover the foundation model in every region the profile can reach:</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;bedrock:InvokeModel&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bedrock:InvokeModelWithResponseStream&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;arn:aws:bedrock:&lt;region&gt;:&lt;account&gt;:inference-profile/&lt;profile-id&gt;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;arn:aws:bedrock:*::foundation-model/&lt;foundation-model-id&gt;&quot;</span>
+<span class="w">  </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"bedrock:InvokeModel"</span><span class="p">,</span><span class="w"> </span><span class="s2">"bedrock:InvokeModelWithResponseStream"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"arn:aws:bedrock:&lt;region&gt;:&lt;account&gt;:inference-profile/&lt;profile-id&gt;"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"arn:aws:bedrock:*::foundation-model/&lt;foundation-model-id&gt;"</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -673,14 +673,14 @@ On Bedrock, only <strong>Anthropic models</strong> are supported in this version
 <span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">secretKeyRef</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">skore-hub-backend-secrets</span><span class="p p-Indicator">,</span><span class="nt"> key</span><span class="p">:</span><span class="w"> </span><span class="nv">aws-secret-access-key</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__AWS_REGION</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span>
+<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"us-east-1"</span>
 </code></pre></div>
 <h3 id="pattern-3-cross-account-assume-role">Pattern 3 — Cross-account assume-role<a class="headerlink" href="#pattern-3-cross-account-assume-role" title="Permanent link">&para;</a></h3>
 <p>When Bedrock lives in another AWS account, the hub assumes a role there using STS. Set the role ARN and the matching external id (the external id is secret):</p>
 <div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__BEDROCK_ROLE_ARN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;arn:aws:iam::&lt;target-account&gt;:role/bedrock-cross-account&quot;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__AWS_REGION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;us-east-1&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__BEDROCK_ROLE_ARN</span><span class="p">:</span><span class="w"> </span><span class="s">"arn:aws:iam::&lt;target-account&gt;:role/bedrock-cross-account"</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__AWS_REGION</span><span class="p">:</span><span class="w"> </span><span class="s">"us-east-1"</span>
 <span class="w">  </span><span class="nt">extraEnv</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__BEDROCK_EXTERNAL_ID</span>
 <span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
@@ -691,12 +691,12 @@ On Bedrock, only <strong>Anthropic models</strong> are supported in this version
 <p>Set the global agent env vars on the backend chart. With the Skore-managed model as an example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__BACKEND</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;anthropic&quot;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__PROVIDER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;anthropic&quot;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__MANAGED_EMAILS</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[&quot;*@yourcompany.com&quot;]&#39;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_BIG</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-opus-4-8&quot;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_NORMAL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-sonnet-4-6&quot;</span>
-<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_SMALL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;claude-haiku-4-5&quot;</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__BACKEND</span><span class="p">:</span><span class="w"> </span><span class="s">"anthropic"</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__PROVIDER</span><span class="p">:</span><span class="w"> </span><span class="s">"anthropic"</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MANAGED_EMAILS</span><span class="p">:</span><span class="w"> </span><span class="s">'["*@yourcompany.com"]'</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_BIG</span><span class="p">:</span><span class="w"> </span><span class="s">"claude-opus-4-8"</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_NORMAL</span><span class="p">:</span><span class="w"> </span><span class="s">"claude-sonnet-4-6"</span>
+<span class="w">    </span><span class="nt">SKH__AGENT__MODEL_SMALL</span><span class="p">:</span><span class="w"> </span><span class="s">"claude-haiku-4-5"</span>
 <span class="w">  </span><span class="nt">extraEnv</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SKH__AGENT__ANTHROPIC_API_KEY</span>
 <span class="w">      </span><span class="nt">valueFrom</span><span class="p">:</span>
@@ -746,17 +746,17 @@ On Bedrock, only <strong>Anthropic models</strong> are supported in this version
 <ol>
 <li>The agent advertises its model. <code>/v1/models</code> is workspace-scoped: call it through the public URL with the workspace API key created above. An unauthenticated call returns <code>401</code>, including from inside the cluster.</li>
 </ol>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;workspace-api-key&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;&lt;HUB_API_BASE_URL&gt;/v1/models&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
-<span class="c1"># expect &quot;skore-agent&quot; in the list</span>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;workspace-api-key&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"&lt;HUB_API_BASE_URL&gt;/v1/models"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+<span class="c1"># expect "skore-agent" in the list</span>
 </code></pre></div>
 <ol>
 <li>Send a prompt with the same key:</li>
 </ol>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;workspace-api-key&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;&lt;HUB_API_BASE_URL&gt;/v1/chat/completions&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;model&quot;:&quot;skore-agent&quot;,&quot;messages&quot;:[{&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;ping&quot;}]}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-s<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;workspace-api-key&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"&lt;HUB_API_BASE_URL&gt;/v1/chat/completions"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"model":"skore-agent","messages":[{"role":"user","content":"ping"}]}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
 </code></pre></div>
 <p>Add <code>"stream": true</code> for the SSE shape, or post to <code>/v1/messages</code> for the Anthropic shape. A harness configured with the key issues the same request.</p>
 <ol>
