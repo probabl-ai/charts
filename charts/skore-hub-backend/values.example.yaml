@@ -30,6 +30,7 @@ skh:
     SKH__ENV: "production"
     SKH__LOG_LEVEL: "INFO"
     SKH__LOG_FORMATTER: "json"
+    SKH__AGENT__MCP_ENABLED: "true"
     SKH__UI_URL: "https://skore-hub.example.com"
 
     # Database (PostgreSQL)
