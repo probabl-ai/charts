@@ -377,6 +377,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#prefect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prefect
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#database-db" class="md-nav__link">
     <span class="md-ellipsis">
       Database (db)
@@ -552,6 +561,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#prefect" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prefect
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#database-db" class="md-nav__link">
     <span class="md-ellipsis">
       Database (db)
@@ -703,6 +721,7 @@
 <h2 id="contents">Contents<a class="headerlink" href="#contents" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="#general">General</a></li>
+<li><a href="#prefect">Prefect</a></li>
 <li><a href="#database-db">Database (db)</a></li>
 <li><a href="#identity-provider-idp-oidc">Identity provider (idp): OIDC</a></li>
 <li><a href="#object-storage-object_storage-s3">Object storage (object_storage): S3</a></li>
@@ -756,6 +775,29 @@
 <td><code>SKH__SESSION_SECRET_KEY</code> 🔒</td>
 <td>random per process</td>
 <td>Signs cookie-based session state. The default is regenerated every time a pod starts, so sessions do not survive a restart and are not shared between replicas. Set it explicitly to a stable random value.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="prefect">Prefect<a class="headerlink" href="#prefect" title="Permanent link">&para;</a></h2>
+<p>Keep both settings <code>false</code> unless Prefect-based processing is explicitly required.</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE</code></td>
+<td><code>false</code></td>
+<td>Keep <code>false</code> to disable Prefect permutation-importance computation.</td>
+</tr>
+<tr>
+<td><code>SKH__PREFECT__INFER_DATASET_VERBOSE_NAME</code></td>
+<td><code>false</code></td>
+<td>Keep <code>false</code> to disable Prefect dataset verbose-name inference.</td>
 </tr>
 </tbody>
 </table>
