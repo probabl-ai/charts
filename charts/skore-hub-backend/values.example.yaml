@@ -15,7 +15,7 @@ image:
   # Pinned to an immutable release version. Override with another version or a
   # tag@sha256 digest if needed; use "latest" (with pullPolicy: Always) to track
   # the newest release instead.
-  tag: "0.32.0"
+  tag: "0.42.0"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:

@@ -12,10 +12,10 @@ image:
   # Frontend image pushed to the Scaleway registry (same image for all deployments).
   repository: rg.fr-par.scw.cloud/probabl-skh/skh-ui
   # Pinned to an immutable release tag, so no need to re-pull on every rollout.
+  # Bump it explicitly to upgrade; an empty value would fall back to the chart
+  # appVersion (kept in sync with the latest release by Renovate).
   pullPolicy: IfNotPresent
-  # Defaults to the chart appVersion (the shipped release) when empty.
-  # Override with another version, or a tag@sha256 digest, if needed.
-  tag: ""
+  tag: "0.42.0"
 
 # Runtime configuration, injected as container environment variables. The image
 # reads these SKH_UI_* variables at startup to generate the config.js it serves
