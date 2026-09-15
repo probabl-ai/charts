@@ -36,7 +36,9 @@ skh:
   envSecret: "skore-hub-backend-secrets"
 
   # Non-sensitive SKH__* settings, as a plain map (rendered as `name/value` env).
-  env: {}
+  env:
+    SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE: "false"
+    SKH__PREFECT__INFER_DATASET_VERBOSE_NAME: "false"
   #  SKH__ENV: "production"
   #  SKH__LOG_LEVEL: "INFO"
   #
