@@ -11,7 +11,7 @@ image:
   repository: rg.fr-par.scw.cloud/probabl-skh/skh-ui
   # Pinned to an immutable release version. Use "latest" (with pullPolicy: Always)
   # to track the newest release instead.
-  tag: "0.32.0"
+  tag: "0.42.0"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:

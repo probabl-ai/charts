@@ -15,10 +15,10 @@ image:
   # Backend image, pulled from the Scaleway container registry provided by Probabl.
   repository: rg.fr-par.scw.cloud/probabl-skh/skh
   # Pinned to an immutable release tag, so no need to re-pull on every rollout.
+  # Bump it explicitly to upgrade; an empty value would fall back to the chart
+  # appVersion (kept in sync with the latest release by Renovate).
   pullPolicy: IfNotPresent
-  # Defaults to the chart appVersion (the shipped release) when empty.
-  # Override with another version, or a tag@sha256 digest, if needed.
-  tag: ""
+  tag: "0.42.0"
 
 # Pull secret(s) for the private registry (see docs: create a dockerconfigjson secret).
 imagePullSecrets: []
