@@ -30,6 +30,8 @@ skh:
     SKH__ENV: "production"
     SKH__LOG_LEVEL: "INFO"
     SKH__LOG_FORMATTER: "json"
+    SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE: "false"
+    SKH__PREFECT__INFER_DATASET_VERBOSE_NAME: "false"
     SKH__AGENT__MCP_ENABLED: "true"
     SKH__UI_URL: "https://skore-hub.example.com"
 

@@ -10,6 +10,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 ## Contents
 
 - [General](#general)
+- [Prefect](#prefect)
 - [Database (db)](#database-db)
 - [Identity provider (idp): OIDC](#identity-provider-idp-oidc)
 - [Object storage (object_storage): S3](#object-storage-object_storage-s3)
@@ -34,6 +35,15 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 | `SKH__LOG_FORMATTER` | `default` | `json` (structured) or `default` (plain). |
 | `SKH__UI_URL` | `(none)` | Public URL of the frontend. |
 | `SKH__SESSION_SECRET_KEY` 🔒 | random per process | Signs cookie-based session state. The default is regenerated every time a pod starts, so sessions do not survive a restart and are not shared between replicas. Set it explicitly to a stable random value. |
+
+## Prefect
+
+Keep both settings `false` unless Prefect-based processing is explicitly required.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE` | `false` | Keep `false` to disable Prefect permutation-importance computation. |
+| `SKH__PREFECT__INFER_DATASET_VERBOSE_NAME` | `false` | Keep `false` to disable Prefect dataset verbose-name inference. |
 
 ## Database (`db`)
 
