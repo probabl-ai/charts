@@ -11,7 +11,7 @@ image:
   repository: rg.fr-par.scw.cloud/probabl-skh/skh-ui
   # Pinned to an immutable release version. Use "latest" (with pullPolicy: Always)
   # to track the newest release instead.
-  tag: "0.42.0"
+  tag: "0.45.0"
   pullPolicy: IfNotPresent
 
 imagePullSecrets:
@@ -21,7 +21,6 @@ imagePullSecrets:
 env:
   SKH_UI_API_BASE_URL: "https://api.skore-hub.example.com"
   SKH_UI_IDP_PROFILE_SETTINGS_URL: "https://idp.example.com/account"
-  SKH_UI_SENTRY_DSN: ""  # empty = Sentry disabled (no errors leave your infra)
 
 ingress:
   enabled: true
