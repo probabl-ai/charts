@@ -26,7 +26,7 @@ Two kinds of tags are published for each image:
 - `X.Y.Z`: an immutable version tag matching the release (for example `skh:X.Y.Z`, `skh-ui:X.Y.Z`).
 - `latest`: always points to the most recent release. Convenient, but it moves.
 
-> Each chart pins a default image tag through its `appVersion` (with `imagePullPolicy: IfNotPresent`), so deployments are reproducible out of the box. The current release is `0.33.0`; see the chart `appVersion` for the exact default. If you prefer to always track the newest release, set `image.tag: latest` and `imagePullPolicy: Always`.
+> Each chart pins a default image tag through its `appVersion` (with `imagePullPolicy: IfNotPresent`), so deployments are reproducible out of the box. The current release is `0.45.0`; see the chart `appVersion` for the exact default. If you prefer to always track the newest release, set `image.tag: latest` and `imagePullPolicy: Always`.
 
 ### Option A: Pull directly from Scaleway
 
@@ -136,11 +136,10 @@ volumeMounts:
 
 ### Redis
 
-**Used for:** OAuth token/state storage, API-key verification cache, and Skore agent harness session state (message history, pending tool calls) when running more than one backend replica.
+**Used for:** OAuth token/state storage, the API-key verification cache, the OIDC discovery cache, and session state. Redis is **required**; readiness fails when it is unreachable.
 
 | Setting | Env var | Example | Notes |
 | --- | --- | --- | --- |
-| Enabled | `SKH__REDIS__IS_ENABLED` | `true` | Set `true` in production. **Required** for the agent when `replicaCount > 1`. |
 | Host | `SKH__REDIS__HOST` | `redis.internal` | |
 | Port | `SKH__REDIS__PORT` | `6379` | |
 | DB index | `SKH__REDIS__DB` | `0` | |
@@ -470,9 +469,6 @@ You configure the SPA by setting the `SKH_UI_*` variables below. Any variable yo
 | --- | --- |
 | `SKH_UI_API_BASE_URL` | Backend API base URL used by the SPA. Also injected into JupyterLite as `SKORE_HUB_URI` so the embedded skore library reaches the Hub (see note below). |
 | `SKH_UI_IDP_PROFILE_SETTINGS_URL` | Link to the IdP account settings page, shown in the toolbar menu. |
-| `SKH_UI_SENTRY_DSN` | Error reporting DSN. Leave **empty** to disable Sentry; no DSN is baked into the image, so error reporting is **off by default** and your users' frontend errors are **not** sent anywhere. |
-| `SKH_UI_SENTRY_ENVIRONMENT` | Optional. Sentry environment tag (only relevant if a DSN is set). |
-| `SKH_UI_SENTRY_RELEASE` | Optional. Sentry release tag. |
 | `SKH_UI_BUILD_VERSION` | Optional. UI version shown in the About dialog. |
 | `SKH_UI_JUPYTERLITE_URL` | Optional. Override for the JupyterLite iframe URL. |
 
@@ -495,7 +491,6 @@ Set the backend API URL on the frontend to the absolute API host:
 env:
   SKH_UI_API_BASE_URL: "https://api.skore-hub.example.com"
   SKH_UI_IDP_PROFILE_SETTINGS_URL: "https://idp.example.com/account"
-  SKH_UI_SENTRY_DSN: ""
 ```
 
 Because the browser origin (frontend) differs from the API origin, you **must** configure CORS and cross-site cookies on the backend:
@@ -529,7 +524,7 @@ helm upgrade --install skore-hub-ui probabl/skore-hub-frontend \
   --wait --timeout 5m
 ```
 
-Set at least `image.repository`/`image.tag`, `imagePullSecrets`, the runtime `env` (`SKH_UI_API_BASE_URL`, `SKH_UI_IDP_PROFILE_SETTINGS_URL`, empty `SKH_UI_SENTRY_DSN`), and `ingress`. See the chart's [README](https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md) and [Ingress, TLS and DNS](#ingress-tls-and-dns).
+Set at least `image.repository`/`image.tag`, `imagePullSecrets`, the runtime `env` (`SKH_UI_API_BASE_URL`, `SKH_UI_IDP_PROFILE_SETTINGS_URL`), and `ingress`. See the chart's [README](https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md) and [Ingress, TLS and DNS](#ingress-tls-and-dns).
 
 ## Ingress, TLS and DNS
 

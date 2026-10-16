@@ -171,7 +171,7 @@ curl -s http://127.0.0.1:8000/readiness | jq .
 ```
 
 - DB `false` → PostgreSQL settings/network.
-- Redis `false` → `SKH__REDIS__*` (and `SKH__REDIS__IS_ENABLED=true`).
+- Redis `false` → `SKH__REDIS__*`.
 - Storage `false` → `SKH__OBJECT_STORAGE__*` (endpoint reachable, bucket exists, keys valid).
 
 ### OIDC login problems

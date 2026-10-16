@@ -2,8 +2,8 @@
 # Default values for skore-hub-frontend.
 #
 # The frontend is a static SPA served by nginx. Its configuration (backend API
-# URL, Sentry DSN, ...) is read at runtime from environment variables; see
-# `env` below.
+# URL, IdP profile link, JupyterLite URL, ...) is read at runtime from
+# environment variables; see `env` below.
 # =============================================================================
 
 replicaCount: 1
@@ -15,7 +15,7 @@ image:
   # Bump it explicitly to upgrade; an empty value would fall back to the chart
   # appVersion (kept in sync with the latest release by Renovate).
   pullPolicy: IfNotPresent
-  tag: "0.42.0"
+  tag: "0.45.0"
 
 # Runtime configuration, injected as container environment variables. The image
 # reads these SKH_UI_* variables at startup to generate the config.js it serves
@@ -24,7 +24,7 @@ image:
 env: {}
 #  SKH_UI_API_BASE_URL: "https://api.skore-hub.example.com"      # backend API base URL (also feeds JupyterLite's SKORE_HUB_URI)
 #  SKH_UI_IDP_PROFILE_SETTINGS_URL: "https://idp.example.com/account"  # IdP account settings link in the toolbar
-#  SKH_UI_SENTRY_DSN: ""                                          # leave empty to disable error reporting
+#  SKH_UI_JUPYTERLITE_URL: ""                                     # optional: override the JupyterLite URL served to notebooks
 
 # Additional raw env entries (valueFrom, etc.), appended after `env`.
 extraEnv: []

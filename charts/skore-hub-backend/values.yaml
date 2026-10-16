@@ -18,7 +18,7 @@ image:
   # Bump it explicitly to upgrade; an empty value would fall back to the chart
   # appVersion (kept in sync with the latest release by Renovate).
   pullPolicy: IfNotPresent
-  tag: "0.42.0"
+  tag: "0.45.0"
 
 # Pull secret(s) for the private registry (see docs: create a dockerconfigjson secret).
 imagePullSecrets: []
@@ -41,24 +41,11 @@ skh:
     SKH__PREFECT__INFER_DATASET_VERBOSE_NAME: "false"
   #  SKH__ENV: "production"
   #  SKH__LOG_LEVEL: "INFO"
+  #  SKH__UI_URL: "https://skore-hub.example.com"
   #
-  #  # MCP (Model Context Protocol) support for agent-harness communication.
-  #  # Off by default; set true to enable MCP server endpoints.
+  #  # MCP (Model Context Protocol) server, for clients that drive the loop
+  #  # themselves (streamable HTTP at /mcp). Off by default.
   #  SKH__AGENT__MCP_ENABLED: "true"
-  #
-  #  # Skore agent (hub-side LLM orchestration, OpenAI/Anthropic-compatible on
-  #  # /v1/chat/completions, /v1/messages, /v1/models). Off by default
-  #  # (SKH__AGENT__BACKEND=mock). Enable with backend=anthropic + a provider.
-  #  # Requires outbound egress to api.anthropic.com (or AWS Bedrock); an
-  #  # air-gapped deployment with no external LLM is NOT supported yet.
-  #  # See docs/03-agent-setup.md and docs/reference-configuration.md#skore-agent-agent.
-  #  SKH__AGENT__BACKEND: "anthropic"
-  #  SKH__AGENT__PROVIDER: "anthropic"
-  #  SKH__AGENT__MANAGED_EMAILS: '["*@yourcompany.com"]'
-  #  SKH__AGENT__MODEL_BIG: "claude-opus-4-8"
-  #  SKH__AGENT__MODEL_NORMAL: "claude-sonnet-4-6"
-  #  SKH__AGENT__MODEL_SMALL: "claude-haiku-4-5"
-  #  SKH__AGENT__PUBLIC_MODEL_ID: "skore-agent"
 
   # Additional env entries in list form. Use this to map individual keys from
   # Secrets/ConfigMaps via valueFrom (secretKeyRef, configMapKeyRef, ...).
@@ -68,21 +55,6 @@ skh:
   #      secretKeyRef:
   #        name: skore-hub-backend-secrets
   #        key: db-password
-  #
-  #  # Skore agent secrets: encryption key is REQUIRED for per-workspace
-  #  # providers; the Anthropic key is for the Skore-managed model. For Bedrock
-  #  # static creds / assume-role, add aws-access-key-id, aws-secret-access-key,
-  #  # bedrock-external-id. See docs/03-agent-setup.md.
-  #  - name: SKH__ENCRYPTION__KEY
-  #    valueFrom:
-  #      secretKeyRef:
-  #        name: skore-hub-backend-secrets
-  #        key: encryption-key
-  #  - name: SKH__AGENT__ANTHROPIC_API_KEY
-  #    valueFrom:
-  #      secretKeyRef:
-  #        name: skore-hub-backend-secrets
-  #        key: anthropic-api-key
 
 # Database migrations (Alembic) always run as a Helm pre-install/pre-upgrade hook
 # Job (the app cannot start against an un-migrated schema).

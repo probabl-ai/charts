@@ -20,7 +20,7 @@ The SPA reads its settings at **runtime** from `SKH_UI_*` environment variables.
 | --- | --- |
 | `SKH_UI_API_BASE_URL` | Backend API base URL (also feeds JupyterLite's `SKORE_HUB_URI`). Use an absolute URL. |
 | `SKH_UI_IDP_PROFILE_SETTINGS_URL` | Link to the IdP account settings page. |
-| `SKH_UI_SENTRY_DSN` | Error reporting DSN; leave empty to disable Sentry (off by default). |
+| `SKH_UI_JUPYTERLITE_URL` | Optional override of the JupyterLite URL served to notebooks. |
 
 See [`values.yaml`](values.yaml) for the full list of `SKH_UI_*` variables.
 
@@ -44,7 +44,7 @@ helm upgrade --install skore-hub-ui ./skore-hub-frontend \
 | Value | Default | Description |
 | --- | --- | --- |
 | `image.repository` | `rg.fr-par.scw.cloud/probabl-skh/skh-ui` | Frontend image. |
-| `image.tag` | `""` (falls back to `appVersion`, i.e. `0.32.0`) | Override with another version or digest if needed. |
+| `image.tag` | `0.45.0` (kept in sync with `appVersion`) | Override with another version or digest if needed. |
 | `imagePullSecrets` | `[]` | Registry pull secret(s). |
 | `env` | `{}` | Runtime config as env vars (backend API URL, etc.). |
 | `extraEnv` | `[]` | Additional raw env entries (`valueFrom`, ...). |

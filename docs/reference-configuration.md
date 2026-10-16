@@ -13,6 +13,7 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Prefect](#prefect)
 - [Database (db)](#database-db)
 - [Identity provider (idp): OIDC](#identity-provider-idp-oidc)
+- [Admin (admin)](#admin-admin)
 - [Object storage (object_storage): S3](#object-storage-object_storage-s3)
   - [GCS via S3 interoperability](#gcs-via-s3-interoperability)
 - [Redis (redis)](#redis-redis)
@@ -22,8 +23,6 @@ All backend settings are environment variables prefixed with `SKH__`, using `__`
 - [Cookies (cookie)](#cookies-cookie)
 - [CORS (cors)](#cors-cors)
 - [Observability (optional)](#observability-optional)
-- [Error tracking (optional)](#error-tracking-optional)
-- [Server (uvicorn)](#server-uvicorn)
 
 ## General
 
@@ -44,6 +43,10 @@ Keep both settings `false` unless Prefect-based processing is explicitly require
 | --- | --- | --- |
 | `SKH__PREFECT__COMPUTE_PERMUTATION_IMPORTANCE` | `false` | Keep `false` to disable Prefect permutation-importance computation. |
 | `SKH__PREFECT__INFER_DATASET_VERBOSE_NAME` | `false` | Keep `false` to disable Prefect dataset verbose-name inference. |
+| `SKH__PREFECT__API_URL` | `http://127.0.0.1:4200/api` | URL of the Prefect API the backend triggers its flows on. |
+| `SKH__PREFECT__API_KEY` 🔒 | `(none)` | Prefect API key, if your Prefect server requires authentication. |
+
+Enabling either flow above requires a reachable Prefect API (set `SKH__PREFECT__API_URL`, and `SKH__PREFECT__API_KEY` when the server enforces auth).
 
 ## Database (`db`)
 
@@ -69,8 +72,17 @@ Keep both settings `false` unless Prefect-based processing is explicitly require
 | `SKH__IDP__CLIENT_ID` 🔒 | `(none)` | OIDC client id. |
 | `SKH__IDP__CLIENT_SECRET` 🔒 | `(none)` | OIDC client secret. |
 | `SKH__IDP__CACHE_EXP` | `900` | Seconds the OIDC discovery document and JWKS are cached. Lower it if your IdP rotates signing keys frequently. |
+| `SKH__IDP__OAUTH2_ADMIN_URL` | falls back to the IDP admin URL | Admin API URL of the OAuth2 provider. Only set it when identities and OAuth2 use separate admin APIs. |
 
 See [OIDC](01-installation.md#oidc-identity-provider) for the full setup.
+
+## Admin (`admin`)
+
+Super-admin status is derived from this allowlist (there is no per-user admin flag). Each entry is an exact email address or a whole-domain wildcard `*@domain`.
+
+| Env var | Default | Description |
+| --- | --- | --- |
+| `SKH__ADMIN__EMAILS` | `["*@example.com"]` | JSON allowlist granting Hub super-admin status. Set it to your own admins. |
 
 ## Object storage (`object_storage`): S3
 
@@ -109,7 +121,6 @@ GCS exposes an S3-compatible API at `https://storage.googleapis.com`. You keep t
 
 | Env var | Default | Description |
 | --- | --- | --- |
-| `SKH__REDIS__IS_ENABLED` | `false` | Enable Redis (set `true` in production). |
 | `SKH__REDIS__HOST` | `localhost` | Host. |
 | `SKH__REDIS__PORT` | `6379` | Port. |
 | `SKH__REDIS__DB` | `0` | DB index. |
@@ -205,19 +216,4 @@ All disabled by default. See [Observability and logging](02-operations.md#observ
 | `SKH__PYROSCOPE__SERVER_ADDRESS` | `http://localhost:4040` | Pyroscope server. |
 | `SKH__PYROSCOPE__APPLICATION_NAME` | `skore-hub` | Application name reported to Pyroscope. |
 
-## Error tracking (optional)
-
-| Env var | Default | Description |
-| --- | --- | --- |
-| `SKH__SENTRY__DSN` 🔒 | `(none)` | Sentry DSN; leave empty to disable. |
-
-## Server (`uvicorn`)
-
-Defaults are suitable as-is; the container listens on port `8000`.
-
-| Env var | Default | Description |
-| --- | --- | --- |
-| `SKH__UVICORN__HOST` | `0.0.0.0` | Bind address. |
-| `SKH__UVICORN__PORT` | `8000` | Port (keep aligned with `service.port`). |
-
-> This reference lists the settings relevant to an on-premise deployment. Other keys exist with sensible defaults; you normally do not need to change them.
+> This reference lists the settings relevant to an on-premise deployment. Other keys exist with sensible defaults; you normally do not need to change them. You can also point the backend at a TOML file with the unprefixed `SKH_CONFIG_FILE` environment variable (it defaults to `config.toml` when present).

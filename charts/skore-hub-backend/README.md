@@ -58,7 +58,7 @@ helm test skore-hub -n skore-hub
 | Value | Default | Description |
 | --- | --- | --- |
 | `image.repository` | `rg.fr-par.scw.cloud/probabl-skh/skh` | Backend image. |
-| `image.tag` | `""` (falls back to `appVersion`, i.e. `0.32.0`) | Override with another version or digest if needed. |
+| `image.tag` | `0.45.0` (kept in sync with `appVersion`) | Override with another version or digest if needed. |
 | `imagePullSecrets` | `[]` | Registry pull secret(s). |
 | `replicaCount` | `1` | Number of API pods. |
 | `skh.envSecret` | `skore-hub-backend-secrets` | Secret injected via `envFrom`. |
