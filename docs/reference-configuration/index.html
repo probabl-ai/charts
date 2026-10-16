@@ -404,6 +404,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#admin-admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin (admin)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#object-storage-object_storage-s3" class="md-nav__link">
     <span class="md-ellipsis">
       Object storage (object_storage): S3
@@ -485,24 +494,6 @@
   <a href="#observability-optional" class="md-nav__link">
     <span class="md-ellipsis">
       Observability (optional)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-tracking-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      Error tracking (optional)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#server-uvicorn" class="md-nav__link">
-    <span class="md-ellipsis">
-      Server (uvicorn)
     </span>
   </a>
   
@@ -588,6 +579,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#admin-admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Admin (admin)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#object-storage-object_storage-s3" class="md-nav__link">
     <span class="md-ellipsis">
       Object storage (object_storage): S3
@@ -674,24 +674,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#error-tracking-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      Error tracking (optional)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#server-uvicorn" class="md-nav__link">
-    <span class="md-ellipsis">
-      Server (uvicorn)
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -724,6 +706,7 @@
 <li><a href="#prefect">Prefect</a></li>
 <li><a href="#database-db">Database (db)</a></li>
 <li><a href="#identity-provider-idp-oidc">Identity provider (idp): OIDC</a></li>
+<li><a href="#admin-admin">Admin (admin)</a></li>
 <li><a href="#object-storage-object_storage-s3">Object storage (object_storage): S3</a></li>
 <li><a href="#gcs-via-s3-interoperability">GCS via S3 interoperability</a></li>
 <li><a href="#redis-redis">Redis (redis)</a></li>
@@ -733,8 +716,6 @@
 <li><a href="#cookies-cookie">Cookies (cookie)</a></li>
 <li><a href="#cors-cors">CORS (cors)</a></li>
 <li><a href="#observability-optional">Observability (optional)</a></li>
-<li><a href="#error-tracking-optional">Error tracking (optional)</a></li>
-<li><a href="#server-uvicorn">Server (uvicorn)</a></li>
 </ul>
 <h2 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h2>
 <table>
@@ -799,8 +780,19 @@
 <td><code>false</code></td>
 <td>Keep <code>false</code> to disable Prefect dataset verbose-name inference.</td>
 </tr>
+<tr>
+<td><code>SKH__PREFECT__API_URL</code></td>
+<td><code>http://127.0.0.1:4200/api</code></td>
+<td>URL of the Prefect API the backend triggers its flows on.</td>
+</tr>
+<tr>
+<td><code>SKH__PREFECT__API_KEY</code> 🔒</td>
+<td><code>(none)</code></td>
+<td>Prefect API key, if your Prefect server requires authentication.</td>
+</tr>
 </tbody>
 </table>
+<p>Enabling either flow above requires a reachable Prefect API (set <code>SKH__PREFECT__API_URL</code>, and <code>SKH__PREFECT__API_KEY</code> when the server enforces auth).</p>
 <h2 id="database-db">Database (<code>db</code>)<a class="headerlink" href="#database-db" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -898,9 +890,32 @@
 <td><code>900</code></td>
 <td>Seconds the OIDC discovery document and JWKS are cached. Lower it if your IdP rotates signing keys frequently.</td>
 </tr>
+<tr>
+<td><code>SKH__IDP__OAUTH2_ADMIN_URL</code></td>
+<td>falls back to the IDP admin URL</td>
+<td>Admin API URL of the OAuth2 provider. Only set it when identities and OAuth2 use separate admin APIs.</td>
+</tr>
 </tbody>
 </table>
 <p>See <a href="../01-installation/#oidc-identity-provider">OIDC</a> for the full setup.</p>
+<h2 id="admin-admin">Admin (<code>admin</code>)<a class="headerlink" href="#admin-admin" title="Permanent link">&para;</a></h2>
+<p>Super-admin status is derived from this allowlist (there is no per-user admin flag). Each entry is an exact email address or a whole-domain wildcard <code>*@domain</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKH__ADMIN__EMAILS</code></td>
+<td><code>["*@example.com"]</code></td>
+<td>JSON allowlist granting Hub super-admin status. Set it to your own admins.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="object-storage-object_storage-s3">Object storage (<code>object_storage</code>): S3<a class="headerlink" href="#object-storage-object_storage-s3" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1007,11 +1022,6 @@
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><code>SKH__REDIS__IS_ENABLED</code></td>
-<td><code>false</code></td>
-<td>Enable Redis (set <code>true</code> in production).</td>
-</tr>
 <tr>
 <td><code>SKH__REDIS__HOST</code></td>
 <td><code>localhost</code></td>
@@ -1388,48 +1398,8 @@
 </tr>
 </tbody>
 </table>
-<h2 id="error-tracking-optional">Error tracking (optional)<a class="headerlink" href="#error-tracking-optional" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Env var</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>SKH__SENTRY__DSN</code> 🔒</td>
-<td><code>(none)</code></td>
-<td>Sentry DSN; leave empty to disable.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="server-uvicorn">Server (<code>uvicorn</code>)<a class="headerlink" href="#server-uvicorn" title="Permanent link">&para;</a></h2>
-<p>Defaults are suitable as-is; the container listens on port <code>8000</code>.</p>
-<table>
-<thead>
-<tr>
-<th>Env var</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>SKH__UVICORN__HOST</code></td>
-<td><code>0.0.0.0</code></td>
-<td>Bind address.</td>
-</tr>
-<tr>
-<td><code>SKH__UVICORN__PORT</code></td>
-<td><code>8000</code></td>
-<td>Port (keep aligned with <code>service.port</code>).</td>
-</tr>
-</tbody>
-</table>
 <blockquote>
-<p>This reference lists the settings relevant to an on-premise deployment. Other keys exist with sensible defaults; you normally do not need to change them.</p>
+<p>This reference lists the settings relevant to an on-premise deployment. Other keys exist with sensible defaults; you normally do not need to change them. You can also point the backend at a TOML file with the unprefixed <code>SKH_CONFIG_FILE</code> environment variable (it defaults to <code>config.toml</code> when present).</p>
 </blockquote>
 
 

@@ -1398,7 +1398,7 @@
 <li><code>latest</code>: always points to the most recent release. Convenient, but it moves.</li>
 </ul>
 <blockquote>
-<p>Each chart pins a default image tag through its <code>appVersion</code> (with <code>imagePullPolicy: IfNotPresent</code>), so deployments are reproducible out of the box. The current release is <code>0.33.0</code>; see the chart <code>appVersion</code> for the exact default. If you prefer to always track the newest release, set <code>image.tag: latest</code> and <code>imagePullPolicy: Always</code>.</p>
+<p>Each chart pins a default image tag through its <code>appVersion</code> (with <code>imagePullPolicy: IfNotPresent</code>), so deployments are reproducible out of the box. The current release is <code>0.45.0</code>; see the chart <code>appVersion</code> for the exact default. If you prefer to always track the newest release, set <code>image.tag: latest</code> and <code>imagePullPolicy: Always</code>.</p>
 </blockquote>
 <h3 id="option-a-pull-directly-from-scaleway">Option A: Pull directly from Scaleway<a class="headerlink" href="#option-a-pull-directly-from-scaleway" title="Permanent link">&para;</a></h3>
 <p>Create a Kubernetes <code>docker-registry</code> pull secret in the target namespace and reference it from the chart (<code>imagePullSecrets</code>).</p>
@@ -1537,7 +1537,7 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">"</s
 <span class="w">    </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>
-<p><strong>Used for:</strong> OAuth token/state storage, API-key verification cache, and Skore agent harness session state (message history, pending tool calls) when running more than one backend replica.</p>
+<p><strong>Used for:</strong> OAuth token/state storage, the API-key verification cache, the OIDC discovery cache, and session state. Redis is <strong>required</strong>; readiness fails when it is unreachable.</p>
 <table>
 <thead>
 <tr>
@@ -1548,12 +1548,6 @@ docker<span class="w"> </span>push<span class="w">  </span><span class="s2">"</s
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Enabled</td>
-<td><code>SKH__REDIS__IS_ENABLED</code></td>
-<td><code>true</code></td>
-<td>Set <code>true</code> in production. <strong>Required</strong> for the agent when <code>replicaCount &gt; 1</code>.</td>
-</tr>
 <tr>
 <td>Host</td>
 <td><code>SKH__REDIS__HOST</code></td>
@@ -2159,18 +2153,6 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>skore-hub<span class="w
 <td>Link to the IdP account settings page, shown in the toolbar menu.</td>
 </tr>
 <tr>
-<td><code>SKH_UI_SENTRY_DSN</code></td>
-<td>Error reporting DSN. Leave <strong>empty</strong> to disable Sentry; no DSN is baked into the image, so error reporting is <strong>off by default</strong> and your users' frontend errors are <strong>not</strong> sent anywhere.</td>
-</tr>
-<tr>
-<td><code>SKH_UI_SENTRY_ENVIRONMENT</code></td>
-<td>Optional. Sentry environment tag (only relevant if a DSN is set).</td>
-</tr>
-<tr>
-<td><code>SKH_UI_SENTRY_RELEASE</code></td>
-<td>Optional. Sentry release tag.</td>
-</tr>
-<tr>
 <td><code>SKH_UI_BUILD_VERSION</code></td>
 <td>Optional. UI version shown in the About dialog.</td>
 </tr>
@@ -2193,7 +2175,6 @@ https://api.skore-hub.example.com   -&gt; backend
 <div class="highlight"><pre><span></span><code><span class="nt">env</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">SKH_UI_API_BASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"https://api.skore-hub.example.com"</span>
 <span class="w">  </span><span class="nt">SKH_UI_IDP_PROFILE_SETTINGS_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"https://idp.example.com/account"</span>
-<span class="w">  </span><span class="nt">SKH_UI_SENTRY_DSN</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
 </code></pre></div>
 <p>Because the browser origin (frontend) differs from the API origin, you <strong>must</strong> configure CORS and cross-site cookies on the backend:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">skh</span><span class="p">:</span>
@@ -2219,7 +2200,7 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">  </span>-n<span class="w"> </span>skore-hub<span class="w"> </span>-f<span class="w"> </span>frontend-values.yaml<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--wait<span class="w"> </span>--timeout<span class="w"> </span>5m
 </code></pre></div>
-<p>Set at least <code>image.repository</code>/<code>image.tag</code>, <code>imagePullSecrets</code>, the runtime <code>env</code> (<code>SKH_UI_API_BASE_URL</code>, <code>SKH_UI_IDP_PROFILE_SETTINGS_URL</code>, empty <code>SKH_UI_SENTRY_DSN</code>), and <code>ingress</code>. See the chart's <a href="https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md">README</a> and <a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a>.</p>
+<p>Set at least <code>image.repository</code>/<code>image.tag</code>, <code>imagePullSecrets</code>, the runtime <code>env</code> (<code>SKH_UI_API_BASE_URL</code>, <code>SKH_UI_IDP_PROFILE_SETTINGS_URL</code>), and <code>ingress</code>. See the chart's <a href="https://github.com/probabl-ai/charts/blob/main/charts/skore-hub-frontend/README.md">README</a> and <a href="#ingress-tls-and-dns">Ingress, TLS and DNS</a>.</p>
 <h2 id="ingress-tls-and-dns">Ingress, TLS and DNS<a class="headerlink" href="#ingress-tls-and-dns" title="Permanent link">&para;</a></h2>
 <p>This section exposes skore-hub to users over HTTPS. Adapt to your ingress controller and certificate tooling.</p>
 <h3 id="dns">DNS<a class="headerlink" href="#dns" title="Permanent link">&para;</a></h3>
