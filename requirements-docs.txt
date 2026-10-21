@@ -1,3 +1,4 @@
-# Pinned dependencies for building the docs site (mkdocs.yml).
+# Pinned dependencies for building and versioning the docs site (mkdocs.yml).
 # Install in a virtualenv, then run: mkdocs build --strict
 mkdocs-material==9.5.49
+mike==2.2.0

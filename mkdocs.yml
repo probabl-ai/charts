@@ -1,8 +1,13 @@
 site_name: skore-hub Deployment Guide
 site_description: Deploy and operate the skore-hub platform on Kubernetes.
+# The mike plugin appends the deployed documentation version (dev, or the
+# chart version) to this URL when publishing, so canonical URLs, Open Graph
+# tags and sitemap entries point at the exact documentation version.
 site_url: https://probabl-ai.github.io/charts/docs/
 docs_dir: docs
 use_directory_urls: true
+# Fail the build (and therefore the publication) on warnings.
+strict: true
 
 repo_url: https://github.com/probabl-ai/charts
 repo_name: probabl-ai/charts
@@ -48,9 +53,20 @@ markdown_extensions:
 
 plugins:
   - search
+  # mike injects this plugin automatically on `mike deploy`; listing it
+  # explicitly makes versioned builds behave identically outside of mike (and
+  # lets the docs CI check catch a malformed versioned canonical URL).
+  - mike
+
+# Render the version selector from the `versions.json` written by mike. The
+# `dev` version tracks the main branch; numbered versions are chart releases.
+extra:
+  version:
+    provider: mike
 
 nav:
   - Overview: README.md
   - Installation: 01-installation.md
   - Operations: 02-operations.md
+  - Agent setup: 03-agent-setup.md
   - Configuration reference: reference-configuration.md

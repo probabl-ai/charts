@@ -1,0 +1,72 @@
+name: Check docs
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "charts/**"
+      - "mkdocs.yml"
+      - "requirements-docs.txt"
+      - ".github/scripts/prune-docs-versions.py"
+      - ".github/workflows/docs.yml"
+      - ".github/workflows/docs-check.yml"
+      - ".github/workflows/release.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: requirements-docs.txt
+
+      - name: Install docs dependencies
+        run: |
+          uv venv
+          uv pip install -r requirements-docs.txt
+
+      # The same strict build that mike runs when publishing, so documentation
+      # errors are caught on the pull request instead of during a release.
+      - name: Build site
+        run: uv run mkdocs build --strict
+
+      # mike's plugin appends the deployed version to site_url to build the
+      # versioned canonical URLs. Emulate one of those builds and assert the
+      # version appears exactly once (a doubled /docs/<v>/<v>/ URL would 404).
+      - name: Check versioned canonical URLs
+        run: |
+          set -euo pipefail
+          MIKE_DOCS_VERSION=0.0.0 uv run mkdocs build --strict --site-dir /tmp/site-versioned
+          canonical=$(grep -o 'rel="canonical" href="[^"]*"' /tmp/site-versioned/index.html | head -1 | cut -d'"' -f4)
+          echo "canonical: ${canonical}"
+          if [ "$(grep -o '0\.0\.0' <<<"${canonical}" | wc -l)" -ne 1 ]; then
+            echo "::error::Versioned canonical URL is malformed: ${canonical}"
+            exit 1
+          fi
+
+      - name: Check docs tooling
+        run: uv run python -m py_compile .github/scripts/prune-docs-versions.py
+
+  # Lint the workflows that publish the documentation, so expression or
+  # shell-script errors surface on the pull request instead of at publish time.
+  workflows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run actionlint
+        run: |
+          set -euo pipefail
+          curl -sSLo actionlint.tar.gz \
+            "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz" | sha256sum -c
+          tar -xzf actionlint.tar.gz actionlint
+          ./actionlint

@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - "docs/**"
+      # Chart changes can alter documented defaults; refresh `dev` so it
+      # always matches the state of main.
+      - "charts/**"
       - "mkdocs.yml"
       - "requirements-docs.txt"
       - ".github/workflows/docs.yml"
@@ -25,8 +28,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Only publish from main: workflow_dispatch can otherwise be run from any
+    # branch, which would publish that branch as the `dev` documentation.
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # mike commits to the existing gh-pages branch, so it needs its
+          # history and refs (a shallow, single-branch checkout is not enough).
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Make sure the remote gh-pages branch is known locally: mike commits
+          # on top of it, and would otherwise start a new, unrelated branch.
+          # If it genuinely does not exist, warn loudly: mike would then create
+          # it without the Helm index and packages that live at its root.
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null; then
+            git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+          else
+            echo "::warning::No gh-pages branch on the remote; mike will create a new one"
+          fi
 
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
@@ -38,16 +62,89 @@ jobs:
           uv venv
           uv pip install -r requirements-docs.txt
 
-      - name: Build site
-        run: uv run mkdocs build --strict
+      # The documentation of the main branch is published as the `dev` version.
+      # Released versions are published by the chart release workflow.
+      - name: Publish development docs
+        run: |
+          uv run mike deploy \
+            --push \
+            --deploy-prefix docs \
+            --alias-type redirect \
+            --title "dev (unreleased)" \
+            dev
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          destination_dir: docs
-          keep_files: true
-          user_name: "github-actions[bot]"
-          user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_message: "docs: publish to GitHub Pages"
+      # One-time bootstrap: until the release workflow has published a version,
+      # publish the docs of the latest released chart version so the version
+      # selector and the site root have a released version to point at.
+      - name: Bootstrap the first released docs version
+        run: |
+          # Match release versions too when they carry a pre-release suffix
+          # (0.2.0-rc1), consistently with the pruning script.
+          if git ls-tree -r --name-only gh-pages docs | grep -qE '^docs/[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?/'; then
+            exit 0
+          fi
+          version=$(sed -n 's/^version:[[:space:]]*//p' charts/skore-hub-backend/Chart.yaml)
+          app_version=$(sed -n 's/^appVersion:[[:space:]]*//p' charts/skore-hub-backend/Chart.yaml | tr -d '"')
+          title="$version"
+          if [ -n "$app_version" ]; then
+            title="$version (app $app_version)"
+          fi
+          tag="refs/tags/skore-hub-backend-${version}"
+          # Publish the docs as they were at the release of this chart version,
+          # not the unreleased documentation on main. The tag does not exist
+          # yet if this run races with the release workflow; in that case both
+          # would publish the same (release) commit anyway.
+          if git rev-parse -q --verify "$tag" >/dev/null && \
+             [ -n "$(git ls-tree "$tag" docs/)" ]; then
+            echo "Building the docs from $tag"
+            git rm -r -q docs/
+            git restore --source="$tag" docs/
+          else
+            echo "::warning::No release tag for $version; building the current documentation"
+          fi
+          uv run mike deploy \
+            --push \
+            --deploy-prefix docs \
+            --alias-type redirect \
+            --update-aliases \
+            --title "$title" \
+            "$version" latest
+
+      # The site root redirects to the default version: the latest release once
+      # one exists, and the development docs before that.
+      - name: Point the site root at the default version
+        run: |
+          if git ls-tree -r --name-only gh-pages docs | grep -q '^docs/latest/'; then
+            uv run mike set-default --push --deploy-prefix docs latest
+          else
+            uv run mike set-default --push --deploy-prefix docs dev
+          fi
+
+      # Before mike was introduced, the site was published unversioned at the
+      # root of docs/. Remove those stale pages so they do not shadow the
+      # versioned layout.
+      - name: Remove legacy unversioned docs
+        run: |
+          set -euo pipefail
+          legacy=(
+            docs/01-installation
+            docs/02-operations
+            docs/03-agent-setup
+            docs/reference-configuration
+            docs/assets
+            docs/search
+            docs/404.html
+            docs/sitemap.xml
+            docs/sitemap.xml.gz
+          )
+          worktree=$(mktemp -d)
+          git worktree add --detach "$worktree" gh-pages
+          (
+            cd "$worktree"
+            git rm -r -q --ignore-unmatch "${legacy[@]}"
+            if ! git diff --cached --quiet; then
+              git commit -q -m "docs: remove legacy unversioned pages"
+              git push origin HEAD:refs/heads/gh-pages
+            fi
+          )
+          git worktree remove --force "$worktree"
