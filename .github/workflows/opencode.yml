@@ -13,10 +13,18 @@ jobs:
   # agent run. Fork PRs are skipped too: this repository is public and fork
   # runs do not receive repository secrets (the API key would be empty).
   #
-  # Trust note: pull_request workflows run the workflow file and local actions
-  # from the PR's merge ref, so the API key is only as safe as the trust placed
-  # in same-repo PR authors (opening a branch in this repo requires write
-  # access). This is the same trust model the infra repository relies on.
+  # Trust note: pull_request workflows run the workflow file from the PR's
+  # merge ref, so the API key is only as safe as the trust placed in same-repo
+  # PR authors (opening a branch in this repo requires write access). Two
+  # mitigations keep the key out of PR-editable code:
+  #   - the composite action below is pinned to an immutable commit, so PR
+  #     edits to .github/actions/opencode are ignored;
+  #   - PRs that touch anything under .github/ are skipped entirely (they need
+  #     human review anyway), so a PR cannot rewrite this workflow or add
+  #     another workflow that reaches for the secret.
+  # Residual risk: the agent reads PR-authored content with the key in its
+  # environment (prompt injection), which is inherent to agent reviews and the
+  # same trade-off the infra repository makes for trusted authors.
   opencode-review:
     if: >
       github.event_name == 'pull_request' &&
@@ -34,13 +42,43 @@ jobs:
       group: opencode-review-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
+      # Skip cleanly (instead of failing) when the secret is not configured.
+      - id: key-guard
+        name: Check OPENROUTER_API_KEY is configured
+        env:
+          HAS_OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OPENROUTER_API_KEY" != "true" ]; then
+            echo "::notice::OPENROUTER_API_KEY is not configured on this repository - skipping the opencode review."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - id: ci-guard
+        name: Skip when the pull request modifies .github/
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if gh api "repos/$GH_REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename' | grep -q '^\.github/'; then
+            echo "::notice::The pull request modifies files under .github/ - skipping the opencode review: CI changes get human review, and a PR must not be able to rewrite the workflow that receives the API key."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.key-guard.outputs.skip != 'true' && steps.ci-guard.outputs.skip != 'true'
         with:
           fetch-depth: 1
           # Required in use_github_token mode: the agent's git operations rely on
           # the credentials persisted by checkout (scoped to contents: read).
           persist-credentials: true
-      - uses: ./.github/actions/opencode
+      # Pinned to an immutable commit on purpose: a pull_request run would
+      # otherwise load ./.github/actions/opencode from the PR head. Bump the
+      # SHA whenever .github/actions/opencode changes on main.
+      - uses: probabl-ai/charts/.github/actions/opencode@3611a5a13ba49a567fce6898aa11c253c5934087
+        if: steps.key-guard.outputs.skip != 'true' && steps.ci-guard.outputs.skip != 'true'
         with:
           model: openrouter/openrouter/auto
           openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
@@ -62,16 +100,26 @@ jobs:
 
             End with one line: Verdict: <highest severity found, or CLEAN>
 
-  # Comment-driven runs (`/oc` or `/opencode`). These exchange the OIDC token
-  # for an opencode-agent app installation token: branch/PR creation is
-  # authorised by the app install (already installed at the probabl-ai org
-  # level), not by the job token below, which only needs to read the repo for
-  # checkout.
+  # Comment-driven runs (`/oc` or `/opencode`) on pull requests only, from
+  # OWNER, MEMBER or COLLABORATOR comments. The command must be a standalone
+  # token (/oc or /oc <instructions>), so ordinary comments that merely contain
+  # the letters do not trigger a run. These exchange the OIDC token for an
+  # opencode-agent app installation token (app installed at the probabl-ai org
+  # level): branch/PR creation is authorised by the app install, not by the job
+  # token below, which only needs to read the repo for checkout.
   opencode:
-    if: >
+    if: >-
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
-      (startsWith(github.event.comment.body, '/oc') ||
-      startsWith(github.event.comment.body, '/opencode'))
+      (
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request != null) ||
+        github.event_name == 'pull_request_review_comment'
+      ) &&
+      (
+        github.event.comment.body == '/oc' ||
+        startsWith(github.event.comment.body, '/oc ') ||
+        github.event.comment.body == '/opencode' ||
+        startsWith(github.event.comment.body, '/opencode ')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -81,11 +129,30 @@ jobs:
       group: opencode-${{ github.event.issue.number || github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
+      # Skip cleanly when the secret is not configured instead of failing on an
+      # explicit /oc invocation.
+      - id: key-guard
+        name: Check OPENROUTER_API_KEY is configured
+        env:
+          HAS_OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OPENROUTER_API_KEY" != "true" ]; then
+            echo "::notice::OPENROUTER_API_KEY is not configured on this repository - skipping the opencode run."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.key-guard.outputs.skip != 'true'
         with:
           fetch-depth: 1
           persist-credentials: false
-      - uses: ./.github/actions/opencode
+      # Pinned for the same reason as the review job: pull_request_review_comment
+      # events check out the PR merge ref, so a local ./.github/actions/opencode
+      # reference would load the PR's copy while running with an app
+      # installation token.
+      - uses: probabl-ai/charts/.github/actions/opencode@3611a5a13ba49a567fce6898aa11c253c5934087
+        if: steps.key-guard.outputs.skip != 'true'
         with:
           model: openrouter/openrouter/auto
           openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
