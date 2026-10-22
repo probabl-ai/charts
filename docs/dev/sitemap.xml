@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://probabl-ai.github.io/charts/docs/dev/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://probabl-ai.github.io/charts/docs/dev/01-installation/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://probabl-ai.github.io/charts/docs/dev/02-operations/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://probabl-ai.github.io/charts/docs/dev/03-agent-setup/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+    <url>
+         <loc>https://probabl-ai.github.io/charts/docs/dev/reference-configuration/</loc>
+         <lastmod>2026-10-22</lastmod>
+    </url>
+</urlset>
