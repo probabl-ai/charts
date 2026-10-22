@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # skore-hub: On-premise deployment guide
 
 This guide describes how to deploy and operate the **skore-hub** platform (backend API + frontend) on your own Kubernetes cluster.
@@ -55,32 +60,61 @@ Deploying and hardening those services is out of scope. This guide explains **ho
 
 ```mermaid
 flowchart LR
-  browser(["User browser"])
-  lib(["skore library<br/>(Python client)"])
+  subgraph users["User environments"]
+    direction TB
+    browser["Browser<br/>skore-hub UI"]
+    lib["Python client<br/>skore library"]
+  end
 
-  browser -->|HTTPS| ing[Ingress / TLS]
-  lib -->|"HTTPS (API)"| ing
+  ing["Ingress + TLS<br/>(your cluster)"]
 
-  ing --> fe["skore-hub frontend<br/>nginx + static SPA"]
-  ing --> be["skore-hub backend<br/>FastAPI API :8000"]
-  fe -->|"/api calls"| be
+  subgraph deployed["skore-hub namespace<br/>deployed by Helm"]
+    direction TB
+    fe["Frontend<br/>nginx SPA"]
+    be["Backend API<br/>FastAPI :8000"]
+    mig["Migrations Job"]
+  end
 
-  fe -->|"presigned URL"| s3[("S3 bucket")]
-  lib -->|"presigned URL"| s3
+  subgraph provided["Provided by you"]
+    direction TB
+    pg[("PostgreSQL<br/>relational data")]
+    redis[("Redis<br/>tokens + cache")]
+    smtp[["SMTP<br/>email"]]
+    s3[("S3 storage<br/>artifacts")]
+    idp[["OIDC IdP<br/>authentication"]]
+  end
 
-  be --> pg[("PostgreSQL")]
-  be --> redis[("Redis")]
-  be -->|"generate presigned URLs"| s3
-  be --> smtp[["SMTP"]]
-  be <-->|OIDC| idp[["Your OIDC IdP"]]
-  browser <-->|"login redirect"| idp
+  browser -->|"HTTPS"| ing
+  lib -->|"HTTPS"| ing
+  ing -->|"UI"| fe
+  ing -->|"API"| be
+
+  be --> pg
+  be --> redis
+  be --> smtp
+  be --> s3
+  be <--> idp
+  mig --> pg
+
+  browser -.->|"login"| idp
+  browser -.->|"presigned URL"| s3
+  lib -.->|"presigned URL"| s3
 ```
+
+Solid arrows are normal request paths; dashed arrows are direct client transfers to S3 or browser redirects to the IdP. The diagram separates the three deployment boundaries:
+
+- **User environments:** the web browser running the skore-hub UI, and the skore Python library used from users' environments.
+- **Deployed by Helm:** the frontend, the backend API and the migration Job in the `skore-hub` namespace. If enabled, the charts also create the Ingress resource that exposes them through your cluster's ingress controller.
+- **Provided by you:** the Kubernetes cluster and its ingress controller, plus PostgreSQL, Redis, S3-compatible object storage, SMTP and the OIDC identity provider. Those backing services run outside the release and may also live outside the cluster.
+
+The main interactions are:
 
 - **Two clients** talk to skore-hub:
   - the **web UI**, a user's **browser** loading the frontend SPA, which calls the backend API;
   - the **skore Python library**, used from users' environments, which calls the backend API directly.
+- The **frontend** is a static single-page application served by nginx; it is configured with the backend API URL and calls the API through the Ingress.
 - The **backend** is a stateless FastAPI app on port `8000`. State lives in PostgreSQL (relational data), Redis (token/cache), and S3 (artifacts/objects).
-- **Object transfers use presigned URLs**: the backend generates short-lived presigned URLs, and clients (the browser/frontend and the skore library) then read/write objects **directly** on S3. The S3 endpoint must therefore be reachable from the clients, not only from the backend (see [External services](01-installation.md#external-services)).
+- **Object transfers use presigned URLs**: the backend generates short-lived presigned URLs, and clients (the browser running the frontend, and the skore library) then read/write objects **directly** on S3. The S3 endpoint must therefore be reachable from the clients, not only from the backend (see [External services](01-installation.md#external-services)).
 - **Authentication** uses standard **OpenID Connect**: the browser is redirected to your IdP, and the backend validates tokens and reads the user profile from the IdP's `userinfo` endpoint. See [OIDC](01-installation.md#oidc-identity-provider).
 - **Logs** are written to **stdout** (see [Observability and logging](02-operations.md#observability-and-logging)).
 - Database schema is created/updated by an **Alembic migration Job** run automatically on every Helm install/upgrade.
