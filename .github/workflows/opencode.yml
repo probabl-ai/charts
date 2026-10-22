@@ -12,6 +12,11 @@ jobs:
   # Renovate/dependabot branches are skipped: dependency bumps are not worth an
   # agent run. Fork PRs are skipped too: this repository is public and fork
   # runs do not receive repository secrets (the API key would be empty).
+  #
+  # Trust note: pull_request workflows run the workflow file and local actions
+  # from the PR's merge ref, so the API key is only as safe as the trust placed
+  # in same-repo PR authors (opening a branch in this repo requires write
+  # access). This is the same trust model the infra repository relies on.
   opencode-review:
     if: >
       github.event_name == 'pull_request' &&
