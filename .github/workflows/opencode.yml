@@ -1,0 +1,87 @@
+name: opencode
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request:
+    types: [opened]
+jobs:
+  # Automatic, review-only pass on new pull requests. Uses GITHUB_TOKEN (not the
+  # opencode app installation token) so the agent genuinely cannot write code.
+  # Renovate/dependabot branches are skipped: dependency bumps are not worth an
+  # agent run. Fork PRs are skipped too: this repository is public and fork
+  # runs do not receive repository secrets (the API key would be empty).
+  opencode-review:
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.action == 'opened' &&
+      !startsWith(github.head_ref, 'renovate') &&
+      !startsWith(github.head_ref, 'dependabot/') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+    concurrency:
+      group: opencode-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          # Required in use_github_token mode: the agent's git operations rely on
+          # the credentials persisted by checkout (scoped to contents: read).
+          persist-credentials: true
+      - uses: ./.github/actions/opencode
+        with:
+          model: openrouter/openrouter/auto
+          openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          use_github_token: "true"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Review this pull request. Findings only — no summary, no praise, no code changes.
+            Keep the output short and human-readable: plain-text bullets, no
+            headings, no code blocks, no long explanations.
+
+            For each finding output one bullet:
+            - <SEVERITY> <file>:<line> — what is wrong and why it matters
+
+            Severities (omit any level with no findings):
+            - BLOCKER: breaks correctness, security, or deployment
+            - MAJOR: likely bug, security weakness, or significant cost/maintenance risk
+            - MINOR: smaller correctness or robustness issue
+            - NIT: style or naming, optional to fix
+
+            End with one line: Verdict: <highest severity found, or CLEAN>
+
+  # Comment-driven runs (`/oc` or `/opencode`). These exchange the OIDC token
+  # for an opencode-agent app installation token: branch/PR creation is
+  # authorised by the app install (already installed at the probabl-ai org
+  # level), not by the job token below, which only needs to read the repo for
+  # checkout.
+  opencode:
+    if: >
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      (startsWith(github.event.comment.body, '/oc') ||
+      startsWith(github.event.comment.body, '/opencode'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+      contents: read
+    concurrency:
+      group: opencode-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: ./.github/actions/opencode
+        with:
+          model: openrouter/openrouter/auto
+          openrouter_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          mentions: /opencode,/oc

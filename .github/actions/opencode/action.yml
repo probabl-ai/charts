@@ -1,0 +1,40 @@
+name: Run opencode
+description: Run the opencode agent with a given model, mention trigger and prompt.
+# Adapted from probabl-ai/infra (.github/actions/opencode); kept in this
+# (public) repository instead of referencing infra's copy because infra is
+# private.
+inputs:
+  model:
+    description: Model to use, as provider/model (e.g. openrouter/z-ai/glm-5.3).
+    required: true
+  openrouter_api_key:
+    description: OpenRouter API key.
+    required: true
+  mentions:
+    description: Comma-separated trigger phrases for comment-driven runs.
+    required: false
+    default: /opencode,/oc
+  prompt:
+    description: Prompt overriding the default behaviour (required for non-comment events).
+    required: false
+    default: ""
+  use_github_token:
+    description: Use the caller-provided GITHUB_TOKEN instead of an opencode app installation token.
+    required: false
+    default: "false"
+  github_token:
+    description: Token used when use_github_token is true.
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - uses: anomalyco/opencode/github@a3b97d9090ccf4aa9ac32268486283e3131e36b4 # github-v1.2.25
+      env:
+        OPENROUTER_API_KEY: ${{ inputs.openrouter_api_key }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      with:
+        model: ${{ inputs.model }}
+        mentions: ${{ inputs.mentions }}
+        prompt: ${{ inputs.prompt }}
+        use_github_token: ${{ inputs.use_github_token }}
