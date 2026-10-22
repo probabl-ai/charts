@@ -58,6 +58,18 @@ plugins:
   # lets the docs CI check catch a malformed versioned canonical URL).
   - mike
 
+# mkdocs-material does not bundle the mermaid library: by default its JavaScript
+# fetches https://unpkg.com/mermaid@11/dist/mermaid.min.js at page-view time,
+# and diagrams degrade to their raw text source when that CDN is unreachable
+# (corporate proxies, ad blockers, air-gapped machines). Defining `window.mermaid`
+# ourselves makes material skip its CDN load, so diagrams render from the
+# self-hosted copy below. Keep it in sync with what the theme expects (mermaid
+# 11.x); update with e.g.:
+#   curl -L https://unpkg.com/mermaid@11/dist/mermaid.min.js \
+#     -o docs/assets/mermaid/mermaid.min.js   # currently vendored: 11.17.2
+extra_javascript:
+  - assets/mermaid/mermaid.min.js
+
 # Render the version selector from the `versions.json` written by mike. The
 # `dev` version tracks the main branch; numbered versions are chart releases.
 extra:
