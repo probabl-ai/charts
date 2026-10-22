@@ -13,6 +13,14 @@ The guide is split into five documents:
 - **[Configuration reference](reference-configuration.md)**: every `SKH__*` setting.
 
 > [!NOTE]
+> **Documentation versions.** This guide is versioned per `skore-hub-backend`
+> chart release. Use the version selector in the header to consult the guide
+> matching the chart version you run: numbered versions are releases, `latest`
+> is the most recent release, and `dev` tracks the `main` branch. See
+> [Documentation versions](https://github.com/probabl-ai/charts#documentation-versions)
+> in the repository README for the publication and retention policy.
+
+> [!NOTE]
 > **Skore agent: air-gapped notice.** The Skore agent (hub-side LLM orchestration) only supports **Anthropic** (SaaS) and **AWS Bedrock** as LLM backends. A deployment with no outbound access to either is **not supported** in this version. See [Agent setup](03-agent-setup.md).
 
 ## Contents

@@ -31,6 +31,7 @@ jobs:
       - uses: azure/setup-helm@v4
 
       - name: Run chart-releaser
+        id: release
         uses: helm/chart-releaser-action@v1
         with:
           # Serve the .tgz packages from the gh-pages branch (not as private
@@ -39,3 +40,75 @@ jobs:
           packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Publish the documentation snapshot for the released chart version.
+      # Documentation versions follow the skore-hub-backend chart version (the
+      # primary chart).
+      #
+      # chart-releaser pushed the new packages and index to gh-pages after the
+      # checkout; refresh the refs so mike commits on top of the current branch.
+      - name: Refresh the gh-pages branch
+        run: |
+          git fetch origin +refs/heads/gh-pages:refs/remotes/origin/gh-pages
+          git branch -f gh-pages origin/gh-pages
+
+      - name: Publish the docs snapshot for this release?
+        id: docs
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' charts/skore-hub-backend/Chart.yaml)
+          if [ -z "$version" ]; then
+            echo "::error::Could not read the version from charts/skore-hub-backend/Chart.yaml"
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          app_version=$(sed -n 's/^appVersion:[[:space:]]*//p' charts/skore-hub-backend/Chart.yaml | tr -d '"')
+          title="$version"
+          if [ -n "$app_version" ]; then
+            title="$version (app $app_version)"
+          fi
+          echo "title=${title}" >> "$GITHUB_OUTPUT"
+          # Publish only when the snapshot does not exist yet. This keeps
+          # released snapshots immutable (a frontend-only release or a re-run of
+          # the workflow must not overwrite them with unreleased documentation
+          # from main), and heals a release whose publication failed (e.g.
+          # after a transient error, re-running the workflow publishes it).
+          if [ -n "$(git ls-tree gh-pages "docs/${version}")" ]; then
+            echo "Documentation for ${version} is already published; leaving the snapshot untouched."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        if: steps.docs.outputs.publish == 'true'
+        with:
+          enable-cache: true
+          cache-dependency-glob: requirements-docs.txt
+
+      - name: Install docs dependencies
+        if: steps.docs.outputs.publish == 'true'
+        run: |
+          uv venv
+          uv pip install -r requirements-docs.txt
+
+      - name: Publish versioned docs
+        if: steps.docs.outputs.publish == 'true'
+        run: |
+          uv run mike deploy \
+            --push \
+            --deploy-prefix docs \
+            --alias-type redirect \
+            --title "${{ steps.docs.outputs.title }}" \
+            "${{ steps.docs.outputs.version }}"
+          # Point `latest` (and the site root) at the newest published release,
+          # which is not necessarily this one: re-running an old release
+          # workflow must not move `latest` backwards.
+          newest=$(uv run python .github/scripts/prune-docs-versions.py --newest)
+          if [ -n "$newest" ]; then
+            uv run mike alias --push -u --deploy-prefix docs --alias-type redirect "$newest" latest
+            uv run mike set-default --push --deploy-prefix docs latest
+          fi
+
+      - name: Prune old documentation versions
+        if: steps.docs.outputs.publish == 'true'
+        run: uv run python .github/scripts/prune-docs-versions.py
