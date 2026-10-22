@@ -218,6 +218,8 @@
           
             
               
+                
+              
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
@@ -521,7 +523,9 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -742,31 +746,59 @@ in the repository README for the publication and retention policy.</p>
 <p>Deploying and hardening those services is out of scope. This guide explains <strong>how to configure skore-hub to connect to them</strong>. See <a href="01-installation/#external-services">External services</a> and <a href="01-installation/#oidc-identity-provider">OIDC</a>.</p>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <pre class="mermaid"><code>flowchart LR
-  browser(["User browser"])
-  lib(["skore library&lt;br/&gt;(Python client)"])
+  subgraph users["User environments"]
+    direction TB
+    browser["Browser&lt;br/&gt;skore-hub UI"]
+    lib["Python client&lt;br/&gt;skore library"]
+  end
 
-  browser --&gt;|HTTPS| ing[Ingress / TLS]
-  lib --&gt;|"HTTPS (API)"| ing
+  ing["Ingress + TLS&lt;br/&gt;(your cluster)"]
 
-  ing --&gt; fe["skore-hub frontend&lt;br/&gt;nginx + static SPA"]
-  ing --&gt; be["skore-hub backend&lt;br/&gt;FastAPI API :8000"]
-  fe --&gt;|"/api calls"| be
+  subgraph deployed["skore-hub namespace&lt;br/&gt;deployed by Helm"]
+    direction TB
+    fe["Frontend&lt;br/&gt;nginx SPA"]
+    be["Backend API&lt;br/&gt;FastAPI :8000"]
+    mig["Migrations Job"]
+  end
 
-  fe --&gt;|"presigned URL"| s3[("S3 bucket")]
-  lib --&gt;|"presigned URL"| s3
+  subgraph provided["Provided by you"]
+    direction TB
+    pg[("PostgreSQL&lt;br/&gt;relational data")]
+    redis[("Redis&lt;br/&gt;tokens + cache")]
+    smtp[["SMTP&lt;br/&gt;email"]]
+    s3[("S3 storage&lt;br/&gt;artifacts")]
+    idp[["OIDC IdP&lt;br/&gt;authentication"]]
+  end
 
-  be --&gt; pg[("PostgreSQL")]
-  be --&gt; redis[("Redis")]
-  be --&gt;|"generate presigned URLs"| s3
-  be --&gt; smtp[["SMTP"]]
-  be &lt;--&gt;|OIDC| idp[["Your OIDC IdP"]]
-  browser &lt;--&gt;|"login redirect"| idp</code></pre>
+  browser --&gt;|"HTTPS"| ing
+  lib --&gt;|"HTTPS"| ing
+  ing --&gt;|"UI"| fe
+  ing --&gt;|"API"| be
+
+  be --&gt; pg
+  be --&gt; redis
+  be --&gt; smtp
+  be --&gt; s3
+  be &lt;--&gt; idp
+  mig --&gt; pg
+
+  browser -.-&gt;|"login"| idp
+  browser -.-&gt;|"presigned URL"| s3
+  lib -.-&gt;|"presigned URL"| s3</code></pre>
+<p>Solid arrows are normal request paths; dashed arrows are direct client transfers to S3 or browser redirects to the IdP. The diagram separates the three deployment boundaries:</p>
+<ul>
+<li><strong>User environments:</strong> the web browser running the skore-hub UI, and the skore Python library used from users' environments.</li>
+<li><strong>Deployed by Helm:</strong> the frontend, the backend API and the migration Job in the <code>skore-hub</code> namespace. If enabled, the charts also create the Ingress resource that exposes them through your cluster's ingress controller.</li>
+<li><strong>Provided by you:</strong> the Kubernetes cluster and its ingress controller, plus PostgreSQL, Redis, S3-compatible object storage, SMTP and the OIDC identity provider. Those backing services run outside the release and may also live outside the cluster.</li>
+</ul>
+<p>The main interactions are:</p>
 <ul>
 <li><strong>Two clients</strong> talk to skore-hub:</li>
 <li>the <strong>web UI</strong>, a user's <strong>browser</strong> loading the frontend SPA, which calls the backend API;</li>
 <li>the <strong>skore Python library</strong>, used from users' environments, which calls the backend API directly.</li>
+<li>The <strong>frontend</strong> is a static single-page application served by nginx; it is configured with the backend API URL and calls the API through the Ingress.</li>
 <li>The <strong>backend</strong> is a stateless FastAPI app on port <code>8000</code>. State lives in PostgreSQL (relational data), Redis (token/cache), and S3 (artifacts/objects).</li>
-<li><strong>Object transfers use presigned URLs</strong>: the backend generates short-lived presigned URLs, and clients (the browser/frontend and the skore library) then read/write objects <strong>directly</strong> on S3. The S3 endpoint must therefore be reachable from the clients, not only from the backend (see <a href="01-installation/#external-services">External services</a>).</li>
+<li><strong>Object transfers use presigned URLs</strong>: the backend generates short-lived presigned URLs, and clients (the browser running the frontend, and the skore library) then read/write objects <strong>directly</strong> on S3. The S3 endpoint must therefore be reachable from the clients, not only from the backend (see <a href="01-installation/#external-services">External services</a>).</li>
 <li><strong>Authentication</strong> uses standard <strong>OpenID Connect</strong>: the browser is redirected to your IdP, and the backend validates tokens and reads the user profile from the IdP's <code>userinfo</code> endpoint. See <a href="01-installation/#oidc-identity-provider">OIDC</a>.</li>
 <li><strong>Logs</strong> are written to <strong>stdout</strong> (see <a href="02-operations/#observability-and-logging">Observability and logging</a>).</li>
 <li>Database schema is created/updated by an <strong>Alembic migration Job</strong> run automatically on every Helm install/upgrade.</li>
@@ -876,8 +908,13 @@ in the repository README for the publication and retention policy.</p>
 
 
 
+  
+  
 
 
+
+
+  
 
 
 
