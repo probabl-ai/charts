@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // OpenCode's default policy asks before reading any `*.env.*` file and before
+  // touching directories outside the project (external_directory). In GitHub
+  // Actions there is no client to answer a prompt, so any `ask` blocks until the
+  // job hits its timeout (the review jobs hang for 15m/20m).
+  //
+  // - There are no tracked dotenv files in this repository, so dotenv reads
+  //   keep the default deny.
+  // - external_directory is not a real boundary for this agent: `bash` is
+  //   allowed by default, so it can already reach these paths via the shell. The
+  //   action's shell tool auto-infers paths such as the runner temp dir
+  //   (/home/runner/work/_temp/...), which otherwise prompts and hangs.
+  "permission": {
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny"
+    },
+    "external_directory": "allow"
+  }
+}
